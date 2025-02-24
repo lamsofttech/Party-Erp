@@ -1,0 +1,9 @@
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+}
+.custom-scrollbar:hover {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    transition: scrollbar-color 0.3s ease-in-out;
+}

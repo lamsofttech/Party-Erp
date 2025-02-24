@@ -1,0 +1,24 @@
+<svg width="95" height="94" viewBox="0 0 95 94" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="attribution">
+<g id="attribution_2">
+<path id="Ellipse 50" d="M47.6763 90.597C71.7009 90.597 91.1767 71.1212 91.1767 47.0966C91.1767 23.072 71.7009 3.59616 47.6763 3.59616C23.6516 3.59616 4.17584 23.072 4.17584 47.0966C4.17584 71.1212 23.6516 90.597 47.6763 90.597Z" fill="url(#paint0_linear_2_51)"/>
+<path id="Ellipse 235" d="M42.616 37.7067C48.2489 37.7067 52.8152 33.1404 52.8152 27.5076C52.8152 21.8747 48.2489 17.3084 42.616 17.3084C36.9832 17.3084 32.4169 21.8747 32.4169 27.5076C32.4169 33.1404 36.9832 37.7067 42.616 37.7067Z" fill="url(#paint1_linear_2_51)" stroke="white" stroke-width="1.05273" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Ellipse 236" d="M51.3834 59.4754L49.2067 76.8889H42.6765H36.1443L33.9676 59.4754H29.6152C28.413 59.4754 27.4384 58.5008 27.4384 57.2987V52.9451C27.4384 44.53 34.2597 37.7082 42.6749 37.7082C51.0901 37.7082 57.9125 44.53 57.9125 52.9451V57.2987C57.9125 58.5008 56.9379 59.4754 55.7358 59.4754H51.3834Z" fill="url(#paint2_linear_2_51)" stroke="white" stroke-width="1.05273" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Line 1" d="M61 38H73" stroke="white" stroke-width="3" stroke-linecap="round"/>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_2_51" x1="47.6763" y1="3.59616" x2="47.6763" y2="90.597" gradientUnits="userSpaceOnUse">
+<stop stop-color="#444444"/>
+<stop offset="1" stop-color="#818384"/>
+</linearGradient>
+<linearGradient id="paint1_linear_2_51" x1="42.616" y1="17.3084" x2="42.616" y2="37.7067" gradientUnits="userSpaceOnUse">
+<stop stop-color="#444444"/>
+<stop offset="1" stop-color="#818384"/>
+</linearGradient>
+<linearGradient id="paint2_linear_2_51" x1="42.6754" y1="37.7082" x2="42.6754" y2="76.8889" gradientUnits="userSpaceOnUse">
+<stop stop-color="#444444"/>
+<stop offset="1" stop-color="#818384"/>
+</linearGradient>
+</defs>
+</svg>

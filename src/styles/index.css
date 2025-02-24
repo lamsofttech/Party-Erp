@@ -1,0 +1,17 @@
+@import "tailwindcss/base";
+
+@import "tailwindcss/components";
+
+@import "tailwindcss/utilities";
+
+body * {
+  font-family: 'Century Gothic', sans-serif;
+}
+
+.theme-transition {
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+html {
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
