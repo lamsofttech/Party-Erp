@@ -49,6 +49,7 @@ export interface Student {
     undergradTranscript: string;
     creditReport: string;
     gpaReport: string;
+    memberNo?: string;
     emails: Email[];
     payments: Payment[];
     expenditure: Expenditure[];
@@ -72,6 +73,8 @@ function ViewMember() {
     const [student, setStudent] = useState<Student | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    const rolesArray = ["SM0710", "SM0101", "SM0102", "SM0103", "SM014"];
 
     const fetchStudent = async () => {
         try {
@@ -105,6 +108,7 @@ function ViewMember() {
                     undergradTranscript: data.data.transcript || "N/A",
                     creditReport: data.data.credit_report || "N/A",
                     gpaReport: data.data.gpa_doc || "N/A",
+                    memberNo: data.data.member_no || "N/A",
                     emails: data.emails || [],
                     payments: data.payments || [],
                     expenditure:data.expenditures || [],
@@ -139,7 +143,7 @@ function ViewMember() {
                     {/* Progress Bar Example */}
                 </div>
                 <div className="flex my-8 gap-40">
-                    <MemberSidenav membershipType={membershipType || ""} memberName={memberName || ""} memberEmail={studentEmail || ""} />
+                    <MemberSidenav membershipType={membershipType || ""} memberName={memberName || ""} memberEmail={studentEmail || ""} rolesArray={rolesArray}  />
                     <div className="flex-1 px-4">
                         <Outlet />
                     </div>

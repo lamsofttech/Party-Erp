@@ -15,6 +15,12 @@ import pending2 from './pending2.svg';
 import withdrawal from './withdraw.svg';
 import access from './access.svg';
 import unsigned from './unsigned.svg';
+import extraLoan from './extraLoan.png';
+import deduction from './deduction.png';
+import reverse from './reverse.png';
+import confirm from './confirm.png';
+import requestAccess from './requestAccess.png';
+import access2 from './access2.png';
 
 const assets = {
     statement,
@@ -34,6 +40,12 @@ const assets = {
     withdrawal,
     access,
     unsigned,
+    extraLoan,
+    deduction,
+    reverse,
+    confirm,
+    requestAccess,
+    access2
 };
 
 export default assets;

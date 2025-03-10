@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Box, IconButton, Card, Typography, LinearProgress } from "@mui/material";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -16,26 +16,51 @@ const links = [
     { label: "Approve GPA", icon: <ThumbUpIcon />, path: "/onboarding/approve-gpa" },
     { label: "Credit Report", icon: <ReportIcon />, path: "/onboarding/credit-report-review" },
     { label: "Approve Application", icon: <ThumbUpIcon />, path: "/onboarding/approve-application" },
-    { label: "Onboarding", icon: <DashboardIcon />, path: "/onboarding" },
+    { label: "Onboarding", icon: <DashboardIcon />, path: "/onboarding/onboard" },
     { label: "Cosigners", icon: <PeopleIcon />, path: "/onboarding/cosigners" },
     { label: "Rejected Applications", icon: <CancelIcon />, path: "/onboarding/rejected-applications" },
 ];
 
-const stats = {
-    totalApplications: 120,
-    pendingApplications: 8,
-    approvedApplications: 90,
-    rejectedApplications: 22,
-    creditReportsProcessed: 65,
-    cosignersAdded: 35,
-};
-
 const OnboardingDashboard: React.FC = () => {
+    const [stats, setStats] = useState({
+        totalApplications: 0,
+        totalNewApplications: 0,
+        totalPendingApplications: 0,
+        totalRejectedApplications: 0,
+        totalApprovalReady: 0,
+        totalAcceptedCosigners: 0,
+        totalApprovedApplications: 0,
+    });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetch('https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/onboarding/APIs/stats.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    setStats({
+                        totalApplications: data.data.total_applications,
+                        totalNewApplications: data.data.total_new_applications,
+                        totalPendingApplications: data.data.total_pending_applications,
+                        totalRejectedApplications: data.data.total_rejected_applications,
+                        totalApprovalReady: data.data.total_approval_ready,
+                        totalAcceptedCosigners: data.data.total_accepted_cosigners,
+                        totalApprovedApplications: data.data.total_members,
+                    });
+                }
+                setLoading(false);
+            })
+            .catch(error => {
+                console.error('Error fetching stats:', error);
+                setLoading(false);
+            });
+    }, []);
+
     const radius = 200;
     const centerX = 250;
     const centerY = 250;
 
-    const approvalRate = ((stats.approvedApplications / stats.totalApplications) * 100).toFixed(1);
+    const approvalRate = ((stats.totalApprovedApplications / stats.totalApplications) * 100).toFixed(1);
 
     return (
         <main>
@@ -43,17 +68,7 @@ const OnboardingDashboard: React.FC = () => {
                 <p>Onboarding Dashboard</p>
             </div>
             <div className="flex items-center gap-10">
-                <Box
-                    sx={{
-                        width: 500,
-                        height: 500,
-                        position: "relative",
-                        // margin: "auto",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                    }}
-                >
+                <Box sx={{ width: 500, height: 500, position: "relative", display: "flex", justifyContent: "center", alignItems: "center" }}>
                     <motion.div
                         animate={{ scale: [1, 1.1, 1] }}
                         transition={{ duration: 2, repeat: Infinity }}
@@ -82,34 +97,13 @@ const OnboardingDashboard: React.FC = () => {
                                 animate={{ x: 0, y: 0, opacity: 1, transition: { duration: 1, ease: "easeOut", delay: index * 0.1 } }}
                                 whileHover={{ scale: 1.2, transition: { duration: 0.1, delay: 0.1, ease: "easeInOut" } }}
                                 whileTap={{ scale: 0.9 }}
-                                style={{
-                                    position: "absolute",
-                                    left: x,
-                                    top: y,
-                                }}
+                                style={{ position: "absolute", left: x, top: y }}
                             >
                                 <Link to={link.path} style={{ textDecoration: "none", textAlign: "center" }}>
-                                    <IconButton
-                                        sx={{
-                                            width: 60,
-                                            height: 60,
-                                            backgroundColor: "white",
-                                            color: "green",
-                                            boxShadow: "0px 0px 5px rgba(0,0,0,0.2)",
-                                        }}
-                                    >
+                                    <IconButton sx={{ width: 60, height: 60, backgroundColor: "white", color: "green", boxShadow: "0px 0px 5px rgba(0,0,0,0.2)" }}>
                                         {link.icon}
                                     </IconButton>
-                                    <Typography
-                                        className="text-blue-500 dark:text-white"
-                                        variant="caption"
-                                        sx={{
-                                            display: "block",
-                                            mt: 1,
-                                            textAlign: "center",
-                                            fontSize: "0.8rem",
-                                        }}
-                                    >
+                                    <Typography className="text-blue-500 dark:text-white" variant="caption" sx={{ display: "block", mt: 1, textAlign: "center", fontSize: "0.8rem" }}>
                                         {link.label}
                                     </Typography>
                                 </Link>
@@ -121,64 +115,66 @@ const OnboardingDashboard: React.FC = () => {
                     <Typography variant="h6" gutterBottom>
                         Quick Stats
                     </Typography>
+                    {loading ? (
+                        <Typography>Loading stats...</Typography>
+                    ) : (
+                        <Box sx={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 2 }}>
+                            <Card sx={{ padding: 2 }}>
+                                <Typography variant="subtitle1">Total Applications</Typography>
+                                <Typography variant="h4">{stats.totalApplications}</Typography>
+                            </Card>
 
-                    <Box
-                        sx={{
-                            display: "grid",
-                            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", // Responsive grid
-                            gap: 2, // Space between items
-                        }}
-                    >
-                        <Card sx={{ padding: 2 }}>
-                            <Typography variant="subtitle1">Total Applications</Typography>
-                            <Typography variant="h4">{stats.totalApplications}</Typography>
-                        </Card>
+                            <Card sx={{ padding: 2 }}>
+                                <Typography variant="subtitle1">New Applications</Typography>
+                                <Typography variant="h4">{stats.totalNewApplications}</Typography>
+                                <LinearProgress
+                                    variant="determinate"
+                                    value={(stats.totalNewApplications / stats.totalApplications) * 100 || 0}
+                                    sx={{ mt: 1 }}
+                                />
+                            </Card>
 
-                        <Card sx={{ padding: 2 }}>
-                            <Typography variant="subtitle1">Pending Applications</Typography>
-                            <Typography variant="h4">{stats.pendingApplications}</Typography>
-                            <LinearProgress
-                                variant="determinate"
-                                value={(stats.pendingApplications / stats.totalApplications) * 100}
-                                sx={{ mt: 1 }}
-                            />
-                        </Card>
+                            <Card sx={{ padding: 2 }}>
+                                <Typography variant="subtitle1">Pending Applications</Typography>
+                                <Typography variant="h4">{stats.totalPendingApplications}</Typography>
+                                <LinearProgress
+                                    variant="determinate"
+                                    value={(stats.totalPendingApplications / stats.totalApplications) * 100 || 0}
+                                    sx={{ mt: 1 }}
+                                />
+                            </Card>
 
-                        <Card sx={{ padding: 2 }}>
-                            <Typography variant="subtitle1">Approved Applications</Typography>
-                            <Typography variant="h4">{stats.approvedApplications}</Typography>
-                            <LinearProgress
-                                variant="determinate"
-                                value={(stats.approvedApplications / stats.totalApplications) * 100}
-                                sx={{ mt: 1 }}
-                            />
-                        </Card>
+                            <Card sx={{ padding: 2 }}>
+                                <Typography variant="subtitle1">Rejected Applications</Typography>
+                                <Typography variant="h4">{stats.totalRejectedApplications}</Typography>
+                                <LinearProgress
+                                    variant="determinate"
+                                    value={(stats.totalRejectedApplications / stats.totalApplications) * 100 || 0}
+                                    sx={{ mt: 1 }}
+                                />
+                            </Card>
 
-                        <Card sx={{ padding: 2 }}>
-                            <Typography variant="subtitle1">Rejected Applications</Typography>
-                            <Typography variant="h4">{stats.rejectedApplications}</Typography>
-                            <LinearProgress
-                                variant="determinate"
-                                value={(stats.rejectedApplications / stats.totalApplications) * 100}
-                                sx={{ mt: 1 }}
-                            />
-                        </Card>
+                            <Card sx={{ padding: 2 }}>
+                                <Typography variant="subtitle1">Approval-Ready Applications</Typography>
+                                <Typography variant="h4">{stats.totalApprovalReady}</Typography>
+                                <LinearProgress
+                                    variant="determinate"
+                                    value={(stats.totalApprovalReady / stats.totalApplications) * 100 || 0}
+                                    sx={{ mt: 1 }}
+                                />
+                            </Card>
 
-                        <Card sx={{ padding: 2 }}>
-                            <Typography variant="subtitle1">Credit Reports Processed</Typography>
-                            <Typography variant="h4">{stats.creditReportsProcessed}</Typography>
-                        </Card>
+                            <Card sx={{ padding: 2 }}>
+                                <Typography variant="subtitle1">Accepted Cosigners</Typography>
+                                <Typography variant="h4">{stats.totalAcceptedCosigners}</Typography>
+                            </Card>
 
-                        <Card sx={{ padding: 2 }}>
-                            <Typography variant="subtitle1">Cosigners Added</Typography>
-                            <Typography variant="h4">{stats.cosignersAdded}</Typography>
-                        </Card>
-
-                        <Card sx={{ padding: 2, backgroundColor: "#1976d2", color: "white", gridColumn: "span 2", textAlign: "center" }}>
-                            <Typography variant="subtitle1">Approval Rate</Typography>
-                            <Typography variant="h4">{approvalRate}%</Typography>
-                        </Card>
-                    </Box>
+                            <Card sx={{ padding: 2, backgroundColor: "#1976d2", color: "white", gridColumn: "span 2", textAlign: "center" }}>
+                                <Typography variant="subtitle1">Approval Rate</Typography>
+                                <Typography variant="h4">{approvalRate}%</Typography>
+                            </Card>
+                        </Box>
+                    )}
                 </Box>
             </div>
         </main>

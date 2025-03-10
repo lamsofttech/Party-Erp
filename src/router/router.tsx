@@ -27,6 +27,9 @@ import RejectedApplicants from "../pages/RejectedApplications";
 import Cosigners from "../pages/Cosigners";
 import CosignerDetails from "../pages/CosignerDetails";
 import CreditReportReview from "../pages/CreditReportReview";
+import Onboarding from "../pages/Onboard";
+import DisableProgramEmail from "../pages/DisableProgramEmail";
+import UpdatePassword from "../pages/UpdatePassword";
 
 function Router() {
   return (
@@ -61,6 +64,9 @@ function Router() {
             <Route path="onboarding/cosigners" element={<Cosigners />} />
             <Route path="onboarding/cosigners/:memberName" element={<CosignerDetails />} />
             <Route path="onboarding/credit-report-review" element={<CreditReportReview />} />
+            <Route path="onboarding/onboard" element={<Onboarding />} />
+            <Route path="onboarding/onboard/disable-program-email" element={<DisableProgramEmail />} />
+            <Route path="onboarding/onboard/update-password" element={<UpdatePassword />} />
           </Route>
         </Route>
       </Routes>
