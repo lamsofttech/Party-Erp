@@ -30,6 +30,10 @@ import CreditReportReview from "../pages/CreditReportReview";
 import Onboarding from "../pages/Onboard";
 import DisableProgramEmail from "../pages/DisableProgramEmail";
 import UpdatePassword from "../pages/UpdatePassword";
+import GMATDashboard from "../pages/GMAT";
+import GMATApplicants from "../pages/GMATApplications";
+import GMATApplicant from "../pages/GMATApplicant";
+import GMATTrainings from "../pages/GMATTrainings";
 
 function Router() {
   return (
@@ -67,11 +71,14 @@ function Router() {
             <Route path="onboarding/onboard" element={<Onboarding />} />
             <Route path="onboarding/onboard/disable-program-email" element={<DisableProgramEmail />} />
             <Route path="onboarding/onboard/update-password" element={<UpdatePassword />} />
+            <Route path="entrance-exams-gmat" element={<GMATDashboard />} />
+            <Route path="entrance-exams-gmat/applications" element={<GMATApplicants />} />
+            <Route path="entrance-exams-gmat/applications/:memberName" element={<GMATApplicant />} />
+            <Route path="entrance-exams-gmat/trainings" element={<GMATTrainings />} />
           </Route>
         </Route>
       </Routes>
     </>
-
   );
 }
 
