@@ -10,7 +10,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
 import LockIcon from '@mui/icons-material/Lock';
 
-const API_URL = 'https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/gmat_applicant_api.php';
+const API_URL = 'https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gre/APIs/gre_applicant_api.php';
 
 interface Applicant {
     full_name: string;
@@ -36,7 +36,7 @@ interface Expenditure {
     amount: number;
 }
 
-const GMATApplicant: React.FC = () => {
+const GREApplicant: React.FC = () => {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const email = queryParams.get("email");
@@ -99,7 +99,7 @@ const GMATApplicant: React.FC = () => {
             const response = await axios.post(API_URL, { action: 'approve_app', email });
             if (response.data.success) {
                 setSnackbar({ open: true, message: response.data.message, severity: 'success' });
-                setTimeout(() => navigate('/entrance-exams/gmat-applications'), 1500);
+                setTimeout(() => navigate('/entrance-exams/gre-applications'), 1500);
             } else {
                 setSnackbar({ open: true, message: response.data.message, severity: 'error' });
             }
@@ -122,7 +122,7 @@ const GMATApplicant: React.FC = () => {
             if (response.data.success) {
                 setSnackbar({ open: true, message: response.data.message, severity: 'success' });
                 setOpenRejectModal(false);
-                setTimeout(() => navigate('/entrance-exams/gmat-applications'), 1500);
+                setTimeout(() => navigate('/entrance-exams/gre-applications'), 1500);
             } else {
                 setSnackbar({ open: true, message: response.data.message, severity: 'error' });
             }
@@ -149,7 +149,7 @@ const GMATApplicant: React.FC = () => {
     return (
         <main className="p-6 min-h-[80vh] max-w-4xl mx-auto">
             <div className="bg-gradient-to-b from-[#2164A6] to-[#1a4e7e] rounded-xl mb-6 p-4">
-                <p className="font-bold text-[24px] text-white dark:text-white text-center">GMAT Applicant Details</p>
+                <p className="font-bold text-[24px] text-white dark:text-white text-center">GRE Applicant Details</p>
             </div>
 
             {/* Applicant Details Card */}
@@ -444,4 +444,4 @@ const GMATApplicant: React.FC = () => {
     );
 };
 
-export default GMATApplicant;
+export default GREApplicant;

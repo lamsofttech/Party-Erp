@@ -10,13 +10,13 @@ import ChecklistIcon from '@mui/icons-material/Checklist';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { motion } from "framer-motion";
-import ArrowRightIcon from '@mui/icons-material/ArrowRight';
+// import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import '../styles/sidenav.css';
 import { useState } from "react";
 
 function Sidenav() {
     const [isExpanded, setIsExpanded] = useState(false);
-    const [isExamsExpanded, setIsExamsExpanded] = useState(false);
+    // const [isExamsExpanded, setIsExamsExpanded] = useState(false);
     return (
         <main className="fixed top-3">
             <motion.div
@@ -70,7 +70,7 @@ function Sidenav() {
                                 >
                                     • Onboarding
                                 </NavLink>
-                                <div
+                                {/* <div
                                     className={`flex ml-[-10px] items-center cursor-pointer transition-colors duration-300 ${isExamsExpanded ? "text-white" : "text-gray-400"}`}
                                     onClick={() => setIsExamsExpanded(!isExamsExpanded)}
                                 >
@@ -80,25 +80,25 @@ function Sidenav() {
                                 <div
                                     className={`transition-all duration-300 ease-in-out overflow-hidden ${isExamsExpanded ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"}`}
                                 >
-                                    <div className="ml-12 mt-2 flex flex-col gap-2">
-                                        <NavLink
-                                            to="/entrance-exams-gmat"
-                                            className={({ isActive }) =>
-                                                `transition-colors duration-200 ${isActive ? "text-white font-bold" : "text-gray-400 hover:text-white"}`
-                                            }
-                                        >
-                                            • GMAT
-                                        </NavLink>
-                                        <NavLink
-                                            to="/entrance-exams/gre"
-                                            className={({ isActive }) =>
-                                                `transition-colors duration-200 ${isActive ? "text-white font-bold" : "text-gray-400 hover:text-white"}`
-                                            }
-                                        >
-                                            • GRE
-                                        </NavLink>
-                                    </div>
-                                </div>
+                                    <div className="ml-12 mt-2 flex flex-col gap-2"> */}
+                                <NavLink
+                                    to="/entrance-exams"
+                                    className={({ isActive }) =>
+                                        `transition-colors duration-200 ${isActive ? "text-white font-bold" : "text-gray-400 hover:text-white"}`
+                                    }
+                                >
+                                    • Entrance Exams
+                                </NavLink>
+                                {/* <NavLink
+                                    to="/entrance-exams/gre"
+                                    className={({ isActive }) =>
+                                        `transition-colors duration-200 ${isActive ? "text-white font-bold" : "text-gray-400 hover:text-white"}`
+                                    }
+                                >
+                                    • GRE
+                                </NavLink> */}
+                                    {/* </div>
+                                </div> */}
                                 <Link to="" className="text-gray-400 hover:text-white transition-colors duration-200">
                                     • School Admission
                                 </Link>
