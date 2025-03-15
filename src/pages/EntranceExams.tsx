@@ -35,27 +35,27 @@ const mockStats = {
 };
 
 // Section definitions with unique colors
-const gmatSections: Section[] = [
-    { title: "Applications", path: "/entrance-exams/gmat-applications", icon: <PersonAddIcon />, statKey: "gmatApplications", color: "#4CAF50" },
-    { title: "View Trainings", path: "/entrance-exams/gmat-trainings", icon: <SchoolIcon />, statKey: "viewTrainings", color: "#2196F3" },
-    { title: "Mocks", path: "/entrance-exams/gmat-mocks", icon: <ReceiptIcon />, statKey: "gmatMocks", color: "#FF9800" },
-    { title: "Exams Booking", path: "/entrance-exams/gmat-bookings", icon: <EventIcon />, statKey: "gmatExamsBooking", color: "#9C27B0" },
-    { title: "Booked Exams", path: "/entrance-exams/gmat-booked-exams", icon: <CalendarTodayIcon />, statKey: "bookedGmatExams", color: "#F44336" },
-    { title: "Approve Results", path: "/entrance-exams/gmat-results", icon: <CheckCircleIcon />, statKey: "approveGmatResults", color: "#00BCD4" },
-    { title: "View Scores", path: "/entrance-exams/gmat-scores", icon: <VisibilityIcon />, statKey: "viewGmatScores", color: "#673AB7" },
-    { title: "Training Resources", path: "/entrance-exams/gmat-resources", icon: <SettingsIcon />, statKey: "trainingResources", color: "#E91E63" },
+const Sections: Section[] = [
+    { title: "Applications", path: "/entrance-exams/applications", icon: <PersonAddIcon />, statKey: "gmatApplications", color: "#4CAF50" },
+    { title: "View Trainings", path: "/entrance-exams/trainings", icon: <SchoolIcon />, statKey: "viewTrainings", color: "#2196F3" },
+    { title: "Mocks", path: "/entrance-exams/mocks", icon: <ReceiptIcon />, statKey: "gmatMocks", color: "#FF9800" },
+    { title: "Exams Booking", path: "/entrance-exams/bookings", icon: <EventIcon />, statKey: "gmatExamsBooking", color: "#9C27B0" },
+    { title: "Booked Exams", path: "/entrance-exams/booked-exams", icon: <CalendarTodayIcon />, statKey: "bookedGmatExams", color: "#F44336" },
+    { title: "Approve Results", path: "/entrance-exams/results", icon: <CheckCircleIcon />, statKey: "approveGmatResults", color: "#00BCD4" },
+    { title: "View Scores", path: "/entrance-exams/scores", icon: <VisibilityIcon />, statKey: "viewGmatScores", color: "#673AB7" },
+    { title: "Training Resources", path: "/entrance-exams/resources", icon: <SettingsIcon />, statKey: "trainingResources", color: "#E91E63" },
 ];
 
-const greSections: Section[] = [
-    { title: "Applications", path: "/entrance-exams/gre-applications", icon: <PersonAddIcon />, statKey: "gmatApplications", color: "#4CAF50" },
-    { title: "View Trainings", path: "/entrance-exams/gre-trainings", icon: <SchoolIcon />, statKey: "viewTrainings", color: "#2196F3" },
-    { title: "Mocks", path: "/entrance-exams/gre-mocks", icon: <ReceiptIcon />, statKey: "gmatMocks", color: "#FF9800" },
-    { title: "Exams Booking", path: "/entrance-exams/gre-bookings", icon: <EventIcon />, statKey: "gmatExamsBooking", color: "#9C27B0" },
-    { title: "Booked Exams", path: "/entrance-exams/gre-booked-exams", icon: <CalendarTodayIcon />, statKey: "bookedGmatExams", color: "#F44336" },
-    { title: "Approve Results", path: "/entrance-exams/gre-results", icon: <CheckCircleIcon />, statKey: "approveGmatResults", color: "#00BCD4" },
-    { title: "View Scores", path: "/entrance-exams/gre-scores", icon: <VisibilityIcon />, statKey: "viewGmatScores", color: "#673AB7" },
-    { title: "Training Resources", path: "/entrance-exams/gre-resources", icon: <SettingsIcon />, statKey: "trainingResources", color: "#E91E63" },
-];
+// const greSections: Section[] = [
+//     { title: "Applications", path: "/entrance-exams/gre-applications", icon: <PersonAddIcon />, statKey: "gmatApplications", color: "#4CAF50" },
+//     { title: "View Trainings", path: "/entrance-exams/gre-trainings", icon: <SchoolIcon />, statKey: "viewTrainings", color: "#2196F3" },
+//     { title: "Mocks", path: "/entrance-exams/gre-mocks", icon: <ReceiptIcon />, statKey: "gmatMocks", color: "#FF9800" },
+//     { title: "Exams Booking", path: "/entrance-exams/gre-bookings", icon: <EventIcon />, statKey: "gmatExamsBooking", color: "#9C27B0" },
+//     { title: "Booked Exams", path: "/entrance-exams/gre-booked-exams", icon: <CalendarTodayIcon />, statKey: "bookedGmatExams", color: "#F44336" },
+//     { title: "Approve Results", path: "/entrance-exams/gre-results", icon: <CheckCircleIcon />, statKey: "approveGmatResults", color: "#00BCD4" },
+//     { title: "View Scores", path: "/entrance-exams/gre-scores", icon: <VisibilityIcon />, statKey: "viewGmatScores", color: "#673AB7" },
+//     { title: "Training Resources", path: "/entrance-exams/gre-resources", icon: <SettingsIcon />, statKey: "trainingResources", color: "#E91E63" },
+// ];
 
 // Animation variants for tiles
 const containerVariants = {
@@ -72,12 +72,16 @@ const tileVariants = {
 };
 
 // Mock leaderboard data
-const leaderboard = [
+const gmatLeaderboard = [
     { name: "John Doe", score: 770, rank: 1 },
     { name: "Alice Smith", score: 720, rank: 2 },
     { name: "David Johnson", score: 710, rank: 3 },
-    { name: "Sophia Lee", score: 690, rank: 4 },
-    { name: "Michael Brown", score: 680, rank: 5 },
+];
+
+const greLeaderboard = [
+    { name: "Johnie Doey", score: 770, rank: 1 },
+    { name: "Ann Mary", score: 720, rank: 2 },
+    { name: "Dawin Jerry", score: 710, rank: 3 },
 ];
 
 // Medal Colors
@@ -110,9 +114,9 @@ const EntranceExamsDashboard: React.FC = () => {
                 <p>Entrance Exams Dashboard</p>
             </div>
 
-            <div className="font-bold text-[24px] text-[#2164A6] dark:text-white mb-4">
+            {/* <div className="font-bold text-[24px] text-[#2164A6] dark:text-white mb-4">
                 <p>GMAT</p>
-            </div>
+            </div> */}
             <div className="flex flex-col lg:flex-row gap-10 relative z-10">
                 {/* Section Tiles */}
                 <motion.div
@@ -121,7 +125,7 @@ const EntranceExamsDashboard: React.FC = () => {
                     initial="hidden"
                     animate="visible"
                 >
-                    {gmatSections.map((section) => (
+                    {Sections.map((section) => (
                         <motion.div key={section.title} variants={tileVariants}>
                             <Link to={section.path}>
                                 <div className="bg-white shadow-lg rounded-lg overflow-hidden transform hover:scale-105 transition-transform duration-300 h-[210px]">
@@ -149,13 +153,56 @@ const EntranceExamsDashboard: React.FC = () => {
                     <div className="h-2" style={{ backgroundColor: "black" }} />
                     <div className="p-6">
                         <h2 className="text-2xl font-bold text-gray-800 text-center mb-4">🏆 Leaderboard</h2>
+                        <div className="font-bold text-[20px] text-[#2164A6] dark:text-white mb-4">
+                            <p>GMAT</p>
+                        </div>
                         <motion.ul
                             className="space-y-4"
                             initial="hidden"
                             animate="visible"
                             variants={{ visible: { transition: { staggerChildren: 0.2 } } }}
                         >
-                            {leaderboard.map(({ name, score, rank }) => (
+                            {gmatLeaderboard.map(({ name, score, rank }) => (
+                                <motion.li
+                                    key={name}
+                                    className={`flex items-center justify-between p-4 rounded-lg shadow-md ${rank <= 3 ? `bg-gradient-to-r ${medalColors[rank]}` : "bg-gray-100"
+                                        }`}
+                                    variants={listVariants}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <motion.div
+                                            className="w-10 h-10 flex items-center justify-center text-white text-lg font-bold rounded-full"
+                                            style={{
+                                                backgroundColor: rank === 1 ? "#FFD700" : rank === 2 ? "#C0C0C0" : rank === 3 ? "#CD7F32" : "#A0AEC0",
+                                            }}
+                                            whileHover={{ rotate: [0, 10, -10, 0], transition: { duration: 0.4 } }}
+                                        >
+                                            <FaMedal />
+                                        </motion.div>
+                                        <p className={`text-lg font-semibold ${rank <= 3 ? "text-white" : "text-gray-800"}`}>{name}</p>
+                                    </div>
+                                    <motion.p
+                                        className={`text-xl font-bold ${rank <= 3 ? "text-white" : "text-gray-800"}`}
+                                        animate={{ scale: [1, 1.2, 1] }}
+                                        transition={{ duration: 0.6, repeat: Infinity, repeatType: "reverse" }}
+                                    >
+                                        {score}
+                                    </motion.p>
+                                </motion.li>
+                            ))}
+                        </motion.ul>
+                        <div className="font-bold text-[20px] text-[#2164A6] dark:text-white mb-4 mt-4">
+                            <p>GRE</p>
+                        </div>
+                        <motion.ul
+                            className="space-y-4"
+                            initial="hidden"
+                            animate="visible"
+                            variants={{ visible: { transition: { staggerChildren: 0.2 } } }}
+                        >
+                            {greLeaderboard.map(({ name, score, rank }) => (
                                 <motion.li
                                     key={name}
                                     className={`flex items-center justify-between p-4 rounded-lg shadow-md ${rank <= 3 ? `bg-gradient-to-r ${medalColors[rank]}` : "bg-gray-100"
@@ -190,11 +237,10 @@ const EntranceExamsDashboard: React.FC = () => {
                 </motion.div>
             </div>
 
-            <div className="font-bold text-[24px] text-[#2164A6] dark:text-white mb-4 mt-6">
+            {/* <div className="font-bold text-[24px] text-[#2164A6] dark:text-white mb-4 mt-6">
                 <p>GRE</p>
             </div>
             <div className="flex flex-col lg:flex-row gap-10 relative z-10">
-                {/* Section Tiles */}
                 <motion.div
                     className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 flex-1"
                     variants={containerVariants}
@@ -268,7 +314,7 @@ const EntranceExamsDashboard: React.FC = () => {
                         </motion.ul>
                     </div>
                 </motion.div>
-            </div>
+            </div> */}
         </div>
     );
 };

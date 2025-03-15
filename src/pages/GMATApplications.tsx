@@ -61,7 +61,7 @@ const GMATApplicants: React.FC = () => {
             sortable: false,
             filterable: false,
             renderCell: (params) => (
-                <Link to={`/entrance-exams/gmat-applications/${params.row.full_name}?email=${params.row.email}`}>
+                <Link to={`/entrance-exams/applications/${params.row.full_name}?email=${params.row.email}`}>
                     <IconButton>
                         <VisibilityIcon className="text-blue-600" />
                     </IconButton>

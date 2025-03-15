@@ -40,12 +40,12 @@ import GMATBookedExams from "../pages/GMATBookedExams";
 import GMATResults from "../pages/GMATResults";
 import GMATScores from "../pages/GMATScores";
 import GMATResources from "../pages/GMATResources";
-import GREApplicants from "../pages/GREApplications";
-import GREApplicant from "../pages/GREApplicant";
-import GRETrainings from "../pages/GRETraining";
-import GREMocks from "../pages/GREMocks";
-import GREBookings from "../pages/GREBookings";
-import GREBookedExams from "../pages/GREBookedExams";
+// import GREApplicants from "../pages/GREApplications";
+// import GREApplicant from "../pages/GREApplicant";
+// import GRETrainings from "../pages/GRETraining";
+// import GREMocks from "../pages/GREMocks";
+// import GREBookings from "../pages/GREBookings";
+// import GREBookedExams from "../pages/GREBookedExams";
 
 function Router() {
   return (
@@ -84,21 +84,21 @@ function Router() {
             <Route path="onboarding/onboard/disable-program-email" element={<DisableProgramEmail />} />
             <Route path="onboarding/onboard/update-password" element={<UpdatePassword />} />
             <Route path="entrance-exams" element={<EntranceExamsDashboard />} />
-            <Route path="entrance-exams/gmat-applications" element={<GMATApplicants />} />
-            <Route path="entrance-exams/gmat-applications/:memberName" element={<GMATApplicant />} />
-            <Route path="entrance-exams/gmat-trainings" element={<GMATTrainings />} />
-            <Route path="entrance-exams/gmat-mocks" element={<GMATMocks />} />
-            <Route path="entrance-exams/gmat-bookings" element={<GMATBookings />} />
-            <Route path="entrance-exams/gmat-booked-exams" element={<GMATBookedExams />} />
-            <Route path="entrance-exams/gmat-results" element={<GMATResults />} />
-            <Route path="entrance-exams/gmat-scores" element={<GMATScores />} />
-            <Route path="entrance-exams/gmat-resources" element={<GMATResources />} />
-            <Route path="entrance-exams/gre-applications" element={<GREApplicants />} />
+            <Route path="entrance-exams/applications" element={<GMATApplicants />} />
+            <Route path="entrance-exams/applications/:memberName" element={<GMATApplicant />} />
+            <Route path="entrance-exams/trainings" element={<GMATTrainings />} />
+            <Route path="entrance-exams/mocks" element={<GMATMocks />} />
+            <Route path="entrance-exams/bookings" element={<GMATBookings />} />
+            <Route path="entrance-exams/booked-exams" element={<GMATBookedExams />} />
+            <Route path="entrance-exams/results" element={<GMATResults />} />
+            <Route path="entrance-exams/scores" element={<GMATScores />} />
+            <Route path="entrance-exams/resources" element={<GMATResources />} />
+            {/* <Route path="entrance-exams/gre-applications" element={<GREApplicants />} />
             <Route path="entrance-exams/gre-applications/:memberName" element={<GREApplicant />} />
             <Route path="entrance-exams/gre-trainings" element={<GRETrainings />} />
             <Route path="entrance-exams/gre-mocks" element={<GREMocks />} />
             <Route path="entrance-exams/gre-bookings" element={<GREBookings />} />
-            <Route path="entrance-exams/gre-booked-exams" element={<GREBookedExams />} />
+            <Route path="entrance-exams/gre-booked-exams" element={<GREBookedExams />} /> */}
           </Route>
         </Route>
       </Routes>
