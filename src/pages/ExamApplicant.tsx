@@ -10,7 +10,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
 import LockIcon from '@mui/icons-material/Lock';
 
-const API_URL = 'https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/gmat_applicant_api.php';
+const API_URL = 'https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/applicant_api.php';
 
 interface Applicant {
     full_name: string;
@@ -20,6 +20,7 @@ interface Applicant {
     email: string;
     package: string;
     status: number | null;
+    testType: string;
 }
 
 interface Payment {
@@ -36,7 +37,7 @@ interface Expenditure {
     amount: number;
 }
 
-const GMATApplicant: React.FC = () => {
+const ExamApplicant: React.FC = () => {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const email = queryParams.get("email");
@@ -147,9 +148,9 @@ const GMATApplicant: React.FC = () => {
     if (error) return <div className="text-center p-4 text-red-500">{error}</div>;
 
     return (
-        <main className="p-6 min-h-[80vh] max-w-4xl mx-auto">
+        <main className="p-6 min-h-[80vh] max-w-5xl mx-auto">
             <div className="bg-gradient-to-b from-[#2164A6] to-[#1a4e7e] rounded-xl mb-6 p-4">
-                <p className="font-bold text-[24px] text-white dark:text-white text-center">GMAT Applicant Details</p>
+                <p className="font-bold text-[24px] text-white dark:text-white text-center">{applicant?.testType} Applicant Details</p>
             </div>
 
             {/* Applicant Details Card */}
@@ -167,9 +168,12 @@ const GMATApplicant: React.FC = () => {
                         <PersonIcon className="mr-2 text-blue-500" />
                         <strong>Name:</strong> {applicant?.full_name}
                     </p>
-                    <p className="flex items-center">
+                    <p className="flex items-center flex-wrap w-full">
                         <EmailIcon className="mr-2 text-blue-500" />
-                        <strong>Program Email:</strong> {applicant?.prog_email}
+                        <strong>Program Email:</strong>{" "}
+                        <span className="break-words max-w-xs">
+                            {applicant?.prog_email}
+                        </span>
                         <IconButton onClick={() => handleCopy(applicant?.prog_email || '')} className="ml-2">
                             <ContentCopyIcon fontSize="small" />
                         </IconButton>
@@ -444,4 +448,4 @@ const GMATApplicant: React.FC = () => {
     );
 };
 
-export default GMATApplicant
+export default ExamApplicant

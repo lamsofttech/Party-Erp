@@ -28,17 +28,20 @@ interface Training {
     id: number;
     phase_name: string;
     weeks: number;
+    test_type: string;
     sn?: number;
 }
 
-const GMATTrainings: React.FC = () => {
+const Trainings: React.FC = () => {
     const [trainings, setTrainings] = useState<Training[]>([]);
     const [openAddModal, setOpenAddModal] = useState(false);
     const [openEditModal, setOpenEditModal] = useState(false);
     const [addPhase, setAddPhase] = useState("");
+    const [addType, setAddType] = useState("");
     const [addWeeks, setAddWeeks] = useState("");
     const [editId, setEditId] = useState<number | null>(null);
     const [editName, setEditName] = useState("");
+    const [editType, setEditType] = useState("");
     const [editWeeks, setEditWeeks] = useState("");
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -54,7 +57,7 @@ const GMATTrainings: React.FC = () => {
     });
 
     const API_URL =
-        "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/gmat_phases_api.php";
+        "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/phases_api.php";
 
     useEffect(() => {
         fetchTrainings();
@@ -74,7 +77,7 @@ const GMATTrainings: React.FC = () => {
     };
 
     const handleAddSubmit = async () => {
-        if (!addPhase || !addWeeks) {
+        if (!addPhase || !addWeeks || !addType) {
             setSnackbar({ open: true, message: "Please fill all fields", severity: "warning" });
             return;
         }
@@ -84,11 +87,13 @@ const GMATTrainings: React.FC = () => {
                 action: "add",
                 phase_name: addPhase,
                 weeks: addWeeks,
+                test_type: addType,
             });
             if (response.data.success) {
                 setSnackbar({ open: true, message: response.data.message, severity: "success" });
                 setOpenAddModal(false);
                 setAddPhase("");
+                setAddType("");
                 setAddWeeks("");
                 fetchTrainings();
             } else {
@@ -102,7 +107,7 @@ const GMATTrainings: React.FC = () => {
     };
 
     const handleEditSubmit = async () => {
-        if (!editId || !editName || !editWeeks) {
+        if (!editId || !editName || !editWeeks || !editType) {
             setSnackbar({ open: true, message: "Please fill all fields", severity: "warning" });
             return;
         }
@@ -112,6 +117,7 @@ const GMATTrainings: React.FC = () => {
                 action: "update",
                 id: editId,
                 phase_name: editName,
+                test_type: editType,
                 weeks: editWeeks,
             });
             if (response.data.success) {
@@ -154,6 +160,7 @@ const GMATTrainings: React.FC = () => {
             valueGetter: (_, row) => row.sn,
         },
         { field: "phase_name", headerName: "Phase", flex: 2 },
+        { field: "test_type", headerName: "Test Type", flex: 1 },
         { field: "weeks", headerName: "Training Weeks", flex: 1 },
         {
             field: "action",
@@ -167,6 +174,7 @@ const GMATTrainings: React.FC = () => {
                         onClick={() => {
                             setEditId(params.row.id);
                             setEditName(params.row.phase_name);
+                            setEditType(params.row.test_type);
                             setEditWeeks(params.row.weeks.toString());
                             setOpenEditModal(true);
                         }}
@@ -252,6 +260,18 @@ const GMATTrainings: React.FC = () => {
                             <MenuItem value="Phase 2">Phase 2</MenuItem>
                         </Select>
                     </FormControl>
+                    <FormControl fullWidth>
+                        <InputLabel>Test Type</InputLabel>
+                        <Select
+                            value={addType}
+                            onChange={(e) => setAddType(e.target.value)}
+                            label="Test Type"
+                            required
+                        >
+                            <MenuItem value="GMAT">GMAT</MenuItem>
+                            <MenuItem value="GRE">GRE</MenuItem>
+                        </Select>
+                    </FormControl>
                     <TextField
                         fullWidth
                         label="Training Weeks"
@@ -307,14 +327,30 @@ const GMATTrainings: React.FC = () => {
                     <Typography variant="h6" className="font-bold mb-4">
                         Edit Training
                     </Typography>
-                    <TextField
-                        fullWidth
-                        label="Phase Name"
-                        value={editName}
-                        onChange={(e) => setEditName(e.target.value)}
-                        className="mb-4"
-                        required
-                    />
+                    <FormControl fullWidth>
+                        <InputLabel>Phase</InputLabel>
+                        <Select
+                            value={editName}
+                            onChange={(e) => setEditName(e.target.value)}
+                            label="Phase"
+                            required
+                        >
+                            <MenuItem value="Phase 1">Phase 1</MenuItem>
+                            <MenuItem value="Phase 2">Phase 2</MenuItem>
+                        </Select>
+                    </FormControl>
+                    <FormControl fullWidth>
+                        <InputLabel>Test Type</InputLabel>
+                        <Select
+                            value={editType}
+                            onChange={(e) => setEditType(e.target.value)}
+                            label="Test Type"
+                            required
+                        >
+                            <MenuItem value="GMAT">GMAT</MenuItem>
+                            <MenuItem value="GRE">GRE</MenuItem>
+                        </Select>
+                    </FormControl>
                     <TextField
                         fullWidth
                         label="Training Weeks"
@@ -367,4 +403,4 @@ const GMATTrainings: React.FC = () => {
     );
 };
 
-export default GMATTrainings;
+export default Trainings;

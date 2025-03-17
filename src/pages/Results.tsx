@@ -15,18 +15,21 @@ import {
 } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
+import * as XLSX from 'xlsx';
 
-interface GMATResult {
+interface Result {
   id: number;
   fullnames: string;
   prog_email: string;
+  test_type: string;
   status: "review score" | "unsubmitted score";
-  sn?: number;
 }
 
-const GMATResults: React.FC = () => {
-  const [results, setResults] = useState<GMATResult[]>([]);
-  const [selectedResult, setSelectedResult] = useState<GMATResult | null>(null);
+const Results: React.FC = () => {
+  const [results, setResults] = useState<Result[]>([]);
+  const [filteredResults, setFilteredResults] = useState<Result[]>([]); // Added for filtered data
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedResult, setSelectedResult] = useState<Result | null>(null);
   const [openApproveModal, setOpenApproveModal] = useState(false);
   const [openRejectModal, setOpenRejectModal] = useState(false);
   const [score, setScore] = useState("");
@@ -44,7 +47,7 @@ const GMATResults: React.FC = () => {
     severity: "success",
   });
 
-  const API_URL = "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/gmat_results_api.php";
+  const API_URL = "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/results_api.php";
 
   useEffect(() => {
     fetchResults();
@@ -55,6 +58,7 @@ const GMATResults: React.FC = () => {
       const response = await axios.get(`${API_URL}?action=list`);
       if (response.data.success) {
         setResults(response.data.bookings);
+        setFilteredResults(response.data.bookings);
       } else {
         setSnackbar({
           open: true,
@@ -71,7 +75,20 @@ const GMATResults: React.FC = () => {
     }
   };
 
-  const handleOpenApproveModal = async (result: GMATResult) => {
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const query = event.target.value.toLowerCase();
+    setSearchQuery(query);
+    setFilteredResults(
+      results.filter(
+        (result) =>
+          result.fullnames.toLowerCase().includes(query) ||
+          result.prog_email.toLowerCase().includes(query) ||
+          result.test_type.toLowerCase().includes(query)
+      )
+    );
+  };
+
+  const handleOpenApproveModal = async (result: Result) => {
     setSelectedResult(result);
     setOpenApproveModal(true);
     setScore("");
@@ -116,7 +133,7 @@ const GMATResults: React.FC = () => {
       formData.append("action", "approve");
       formData.append("id", selectedResult.id.toString());
       formData.append("score", score);
-      if (file) formData.append("gmat_report", file);
+      if (file) formData.append("report", file);
 
       const response = await axios.post(API_URL, formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -147,7 +164,7 @@ const GMATResults: React.FC = () => {
     }
   };
 
-  const handleOpenRejectModal = (result: GMATResult) => {
+  const handleOpenRejectModal = (result: Result) => {
     setSelectedResult(result);
     setOpenRejectModal(true);
     setComment("");
@@ -196,10 +213,11 @@ const GMATResults: React.FC = () => {
     }
   };
 
-  const columns: GridColDef<GMATResult>[] = [
-    { field: "sn", headerName: "Id", flex: 1, valueGetter: (_, row) => row.sn },
+  const columns: GridColDef<Result>[] = [
+    { field: "id", headerName: "Id", flex: 1 },
     { field: "fullnames", headerName: "Name", flex: 2 },
     { field: "prog_email", headerName: "ISP Email", flex: 2 },
+    { field: "test_type", headerName: "Test Type", flex: 2 },
     {
       field: "status",
       headerName: "Status",
@@ -232,12 +250,43 @@ const GMATResults: React.FC = () => {
     },
   ];
 
-  const rows = results.map((result, index) => ({ ...result, sn: index + 1 }));
+  const rows = filteredResults.map((result, index) => ({ ...result, sn: index + 1 }));
 
   return (
     <main className="min-h-[80vh] p-4">
       <div className="bg-[linear-gradient(0deg,#2164A6_80.26%,rgba(33,100,166,0)_143.39%)] rounded-xl mb-4">
-        <p className="font-bold text-[24px] text-white py-4 text-center">GMAT Results</p>
+        <p className="font-bold text-[24px] text-white py-4 text-center">Results</p>
+      </div>
+
+      <div className="flex flex-row gap-4 mb-4">
+        <TextField
+          label="Search..."
+          variant="outlined"
+          fullWidth
+          value={searchQuery}
+          onChange={handleSearch}
+          sx={{ input: { backgroundColor: "white" }, flex: 1 }}
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          onClick={() => {
+            const exportData = filteredResults.map(result => ({
+              Id: result.id,
+              Name: result.fullnames,
+              "ISP Email": result.prog_email,
+              "Test Type": result.test_type,
+              Status: result.status === "review score" ? "score submitted" : "score not submitted",
+            }));
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Results");
+            XLSX.writeFile(workbook, "results.xlsx");
+          }}
+        >
+          Export to Excel
+        </Button>
       </div>
 
       <div className="bg-white mt-8 rounded-lg shadow-md">
@@ -255,7 +304,7 @@ const GMATResults: React.FC = () => {
 
       {/* Approve Modal */}
       <Dialog open={openApproveModal} onClose={() => setOpenApproveModal(false)}>
-        <DialogTitle>Approve GMAT Score</DialogTitle>
+        <DialogTitle>Approve Score</DialogTitle>
         <DialogContent>
           {isFetchingScore ? (
             <div className="flex justify-center">
@@ -292,7 +341,7 @@ const GMATResults: React.FC = () => {
 
       {/* Reject Modal */}
       <Dialog open={openRejectModal} onClose={() => setOpenRejectModal(false)}>
-        <DialogTitle>Reject GMAT Score</DialogTitle>
+        <DialogTitle>Reject Score</DialogTitle>
         <DialogContent>
           <TextField
             fullWidth
@@ -327,4 +376,4 @@ const GMATResults: React.FC = () => {
   );
 };
 
-export default GMATResults;
+export default Results;

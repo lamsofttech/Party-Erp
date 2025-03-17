@@ -30,10 +30,11 @@ interface Resource {
     phase: string;
     week: number;
     status: number;
+    test_type: string;
     sn?: number; // Serial number for display
 }
 
-const GMATResources: React.FC = () => {
+const Resources: React.FC = () => {
     const [resources, setResources] = useState<Resource[]>([]);
     const [filteredResources, setFilteredResources] = useState<Resource[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
@@ -44,6 +45,7 @@ const GMATResources: React.FC = () => {
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
     const [title, setTitle] = useState("");
+    const [test_type, setTestType] = useState("");
     const [description, setDescription] = useState("");
     const [phase, setPhase] = useState("");
     const [week, setWeek] = useState<number | "">("");
@@ -63,11 +65,10 @@ const GMATResources: React.FC = () => {
         severity: "success",
     });
 
-    const API_URL = "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/gmat_resources_api.php"; // Replace with your actual API URL
+    const API_URL = "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/resources_api.php"; // Replace with your actual API URL
 
     useEffect(() => {
         fetchResources();
-        fetchPhases();
     }, []);
 
     const fetchResources = async () => {
@@ -86,20 +87,23 @@ const GMATResources: React.FC = () => {
         }
     };
 
-    const fetchPhases = async () => {
+    const fetchPhases = async (selectedTestType: string) => {
         try {
-            const response = await axios.get(`${API_URL}?action=phases`);
+            const response = await axios.get(`${API_URL}?action=phases&test=${selectedTestType}`);
             if (response.data.success) {
                 setPhases(response.data.phases);
+            } else {
+                setPhases([]);
+                setSnackbar({ open: true, message: response.data.message || "No phases found for this test type!", severity: "error" });
             }
         } catch (error) {
             console.error("Error fetching phases", error);
         }
     };
 
-    const fetchWeeks = async (selectedPhase: string) => {
+    const fetchWeeks = async (selectedPhase: string, selectedTestType: string) => {
         try {
-            const response = await axios.get(`${API_URL}?action=weeks&phase=${selectedPhase}`);
+            const response = await axios.get(`${API_URL}?action=weeks&phase=${selectedPhase}&test=${selectedTestType}`);
             if (response.data.success) {
                 setWeeks(response.data.weeks);
             } else {
@@ -113,10 +117,16 @@ const GMATResources: React.FC = () => {
         }
     };
 
+    const handleTestTypeChange = (event: any) => {
+        const selected = event.target.value as string;
+        setTestType(selected);
+        fetchPhases(selected);
+    };
+
     const handlePhaseChange = (event: any) => {
         const selected = event.target.value as string;
         setPhase(selected);
-        fetchWeeks(selected);
+        fetchWeeks(selected, test_type);
     };
 
     const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -139,6 +149,7 @@ const GMATResources: React.FC = () => {
             Id: res.sn,
             Title: res.title,
             Description: res.description,
+            TestType: res.test_type,
             Category: res.phase === "Phase 1" ? res.category : "Mock",
             Phase: res.phase,
             Week: res.week,
@@ -146,12 +157,12 @@ const GMATResources: React.FC = () => {
         }));
         const worksheet = XLSX.utils.json_to_sheet(exportData);
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "GMAT Resources");
-        XLSX.writeFile(workbook, "gmat_resources.xlsx");
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Resources");
+        XLSX.writeFile(workbook, "resources.xlsx");
     };
 
     const handleAddSubmit = async () => {
-        if (!title || !description || !phase || week === "") {
+        if (!title || !description || !phase || !test_type || week === "") {
             setSnackbar({ open: true, message: "Please fill all required fields", severity: "error" });
             return;
         }
@@ -161,6 +172,7 @@ const GMATResources: React.FC = () => {
         formData.append("title", title);
         formData.append("description", description);
         formData.append("phase", phase);
+        formData.append("test_type", test_type);
         formData.append("week", week.toString());
         if (phase === "Phase 1") {
             formData.append("type", type);
@@ -188,6 +200,7 @@ const GMATResources: React.FC = () => {
                 fetchResources();
                 setTitle("");
                 setDescription("");
+                setTestType("");
                 setPhase("");
                 setWeek("");
                 setType("");
@@ -264,6 +277,7 @@ const GMATResources: React.FC = () => {
     const columns: GridColDef<Resource>[] = [
         { field: "sn", headerName: "Id", flex: 1 },
         { field: "title", headerName: "Title", flex: 2 },
+        { field: "test_type", headerName: "Test Type", flex: 2 },
         { field: "description", headerName: "Description", flex: 2 },
         {
             field: "category",
@@ -297,7 +311,7 @@ const GMATResources: React.FC = () => {
     return (
         <main className="min-h-[80vh] p-4">
             <div className="bg-[linear-gradient(0deg,#2164A6_80.26%,rgba(33,100,166,0)_143.39%)] rounded-xl mb-4">
-                <p className="font-bold text-[24px] text-white py-4 text-center">GMAT Resources</p>
+                <p className="font-bold text-[24px] text-white py-4 text-center">Resources</p>
             </div>
 
             <div className="flex flex-row gap-4 mb-4">
@@ -332,7 +346,7 @@ const GMATResources: React.FC = () => {
 
             {/* Add Resource Modal */}
             <Dialog open={openAddModal} onClose={() => setOpenAddModal(false)} maxWidth="sm" fullWidth>
-                <DialogTitle>Add GMAT Resource</DialogTitle>
+                <DialogTitle>Add Resource</DialogTitle>
                 <DialogContent>
                     <TextField
                         label="Title"
@@ -342,6 +356,18 @@ const GMATResources: React.FC = () => {
                         sx={{ mt: 2 }}
                         required
                     />
+                    <FormControl fullWidth sx={{ mt: 2 }}>
+                        <InputLabel>Test Type</InputLabel>
+                        <Select
+                            value={test_type}
+                            onChange={handleTestTypeChange}
+                            label="Test Type"
+                            required
+                        >
+                            <MenuItem value="GMAT">GMAT</MenuItem>
+                            <MenuItem value="GRE">GRE</MenuItem>
+                        </Select>
+                    </FormControl>
                     <TextField
                         label="Description"
                         fullWidth
@@ -352,17 +378,19 @@ const GMATResources: React.FC = () => {
                         sx={{ mt: 2 }}
                         required
                     />
-                    <FormControl fullWidth sx={{ mt: 2 }}>
-                        <InputLabel>Phase</InputLabel>
-                        <Select label="Phase" value={phase} onChange={handlePhaseChange} required>
-                            <MenuItem value="">Select</MenuItem>
-                            {phases.map((p) => (
-                                <MenuItem key={p} value={p}>
-                                    {p}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                    {test_type && (
+                        <FormControl fullWidth sx={{ mt: 2 }}>
+                            <InputLabel>Phase</InputLabel>
+                            <Select label="Phase" value={phase} onChange={handlePhaseChange} required>
+                                <MenuItem value="">Select</MenuItem>
+                                {phases.map((p) => (
+                                    <MenuItem key={p} value={p}>
+                                        {p}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    )}
                     {phase && (
                         <FormControl fullWidth sx={{ mt: 2 }}>
                             <InputLabel>Week</InputLabel>
@@ -489,4 +517,4 @@ const GMATResources: React.FC = () => {
     );
 };
 
-export default GMATResources;
+export default Resources;

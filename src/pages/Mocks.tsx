@@ -18,6 +18,7 @@ interface MockBooking {
   id: number;
   email: string;
   fullnames: string;
+  test_type: string;
   mock: string;
   date_submitted: string;
   marks: string;
@@ -25,7 +26,7 @@ interface MockBooking {
   sn?: number; // Serial number added dynamically
 }
 
-const GMATMocks: React.FC = () => {
+const Mocks: React.FC = () => {
   const [mocks, setMocks] = useState<MockBooking[]>([]);
   const [selectedMock, setSelectedMock] = useState<MockBooking | null>(null);
   const [openReviewModal, setOpenReviewModal] = useState(false);
@@ -42,7 +43,7 @@ const GMATMocks: React.FC = () => {
   });
 
   const API_URL =
-    "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/gmat_mocks_api.php";
+    "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/mocks_api.php";
 
   useEffect(() => {
     fetchMocks();
@@ -157,6 +158,7 @@ const GMATMocks: React.FC = () => {
       flex: 1,
       renderCell: (params) => <span className="badge bg-success">{params.value}</span>,
     },
+    { field: "test_type", headerName: "Test Type", flex: 1 },
     { field: "date_submitted", headerName: "Date Submitted", flex: 2 },
     { field: "marks", headerName: "Marks", flex: 1 },
     {
@@ -182,7 +184,7 @@ const GMATMocks: React.FC = () => {
     <main className="min-h-[80vh] p-4">
       <div className="bg-[linear-gradient(0deg,#2164A6_80.26%,rgba(33,100,166,0)_143.39%)] rounded-xl mb-4">
         <p className="font-bold text-[24px] text-white dark:text-white py-4 text-center">
-          GMAT Mock Bookings
+          Mock Bookings
         </p>
       </div>
 
@@ -248,4 +250,4 @@ const GMATMocks: React.FC = () => {
   );
 };
 
-export default GMATMocks;
+export default Mocks;

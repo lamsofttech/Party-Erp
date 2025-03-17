@@ -7,10 +7,11 @@ interface BookedExam {
   id: number;
   email: string;
   exam_date: string;
+  test_type: string;
   sn?: number; // Serial number added dynamically
 }
 
-const GMATBookedExams: React.FC = () => {
+const BookedExams: React.FC = () => {
   const [bookings, setBookings] = useState<BookedExam[]>([]);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
@@ -22,7 +23,7 @@ const GMATBookedExams: React.FC = () => {
     severity: "success",
   });
 
-  const API_URL = "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/gmat_booked_exams_api.php";
+  const API_URL = "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/booked_exams_api.php";
 
   useEffect(() => {
     fetchBookedExams();
@@ -57,6 +58,7 @@ const GMATBookedExams: React.FC = () => {
       valueGetter: (_, row) => row.sn,
     },
     { field: "email", headerName: "Personal Email", flex: 2 },
+    { field: "test_type", headerName: "Test Type", flex: 2 },
     { field: "exam_date", headerName: "Exam Date", flex: 2 },
   ];
 
@@ -66,7 +68,7 @@ const GMATBookedExams: React.FC = () => {
     <main className="min-h-[80vh] p-4">
       <div className="bg-[linear-gradient(0deg,#2164A6_80.26%,rgba(33,100,166,0)_143.39%)] rounded-xl mb-4">
         <p className="font-bold text-[24px] text-white dark:text-white py-4 text-center">
-          GMAT Booked Exams
+          Booked Exams
         </p>
       </div>
 
@@ -95,4 +97,4 @@ const GMATBookedExams: React.FC = () => {
   );
 };
 
-export default GMATBookedExams;
+export default BookedExams;

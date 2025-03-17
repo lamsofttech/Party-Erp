@@ -11,9 +11,10 @@ interface Applicant {
     email: string;
     full_name: string;
     package: string;
+    testType: string;
 }
 
-const GMATApplicants: React.FC = () => {
+const ExamApplicants: React.FC = () => {
     const [applicants, setApplicants] = useState<Applicant[]>([]);
     const [filteredApplicants, setFilteredApplicants] = useState<Applicant[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>("");
@@ -24,7 +25,7 @@ const GMATApplicants: React.FC = () => {
 
     const fetchApplicants = async () => {
         try {
-            const response = await axios.get("https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/gmat_applicants_api.php"); // Replace with your API URL
+            const response = await axios.get("https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/applicants_api.php");
             if (response.data.success) {
                 setApplicants(response.data.applicants);
                 setFilteredApplicants(response.data.applicants);
@@ -52,6 +53,7 @@ const GMATApplicants: React.FC = () => {
     const columns: GridColDef[] = [
         { field: "id", headerName: "ID", flex: 1 },
         { field: "email", headerName: "Email", flex: 2 },
+        { field: "testType", headerName: "Test Type", flex: 1 },
         { field: "full_name", headerName: "Name", flex: 1 },
         { field: "package", headerName: "Package", flex: 1 },
         {
@@ -73,7 +75,7 @@ const GMATApplicants: React.FC = () => {
     return (
         <main className="min-h-[80vh] p-4">
             <div className="bg-[linear-gradient(0deg,#2164A6_80.26%,rgba(33,100,166,0)_143.39%)] rounded-xl mb-4">
-                <p className="font-bold text-[24px] text-white dark:text-white py-4 text-center">GMAT Applications Table</p>
+                <p className="font-bold text-[24px] text-white dark:text-white py-4 text-center">Applications Table</p>
             </div>
 
             <div className="flex flex-row gap-4 mb-4">
@@ -92,8 +94,8 @@ const GMATApplicants: React.FC = () => {
                     onClick={() => {
                         const worksheet = XLSX.utils.json_to_sheet(filteredApplicants);
                         const workbook = XLSX.utils.book_new();
-                        XLSX.utils.book_append_sheet(workbook, worksheet, "GMAT Applicants");
-                        XLSX.writeFile(workbook, "gmat_applicants.xlsx");
+                        XLSX.utils.book_append_sheet(workbook, worksheet, "Exam Applicants");
+                        XLSX.writeFile(workbook, "exam_applicants.xlsx");
                     }}
                 >
                     Export to Excel
@@ -117,4 +119,4 @@ const GMATApplicants: React.FC = () => {
     );
 };
 
-export default GMATApplicants;
+export default ExamApplicants;

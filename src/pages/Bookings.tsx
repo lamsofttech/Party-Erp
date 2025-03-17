@@ -19,13 +19,14 @@ import {
 } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
+import * as XLSX from 'xlsx';
 
-interface GMATBooking {
+interface Booking {
     id: number;
     email: string;
     fullnames: string;
-    gmat_email: string;
     exam_type: number;
+    test_type: string;
     username: string;
     password: string;
     exam_center: string;
@@ -37,9 +38,11 @@ interface GMATBooking {
     sn?: number; // Serial number added dynamically
 }
 
-const GMATBookings: React.FC = () => {
-    const [bookings, setBookings] = useState<GMATBooking[]>([]);
-    const [selectedBooking, setSelectedBooking] = useState<GMATBooking | null>(null);
+const Bookings: React.FC = () => {
+    const [bookings, setBookings] = useState<Booking[]>([]);
+    const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]); // Added for filtered data
+    const [searchQuery, setSearchQuery] = useState<string>("");
+    const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
     const [openApproveModal, setOpenApproveModal] = useState(false);
     const [openRejectModal, setOpenRejectModal] = useState(false);
     const [openDetailsModal, setOpenDetailsModal] = useState(false); // New state
@@ -57,7 +60,7 @@ const GMATBookings: React.FC = () => {
         severity: "success",
     });
 
-    const API_URL = "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/gmat_bookings_api.php";
+    const API_URL = "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/bookings_api.php";
 
     useEffect(() => {
         fetchBookings();
@@ -68,9 +71,10 @@ const GMATBookings: React.FC = () => {
             const response = await axios.get(`${API_URL}`);
             if (response.data.success) {
                 const validBookings = response.data.bookings.filter(
-                    (booking: GMATBooking) => booking.exam_center && booking.country
+                    (booking: Booking) => booking.exam_center && booking.country
                 );
                 setBookings(validBookings);
+                setFilteredBookings(validBookings);
             } else {
                 setSnackbar({
                     open: true,
@@ -85,6 +89,19 @@ const GMATBookings: React.FC = () => {
                 severity: "error",
             });
         }
+    };
+
+    const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const query = event.target.value.toLowerCase();
+        setSearchQuery(query);
+        setFilteredBookings(
+            bookings.filter(
+                (booking) =>
+                    booking.fullnames.toLowerCase().includes(query) ||
+                    booking.email.toLowerCase().includes(query) ||
+                    booking.test_type.toLowerCase().includes(query)
+            )
+        );
     };
 
     const handleApprove = async () => {
@@ -177,10 +194,11 @@ const GMATBookings: React.FC = () => {
         }
     };
 
-    const columns: GridColDef<GMATBooking>[] = [
+    const columns: GridColDef<Booking>[] = [
         { field: "sn", headerName: "Id", flex: 1, valueGetter: (_, row) => row.sn },
         { field: "email", headerName: "Email", flex: 2 },
         { field: "fullnames", headerName: "Name", flex: 2 },
+        { field: "test_type", headerName: "Test Type", flex: 1 },
         {
             field: "exam_type",
             headerName: "Exam Type",
@@ -228,14 +246,38 @@ const GMATBookings: React.FC = () => {
         },
     ];
 
-    const rows = bookings.map((booking, index) => ({ ...booking, sn: index + 1 }));
+    const rows = filteredBookings.map((booking, index) => ({ ...booking, sn: index + 1 }));
 
     return (
         <main className="min-h-[80vh] p-4">
             <div className="bg-[linear-gradient(0deg,#2164A6_80.26%,rgba(33,100,166,0)_143.39%)] rounded-xl mb-4">
                 <p className="font-bold text-[24px] text-white dark:text-white py-4 text-center">
-                    GMAT Bookings
+                    Bookings
                 </p>
+            </div>
+
+            <div className="flex flex-row gap-4 mb-4">
+                <TextField
+                    label="Search..."
+                    variant="outlined"
+                    fullWidth
+                    value={searchQuery}
+                    onChange={handleSearch}
+                    sx={{ input: { backgroundColor: "white" }, flex: 1 }}
+                />
+                <Button
+                    variant="contained"
+                    color="primary"
+                    size="small"
+                    onClick={() => {
+                        const worksheet = XLSX.utils.json_to_sheet(filteredBookings);
+                        const workbook = XLSX.utils.book_new();
+                        XLSX.utils.book_append_sheet(workbook, worksheet, "Bookings");
+                        XLSX.writeFile(workbook, "bookings.xlsx");
+                    }}
+                >
+                    Export to Excel
+                </Button>
             </div>
 
             <div className="bg-white mt-8 rounded-lg shadow-md overflow-x-auto">
@@ -248,7 +290,6 @@ const GMATBookings: React.FC = () => {
                     disableRowSelectionOnClick
                     localeText={{ noRowsLabel: "No bookings found!" }}
                     className="border-none"
-                    autoHeight
                     onCellClick={(params) => {
                         if (params.field !== "action") {
                             setSelectedBooking(params.row);
@@ -267,7 +308,7 @@ const GMATBookings: React.FC = () => {
                             <p><strong>ID:</strong> {selectedBooking.id}</p>
                             <p><strong>Email:</strong> {selectedBooking.email}</p>
                             <p><strong>Full Names:</strong> {selectedBooking.fullnames}</p>
-                            <p><strong>GMAT Email:</strong> {selectedBooking.gmat_email}</p>
+                            <p><strong>Test Type:</strong> {selectedBooking.test_type}</p>
                             <p><strong>Exam Type:</strong> {selectedBooking.exam_type === 1 ? "Classic" : "Focus"}</p>
                             <p><strong>Username:</strong> {selectedBooking.username}</p>
                             <p><strong>Password:</strong> {selectedBooking.password}</p>
@@ -287,7 +328,7 @@ const GMATBookings: React.FC = () => {
 
             {/* Approve Modal */}
             <Dialog open={openApproveModal} onClose={() => setOpenApproveModal(false)}>
-                <DialogTitle>Set GMAT Date</DialogTitle>
+                <DialogTitle>Set Date</DialogTitle>
                 <DialogContent>
                     <FormControl fullWidth sx={{ mt: 2 }}>
                         <InputLabel>Select Date</InputLabel>
@@ -375,4 +416,4 @@ const GMATBookings: React.FC = () => {
     );
 };
 
-export default GMATBookings;
+export default Bookings;

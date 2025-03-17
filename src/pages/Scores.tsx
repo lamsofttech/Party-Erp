@@ -3,15 +3,15 @@ import axios from "axios";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { Snackbar, Alert } from "@mui/material";
 
-interface GMATScore {
+interface Score {
     full_name: string;
     email: string;
-    gmat_score: string;
+    test_score: string;
     sn?: number;
 }
 
-const GMATScores: React.FC = () => {
-    const [scores, setScores] = useState<GMATScore[]>([]);
+const Scores: React.FC = () => {
+    const [scores, setScores] = useState<Score[]>([]);
     const [snackbar, setSnackbar] = useState<{
         open: boolean;
         message: string;
@@ -22,7 +22,7 @@ const GMATScores: React.FC = () => {
         severity: "success",
     });
 
-    const API_URL = "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/gmat_scores_api.php";
+    const API_URL = "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/scores_api.php";
 
     useEffect(() => {
         fetchScores();
@@ -49,11 +49,12 @@ const GMATScores: React.FC = () => {
         }
     };
 
-    const columns: GridColDef<GMATScore>[] = [
+    const columns: GridColDef<Score>[] = [
         { field: "sn", headerName: "Id", flex: 1, valueGetter: (_, row) => row.sn },
         { field: "full_name", headerName: "Full Name", flex: 2 },
         { field: "email", headerName: "Personal Email", flex: 2 },
-        { field: "gmat_score", headerName: "GMAT Score", flex: 1 },
+        { field: "test_type", headerName: "Test Type", flex: 1 },
+        { field: "test_score", headerName: "Score", flex: 1 },
     ];
 
     const rows = scores.map((score, index) => ({ ...score, sn: index + 1 }));
@@ -62,7 +63,7 @@ const GMATScores: React.FC = () => {
         <main className="min-h-[80vh] p-4">
             <div className="bg-[linear-gradient(0deg,#2164A6_80.26%,rgba(33,100,166,0)_143.39%)] rounded-xl mb-4">
                 <p className="font-bold text-[24px] text-white dark:text-white py-4 text-center">
-                    GMAT Scores
+                    Scores
                 </p>
             </div>
 
@@ -91,4 +92,4 @@ const GMATScores: React.FC = () => {
     );
 };
 
-export default GMATScores;
+export default Scores;
