@@ -99,9 +99,14 @@ function Sidenav() {
                                 </NavLink> */}
                                     {/* </div>
                                 </div> */}
-                                <Link to="" className="text-gray-400 hover:text-white transition-colors duration-200">
+                                <NavLink
+                                    to="/school-admission"
+                                    className={({ isActive }) =>
+                                        `transition-colors duration-200 ${isActive ? "text-white font-bold" : "text-gray-400 hover:text-white"}`
+                                    }
+                                >
                                     • School Admission
-                                </Link>
+                                </NavLink>
                                 <Link to="" className="text-gray-400 hover:text-white transition-colors duration-200">
                                     • Visa
                                 </Link>

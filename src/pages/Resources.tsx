@@ -119,6 +119,7 @@ const Resources: React.FC = () => {
 
     const handleTestTypeChange = (event: any) => {
         const selected = event.target.value as string;
+        setPhase("");
         setTestType(selected);
         fetchPhases(selected);
     };

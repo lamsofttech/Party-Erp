@@ -40,12 +40,10 @@ import BookedExams from "../pages/BookedExams";
 import Results from "../pages/Results";
 import Scores from "../pages/Scores";
 import Resources from "../pages/Resources";
-// import GREApplicants from "../pages/GREApplications";
-// import GREApplicant from "../pages/GREApplicant";
-// import GRETrainings from "../pages/GRETraining";
-// import GREMocks from "../pages/GREMocks";
-// import GREBookings from "../pages/GREBookings";
-// import GREBookedExams from "../pages/GREBookedExams";
+import SchoolApplicationDashboard from "../pages/SchoolAdmission";
+import Intakes from "../pages/Intakes";
+import ViewIntake from "../pages/SingleIntake";
+import MeetingRequests from "../pages/MeetingRequests";
 
 function Router() {
   return (
@@ -93,12 +91,10 @@ function Router() {
             <Route path="entrance-exams/results" element={<Results />} />
             <Route path="entrance-exams/scores" element={<Scores />} />
             <Route path="entrance-exams/resources" element={<Resources />} />
-            {/* <Route path="entrance-exams/gre-applications" element={<GREApplicants />} />
-            <Route path="entrance-exams/gre-applications/:memberName" element={<GREApplicant />} />
-            <Route path="entrance-exams/gre-trainings" element={<GRETrainings />} />
-            <Route path="entrance-exams/gre-mocks" element={<GREMocks />} />
-            <Route path="entrance-exams/gre-bookings" element={<GREBookings />} />
-            <Route path="entrance-exams/gre-booked-exams" element={<GREBookedExams />} /> */}
+            <Route path="school-admission" element={<SchoolApplicationDashboard />} />
+            <Route path="school-admission/intakes" element={<Intakes />} />
+            <Route path="school-admission/intakes/:intakeName" element={<ViewIntake />} />
+            <Route path="school-admission/meeting-requests" element={<MeetingRequests />} />
           </Route>
         </Route>
       </Routes>
