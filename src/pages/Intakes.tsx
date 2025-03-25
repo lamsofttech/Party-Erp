@@ -155,11 +155,11 @@ const Intakes: React.FC = () => {
                 const day = String(date.getDate()).padStart(2, '0');
                 return `${year}-${month}-${day}`;
             };
-    
+
             const start_date = formatDate(startDate);
             const end_date = formatDate(endDate);
 
-            console.log("Before formatting:",{ startDate, endDate });
+            console.log("Before formatting:", { startDate, endDate });
             const response = await axios.post(API_URL, {
                 action: "add",
                 year: year,
@@ -385,7 +385,7 @@ const Intakes: React.FC = () => {
                                                 </div>
 
                                                 <div className="card-body mb-4">
-                                                    
+
 
                                                     <div className="flex flex-row gap-4 mb-4">
                                                         <TextField
@@ -393,7 +393,7 @@ const Intakes: React.FC = () => {
                                                             variant="outlined"
                                                             fullWidth
                                                             value={searchQuery}
-                                                                onChange={handleSearch}
+                                                            onChange={handleSearch}
                                                             sx={{ flex: 1 }}
                                                         />
                                                         <Button

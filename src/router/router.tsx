@@ -44,6 +44,7 @@ import SchoolApplicationDashboard from "../pages/SchoolAdmission";
 import Intakes from "../pages/Intakes";
 import ViewIntake from "../pages/SingleIntake";
 import MeetingRequests from "../pages/MeetingRequests";
+import Room from "../pages/Room";
 
 function Router() {
   return (
@@ -95,6 +96,7 @@ function Router() {
             <Route path="school-admission/intakes" element={<Intakes />} />
             <Route path="school-admission/intakes/:intakeName" element={<ViewIntake />} />
             <Route path="school-admission/meeting-requests" element={<MeetingRequests />} />
+            <Route path="school-admission/meeting-requests/:roomName" element={<Room />} />
           </Route>
         </Route>
       </Routes>
