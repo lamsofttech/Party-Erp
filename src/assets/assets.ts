@@ -21,7 +21,11 @@ import reverse from './reverse.png';
 import confirm from './confirm.png';
 import requestAccess from './requestAccess.png';
 import access2 from './access2.png';
-
+import calculator from './9148049_4092550.svg';
+import calculator2 from './65674510_9610080.svg';
+import pendingGPA from './8451586_3914790.jpg';
+import approve from './3dcheck.jpg';
+import resubmission from './5843118_2996466.svg';
 const assets = {
     statement,
     disburse,
@@ -45,7 +49,12 @@ const assets = {
     reverse,
     confirm,
     requestAccess,
-    access2
+    access2,
+    calculator,
+    calculator2,
+    pendingGPA,
+    approve,
+    resubmission,
 };
 
 export default assets;

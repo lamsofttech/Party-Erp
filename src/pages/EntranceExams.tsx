@@ -163,7 +163,7 @@ const EntranceExamsDashboard: React.FC = () => {
                         <motion.div key={section.title} variants={tileVariants}>
                             <Link to={section.path}>
                                 <div className="bg-white shadow-lg rounded-lg overflow-hidden transform hover:scale-105 transition-transform duration-300 h-[210px]">
-                                    <div className="h-2" style={{ backgroundColor: section.color }} />
+                                    <div className="h-1" style={{ backgroundColor: section.color }} />
                                     <div className="p-6 flex flex-col items-center text-center">
                                         <div className="text-5xl mb-4" style={{ color: section.color }}>
                                             {section.icon}

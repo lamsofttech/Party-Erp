@@ -9,6 +9,8 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { Typography, TextField, Button, Snackbar, Alert, CircularProgress, Card, CardContent, IconButton, Dialog, DialogTitle, DialogContent, FormControl, FormLabel, RadioGroup, FormControlLabel, DialogActions } from "@mui/material";
 import { AnimatePresence, motion } from "framer-motion";
 import Radio from '@mui/material/Radio';
+import CommentIcon from '@mui/icons-material/Comment';
+import Tooltip from '@mui/material/Tooltip';
 
 interface Application {
     id: number;
@@ -33,6 +35,7 @@ interface Application {
     u_cert: string;
     transcript: string;
     credit_report_status: string;
+    transcript_comment: string | null;
 }
 
 interface Email {
@@ -323,6 +326,9 @@ const ApplicationDetails: React.FC = () => {
     const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
     const [openEmailDialog, setOpenEmailDialog] = useState(false);
     const [loadingEmail, setLoadingEmail] = useState(false);
+    const [openCommentModal, setOpenCommentModal] = useState(false);
+    const [comment, setComment] = useState("");
+    const [submittingComment, setSubmittingComment] = useState(false);
 
     const handleViewEmail = async (emailId: number) => {
         setLoadingEmail(true);
@@ -501,6 +507,45 @@ const ApplicationDetails: React.FC = () => {
         );
     };
 
+    const handleSubmitComment = async () => {
+        if (!comment.trim()) {
+            setSnackbar({ open: true, message: "Please enter a comment", severity: "error" });
+            return;
+        }
+
+        try {
+            setSubmittingComment(true);
+            const response = await axios.post(
+                "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/onboarding/APIs/view_application.php",
+                {
+                    action: "comment_transcript",
+                    id: application?.id,
+                    comment: comment
+                }
+            );
+
+            setSnackbar({
+                open: true,
+                message: response.data.message,
+                severity: response.data.status === "success" ? "success" : "error"
+            });
+
+            if (response.data.status === "success") {
+                fetchApplication(); // Refresh application data
+                setOpenCommentModal(false);
+                setComment(""); // Clear the comment
+            }
+        } catch (error) {
+            setSnackbar({
+                open: true,
+                message: "Error submitting comment!",
+                severity: "error"
+            });
+        } finally {
+            setSubmittingComment(false);
+        }
+    };
+
     useEffect(() => {
         fetchApplication();
         fetchEmails();
@@ -571,8 +616,62 @@ const ApplicationDetails: React.FC = () => {
                                 <IconButton onClick={() => handleOpen(doc)}>
                                     <VisibilityIcon color="primary" />
                                 </IconButton>
+                                {doc.name === "Undergraduate Transcripts" && (
+                                    <Tooltip title="Comment on transcript">
+                                        <IconButton
+                                            onClick={() => setOpenCommentModal(true)}
+                                            color="warning"
+                                        >
+                                            <CommentIcon />
+                                        </IconButton>
+                                    </Tooltip>
+                                )}
                             </div>
                         ))}
+                        <Dialog open={openCommentModal} onClose={() => setOpenCommentModal(false)} fullWidth maxWidth="sm">
+                            <DialogTitle>Comment on Transcript</DialogTitle>
+                            <DialogContent>
+                                <Typography variant="subtitle1">Applicant: {application?.fullnames}</Typography>
+                                <form>
+                                    <TextField
+                                        name="transcript_comment"
+                                        label="Comment"
+                                        multiline
+                                        rows={4}
+                                        fullWidth
+                                        value={comment}
+                                        onChange={(e) => setComment(e.target.value)}
+                                        margin="normal"
+                                        variant="outlined"
+                                    />
+
+                                    {application?.transcript_comment && (
+                                        <div className="mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                            <Typography variant="subtitle2" color="textSecondary">Previous Comment:</Typography>
+                                            <Typography variant="body1">{application.transcript_comment}</Typography>
+                                        </div>
+                                    )}
+                                    {!application?.transcript_comment && (
+                                        <Typography variant="body2" color="textSecondary" className="mt-2">
+                                            No previous comments on this transcript
+                                        </Typography>
+                                    )}
+                                </form>
+                            </DialogContent>
+                            <DialogActions>
+                                <Button onClick={() => setOpenCommentModal(false)} color="secondary">
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={handleSubmitComment}
+                                    variant="contained"
+                                    color="primary"
+                                    disabled={submittingComment}
+                                >
+                                    {submittingComment ? "Submitting..." : "Submit Comment"}
+                                </Button>
+                            </DialogActions>
+                        </Dialog>
 
                         {/* Dialog with Close Button */}
                         <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>

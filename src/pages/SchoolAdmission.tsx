@@ -23,8 +23,8 @@ import React from 'react';
 const actionCards = [
     { title: "Application Intakes", icon: <CalendarTodayIcon />, path: "/school-admission/intakes", info: "Current Intake: Fall 2023" },
     { title: "Meeting Room", icon: <MeetingRoomIcon />, path: "/school-admission/meeting-requests", count: 5 },
-    { title: "School App Documents Review", icon: <DescriptionIcon />, path: "/school-application/documents-dash", count: 10 },
-    { title: "GPA Calculation", icon: <CalculateIcon />, path: "/school-application/gpa-dash", count: 8 },
+    { title: "GPA Calculation", icon: <CalculateIcon />, path: "/school-admission/GPA-dashboard", count: 8 },
+    { title: "School App Documents Review", icon: <DescriptionIcon />, path: "/school-admission/application-documents", count: 10 },
     { title: "School Application", icon: <SchoolIcon />, path: "/school-application/school-application", count: 15 },
     { title: "School Application (On Progress)", icon: <HourglassEmptyIcon />, path: "/school-application/on-progress", count: 7 },
     { title: "School Application (Pending Approval)", icon: <PendingIcon />, path: "/school-application/pending-approval", count: 3 },

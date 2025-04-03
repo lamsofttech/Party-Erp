@@ -77,10 +77,10 @@ interface Course {
 
 interface ProposedCourse {
     id: number;
-    school: string; // School ID
-    course: string; // Course ID
-    school_name: string; // Resolved name from Get_school_byId
-    program_name: string; // Resolved name from Get_program_byId
+    school: string;
+    course: string;
+    school_name: string;
+    program_name: string;
 }
 
 declare global {

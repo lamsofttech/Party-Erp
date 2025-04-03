@@ -45,6 +45,17 @@ import Intakes from "../pages/Intakes";
 import ViewIntake from "../pages/SingleIntake";
 import MeetingRequests from "../pages/MeetingRequests";
 import Room from "../pages/Room";
+import GPADashboard from "../pages/GPADashboard";
+import GpaCalculations from "../pages/GPACalculation";
+import CareerGpaCalculations from "../pages/CareerGPACalculation";
+import PendingGpaCalculations from "../pages/PendingGPA";
+import GPAApprovals from "../pages/GPAApproval";
+import Resubmissions from "../pages/Re-submissions";
+import DocumentDashboard from "../pages/DocumentsDashboard";
+import StudentDocuments from "../pages/StudentDocuments";
+import ApprovedDocuments from "../pages/ApprovedDocuments";
+import RejectedDocuments from "../pages/RejectedDocuments";
+import Transcripts from "../pages/Transcripts";
 
 function Router() {
   return (
@@ -97,6 +108,21 @@ function Router() {
             <Route path="school-admission/intakes/:intakeName" element={<ViewIntake />} />
             <Route path="school-admission/meeting-requests" element={<MeetingRequests />} />
             <Route path="school-admission/meeting-requests/:roomName" element={<Room />} />
+            <Route path="school-admission/GPA-dashboard" element={<GPADashboard />} />
+            <Route path="school-admission/GPA-dashboard/GPA-calculation" element={<GpaCalculations />} />
+            <Route path="school-admission/GPA-dashboard/GPA-calculation/:memberName" element={<ApplicationDetails />} />
+            <Route path="school-admission/GPA-dashboard/career-advisory-GPA-calculation" element={<CareerGpaCalculations />} />
+            <Route path="school-admission/GPA-dashboard/career-advisory-GPA-calculation/:memberName" element={<ApplicationDetails />} />
+            <Route path="school-admission/GPA-dashboard/pending-gpa-calculation" element={<PendingGpaCalculations />} />
+            <Route path="school-admission/GPA-dashboard/gpa-approval" element={<GPAApprovals />} />
+            <Route path="school-admission/GPA-dashboard/gpa-approval/:memberName" element={<ApplicationDetails />} />
+            <Route path="school-admission/GPA-dashboard/transcript-resubmissions/" element={<Resubmissions />} />
+            <Route path="school-admission/GPA-dashboard/transcript-resubmissions/:memberName" element={<ApplicationDetails />} />
+            <Route path="school-admission/application-documents" element={<DocumentDashboard />} />
+            <Route path="school-admission/application-documents/student-documents" element={<StudentDocuments />} />
+            <Route path="school-admission/application-documents/approved-documents" element={<ApprovedDocuments />} />
+            <Route path="school-admission/application-documents/rejected-documents" element={<RejectedDocuments />} />
+            <Route path="school-admission/application-documents/transcripts" element={<Transcripts />} />
           </Route>
         </Route>
       </Routes>
