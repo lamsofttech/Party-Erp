@@ -182,7 +182,6 @@ const StudentDocuments: React.FC = () => {
         return documentTypeMap[typeId] || `Document Type ${typeId}`;
     };
 
-    // Fetch student documents
     const fetchStudentDocuments = async () => {
         setIsLoading(true);
         try {

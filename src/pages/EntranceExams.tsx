@@ -1,293 +1,380 @@
 import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import CountUp from "react-countup";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import SchoolIcon from "@mui/icons-material/School";
-import ReceiptIcon from "@mui/icons-material/Receipt";
-import EventIcon from "@mui/icons-material/Event";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import SettingsIcon from "@mui/icons-material/Settings";
-import { FaMedal } from "react-icons/fa";
 import axios from "axios";
-import Alert, { AlertColor } from "@mui/material/Alert";
-import Snackbar from "@mui/material/Snackbar";
+import { motion } from "framer-motion";
+import CountUp from "react-countup";
+import { Alert, Snackbar } from "@mui/material";
+import type { AlertColor } from "@mui/material";
+import { 
+  UserPlus, 
+  GraduationCap, 
+  FileText, 
+  Calendar, 
+  CalendarCheck2, 
+  CheckCircle, 
+  Eye, 
+  BookOpen,
+  Trophy,
+  ArrowUpRight 
+} from "lucide-react";
 
 // Define section interface
 interface Section {
-    title: string;
-    path: string;
-    icon: JSX.Element;
-    statKey: Exclude<keyof Stats, 'top_gmat_students' | 'top_gre_students'>;
-    color: string;
+  title: string;
+  path: string;
+  icon: JSX.Element;
+  statKey: Exclude<keyof Stats, 'top_gmat_students' | 'top_gre_students'>;
+  colorClass: string;
+  description: string;
 }
 
 // Mock data
 interface Stats {
-    total_applicants: number;
-    total_phases: number;
-    total_active_mocks: number;
-    total_exam_bookings: number;
-    total_approved_exams: number;
-    total_pending_results: number;
-    total_approved_scores: number;
-    total_resources: number;
-    top_gmat_students: LeaderboardEntry[];
-    top_gre_students: LeaderboardEntry[];
+  total_applicants: number;
+  total_phases: number;
+  total_active_mocks: number;
+  total_exam_bookings: number;
+  total_approved_exams: number;
+  total_pending_results: number;
+  total_approved_scores: number;
+  total_resources: number;
+  top_gmat_students: LeaderboardEntry[];
+  top_gre_students: LeaderboardEntry[];
 }
 
 interface LeaderboardEntry {
-    full_name: string;
-    test_type: string;
-    score: number;
+  full_name: string;
+  test_type: string;
+  score: number;
 }
 
-// Section definitions with unique colors
+// Section definitions with a more cohesive color scheme
 const Sections: Section[] = [
-    { title: "Applications", path: "/entrance-exams/applications", icon: <PersonAddIcon />, statKey: "total_applicants", color: "#4CAF50" },
-    { title: "Trainings", path: "/entrance-exams/trainings", icon: <SchoolIcon />, statKey: "total_phases", color: "#2196F3" },
-    { title: "Mocks", path: "/entrance-exams/mocks", icon: <ReceiptIcon />, statKey: "total_active_mocks", color: "#FF9800" },
-    { title: "Exam Bookings", path: "/entrance-exams/bookings", icon: <EventIcon />, statKey: "total_exam_bookings", color: "#9C27B0" },
-    { title: "Booked Exams", path: "/entrance-exams/booked-exams", icon: <CalendarTodayIcon />, statKey: "total_approved_exams", color: "#F44336" },
-    { title: "Approve Results", path: "/entrance-exams/results", icon: <CheckCircleIcon />, statKey: "total_pending_results", color: "#00BCD4" },
-    { title: "Approved Scores", path: "/entrance-exams/scores", icon: <VisibilityIcon />, statKey: "total_approved_scores", color: "#673AB7" },
-    { title: "Training Resources", path: "/entrance-exams/resources", icon: <SettingsIcon />, statKey: "total_resources", color: "#E91E63" },
+  { 
+    title: "Applications", 
+    path: "/entrance-exams/applications", 
+    icon: <UserPlus size={24} />, 
+    statKey: "total_applicants", 
+    colorClass: "text-[#1a9970] bg-[#1a9970]/10 border-[#1a9970]",
+    description: "Student applications" 
+  },
+  { 
+    title: "Trainings", 
+    path: "/entrance-exams/trainings", 
+    icon: <GraduationCap size={24} />, 
+    statKey: "total_phases", 
+    colorClass: "text-[#2164a6] bg-[#2164a6]/10 border-[#2164a6]",
+    description: "Active training phases" 
+  },
+  { 
+    title: "Mocks", 
+    path: "/entrance-exams/mocks", 
+    icon: <FileText size={24} />, 
+    statKey: "total_active_mocks", 
+    colorClass: "text-[#1a9970] bg-[#1a9970]/10 border-[#1a9970]",
+    description: "Active mock exams" 
+  },
+  { 
+    title: "Exam Bookings", 
+    path: "/entrance-exams/bookings", 
+    icon: <Calendar size={24} />, 
+    statKey: "total_exam_bookings", 
+    colorClass: "text-[#2164a6] bg-[#2164a6]/10 border-[#2164a6]",
+    description: "Pending exam bookings" 
+  },
+  { 
+    title: "Booked Exams", 
+    path: "/entrance-exams/booked-exams", 
+    icon: <CalendarCheck2 size={24} />, 
+    statKey: "total_approved_exams", 
+    colorClass: "text-[#1a9970] bg-[#1a9970]/10 border-[#1a9970]",
+    description: "Approved exam bookings" 
+  },
+  { 
+    title: "Pending Results", 
+    path: "/entrance-exams/results", 
+    icon: <CheckCircle size={24} />, 
+    statKey: "total_pending_results", 
+    colorClass: "text-[#2164a6] bg-[#2164a6]/10 border-[#2164a6]",
+    description: "Results awaiting approval" 
+  },
+  { 
+    title: "Approved Scores", 
+    path: "/entrance-exams/scores", 
+    icon: <Eye size={24} />, 
+    statKey: "total_approved_scores", 
+    colorClass: "text-[#1a9970] bg-[#1a9970]/10 border-[#1a9970]",
+    description: "Verified exam scores" 
+  },
+  { 
+    title: "Resources", 
+    path: "/entrance-exams/resources", 
+    icon: <BookOpen size={24} />, 
+    statKey: "total_resources", 
+    colorClass: "text-[#2164a6] bg-[#2164a6]/10 border-[#2164a6]",
+    description: "Training materials" 
+  },
 ];
 
-const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-        opacity: 1,
-        transition: { staggerChildren: 0.1 },
-    },
-};
-
-const tileVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-};
-
-// Medal Colors
-const medalColors: Record<number, string> = {
-    1: "from-yellow-400 to-yellow-600",
-    2: "from-gray-400 to-gray-600",
-    3: "from-orange-400 to-orange-600",
-};
-
-// Variants for animations
-const listVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-};
-
 const EntranceExamsDashboard: React.FC = () => {
-    const [stats, setStats] = useState<Stats>({
-        total_applicants: 0,
-        total_phases: 0,
-        total_active_mocks: 0,
-        total_exam_bookings: 0,
-        total_approved_exams: 0,
-        total_pending_results: 0,
-        total_approved_scores: 0,
-        total_resources: 0,
-        top_gmat_students: [],
-        top_gre_students: [],
-    });
-    const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: AlertColor }>({
-        open: false,
-        message: "",
-        severity: "info",
-    });
+  const [stats, setStats] = useState<Stats>({
+    total_applicants: 0,
+    total_phases: 0,
+    total_active_mocks: 0,
+    total_exam_bookings: 0,
+    total_approved_exams: 0,
+    total_pending_results: 0,
+    total_approved_scores: 0,
+    total_resources: 0,
+    top_gmat_students: [],
+    top_gre_students: [],
+  });
+  
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: AlertColor }>({
+    open: false,
+    message: "",
+    severity: "info",
+  });
+  
+  const [loading, setLoading] = useState<boolean>(true);
 
-    useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const response = await axios.get("https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/stats.php"); // Replace with your actual API URL
-                if (response.data.success) {
-                    setStats(response.data.stats);
-                    // setSnackbar({
-                    //     open: true,
-                    //     message: "Statistics retrieved successfully",
-                    //     severity: "success",
-                    // });
-                } else {
-                    setSnackbar({
-                        open: true,
-                        message: response.data.message || "Failed to load statistics",
-                        severity: "error",
-                    });
-                }
-            } catch (error) {
-                console.error("Error fetching stats:", error);
-                setSnackbar({
-                    open: true,
-                    message: "Error loading statistics",
-                    severity: "error",
-                });
-            }
-        };
-
-        fetchStats();
-    }, []);
-
-    const handleCloseSnackbar = () => {
-        setSnackbar({ ...snackbar, open: false });
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(
+          "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/stats.php"
+        );
+        
+        if (response.data.success) {
+          setStats(response.data.stats);
+        } else {
+          setSnackbar({
+            open: true,
+            message: response.data.message || "Failed to load statistics",
+            severity: "error",
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+        setSnackbar({
+          open: true,
+          message: "Error loading statistics",
+          severity: "error",
+        });
+      } finally {
+        setLoading(false);
+      }
     };
 
+    fetchStats();
+  }, []);
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.08 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.4 }
+    }
+  };
+
+  if (loading) {
     return (
-        <div className="min-h-screen p-8 relative overflow-hidden">
-            {/* Subtle Background Watermark */}
-            <div
-                className="absolute inset-0 opacity-5"
-                style={{
-                    backgroundImage: "radial-gradient(circle, #d1d5db 1px, transparent 1px)",
-                    backgroundSize: "20px 20px",
-                }}
-            />
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center">
+          <div className="w-12 h-12 border-4 border-t-4 border-gray-200 border-t-[#1a9970] rounded-full animate-spin"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading dashboard data...</p>
+        </div>
+      </div>
+    );
+  }
 
-            <div className="font-bold text-[24px] text-[#2164A6] dark:text-white mb-4">
-                <p>Entrance Exams Dashboard</p>
+  return (
+    <div className="container mx-auto px-4 pb-8">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-4">
+          <div className="w-1 h-8 bg-gradient-to-b from-[#1a9970] to-[#2164a6] rounded"></div>
+          Entrance Exams Dashboard
+        </h1>
+        <p className="text-gray-500 dark:text-gray-400 mt-2">
+          Monitor exam applications, training progress, and student performance
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        {/* Main Content Area (Stats Cards) */}
+        <div className="xl:col-span-2">
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            {Sections.map((section, _index) => (
+              <motion.div key={section.title} variants={itemVariants}>
+                <Link to={section.path} className="block h-full">
+                  <div className={`bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-6 h-full group relative overflow-hidden border-l-4 ${section.colorClass.split(' ')[2]}`}>
+                    <div className="flex items-center gap-4 mb-1">
+                      <div className={`p-2 rounded-lg ${section.colorClass.split(' ').slice(0, 2).join(' ')}`}>
+                        {section.icon}
+                      </div>
+                      <h3 className="font-medium text-gray-800 dark:text-white">{section.title}</h3>
+                    </div>
+                    
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                      {section.description}
+                    </p>
+                    
+                    <div className="mt-2">
+                      <div className={`text-3xl font-bold ${section.colorClass.split(' ')[0]}`}>
+                        <CountUp end={stats[section.statKey]} duration={1.5} />
+                      </div>
+                    </div>
+                    
+                    <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <ArrowUpRight size={16} className="text-gray-400" />
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+
+        {/* Leaderboard */}
+        <div className="xl:col-span-1">
+          <motion.div 
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden h-full"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <div className="bg-gradient-to-r from-[#1a9970] to-[#2164a6] p-4">
+              <div className="flex items-center gap-2 text-white">
+                <Trophy size={20} />
+                <h2 className="text-xl font-bold">Top Performers</h2>
+              </div>
             </div>
-
-            <div className="flex flex-col lg:flex-row gap-10 relative z-10">
-                {/* Section Tiles */}
-                <motion.div
-                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 flex-1"
+            
+            <div className="p-4">
+              {/* GMAT Leaderboard */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold text-gray-800 dark:text-white">GMAT</h3>
+                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
+                    Top Scores
+                  </span>
+                </div>
+                
+                {stats.top_gmat_students.length === 0 ? (
+                  <div className="text-center py-6 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
+                    <p className="text-gray-500 dark:text-gray-400 text-sm italic">No GMAT scores available</p>
+                  </div>
+                ) : (
+                  <motion.div 
+                    className="space-y-3"
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
-                >
-                    {Sections.map((section) => (
-                        <motion.div key={section.title} variants={tileVariants}>
-                            <Link to={section.path}>
-                                <div className="bg-white shadow-lg rounded-lg overflow-hidden transform hover:scale-105 transition-transform duration-300 h-[210px]">
-                                    <div className="h-1" style={{ backgroundColor: section.color }} />
-                                    <div className="p-6 flex flex-col items-center text-center">
-                                        <div className="text-5xl mb-4" style={{ color: section.color }}>
-                                            {section.icon}
-                                        </div>
-                                        <h3 className="text-lg font-semibold text-gray-800">{section.title}</h3>
-                                        <p className="text-3xl font-bold mt-2" style={{ color: section.color }}>
-                                            <CountUp end={stats[section.statKey]} duration={2} />
-                                        </p>
-                                    </div>
-                                </div>
-                            </Link>
-                        </motion.div>
+                  >
+                    {stats.top_gmat_students.map((student, index) => (
+                      <motion.div 
+                        key={`gmat-${student.full_name}`}
+                        variants={itemVariants}
+                        className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-700/30"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`w-8 h-8 flex items-center justify-center rounded-full text-white text-xs font-medium
+                            ${index === 0 ? 'bg-[#1a9970]' : index === 1 ? 'bg-[#2164a6]' : index === 2 ? 'bg-[#1a9970]/80' : 'bg-gray-300 dark:bg-gray-600'}`}
+                          >
+                            {index + 1}
+                          </div>
+                          <span className="font-medium text-gray-800 dark:text-white text-sm">{student.full_name}</span>
+                        </div>
+                        <div className="px-3 py-1 rounded-full bg-[#2164a6]/10 dark:bg-[#2164a6]/20 text-[#2164a6] dark:text-blue-300 font-semibold text-sm">
+                          {student.score}
+                        </div>
+                      </motion.div>
                     ))}
-                </motion.div>
-                <motion.div
-                    className="bg-white shadow-xl rounded-xl w-full max-w-md mx-auto overflow-hidden"
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5 }}
-                >
-                    <div className="h-2" style={{ backgroundColor: "black" }} />
-                    <div className="p-6">
-                        <h2 className="text-2xl font-bold text-gray-800 text-center mb-4">🏆 Leaderboard</h2>
-                        <div className="font-bold text-[20px] text-[#2164A6] dark:text-white mb-4">
-                            <p>GMAT</p>
+                  </motion.div>
+                )}
+              </div>
+              
+              {/* GRE Leaderboard */}
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold text-gray-800 dark:text-white">GRE</h3>
+                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
+                    Top Scores
+                  </span>
+                </div>
+                
+                {stats.top_gre_students.length === 0 ? (
+                  <div className="text-center py-6 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
+                    <p className="text-gray-500 dark:text-gray-400 text-sm italic">No GRE scores available</p>
+                  </div>
+                ) : (
+                  <motion.div 
+                    className="space-y-3"
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                  >
+                    {stats.top_gre_students.map((student, index) => (
+                      <motion.div 
+                        key={`gre-${student.full_name}`}
+                        variants={itemVariants}
+                        className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-700/30"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`w-8 h-8 flex items-center justify-center rounded-full text-white text-xs font-medium
+                            ${index === 0 ? 'bg-[#1a9970]' : index === 1 ? 'bg-[#2164a6]' : index === 2 ? 'bg-[#1a9970]/80' : 'bg-gray-300 dark:bg-gray-600'}`}
+                          >
+                            {index + 1}
+                          </div>
+                          <span className="font-medium text-gray-800 dark:text-white text-sm">{student.full_name}</span>
                         </div>
-                        {stats.top_gmat_students.length === 0 ? (
-                            <p className="text-center text-gray-600 italic">No GMAT scores available!</p>
-                        ) : (
-                            <motion.ul
-                                className="space-y-4"
-                                initial="hidden"
-                                animate="visible"
-                                variants={{ visible: { transition: { staggerChildren: 0.2 } } }}
-                            >
-                                {stats.top_gmat_students.map((student, index) => (
-                                    <motion.li
-                                        key={student.full_name}
-                                        className={`flex items-center justify-between p-4 rounded-lg shadow-md ${index < 3 ? `bg-gradient-to-r ${medalColors[index + 1]}` : "bg-gray-100"}`}
-                                        variants={listVariants}
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <motion.div
-                                                className="w-10 h-10 flex items-center justify-center text-white text-lg font-bold rounded-full"
-                                                style={{
-                                                    backgroundColor: index === 0 ? "#FFD700" : index === 1 ? "#C0C0C0" : index === 2 ? "#CD7F32" : "#A0AEC0",
-                                                }}
-                                                whileHover={{ rotate: [0, 10, -10, 0], transition: { duration: 0.4 } }}
-                                            >
-                                                <FaMedal />
-                                            </motion.div>
-                                            <p className={`text-lg font-semibold ${index < 3 ? "text-white" : "text-gray-800"}`}>{student.full_name}</p>
-                                        </div>
-                                        <motion.p
-                                            className={`text-xl font-bold ${index < 3 ? "text-white" : "text-gray-800"}`}
-                                            animate={{ scale: [1, 1.2, 1] }}
-                                            transition={{ duration: 0.6, repeat: Infinity, repeatType: "reverse" }}
-                                        >
-                                            {student.score}
-                                        </motion.p>
-                                    </motion.li>
-                                ))}
-                            </motion.ul>
-                        )}
-                        <div className="font-bold text-[20px] text-[#2164A6] dark:text-white mb-4 mt-4">
-                            <p>GRE</p>
+                        <div className="px-3 py-1 rounded-full bg-[#1a9970]/10 dark:bg-[#1a9970]/20 text-[#1a9970] dark:text-green-300 font-semibold text-sm">
+                          {student.score}
                         </div>
-                        {stats.top_gre_students.length === 0 ? (
-                            <p className="text-center text-gray-600 italic">No GRE scores available!</p>
-                        ) : (
-                            <motion.ul
-                                className="space-y-4"
-                                initial="hidden"
-                                animate="visible"
-                                variants={{ visible: { transition: { staggerChildren: 0.2 } } }}
-                            >
-                                {stats.top_gre_students.map((student, index) => (
-                                    <motion.li
-                                        key={student.full_name}
-                                        className={`flex items-center justify-between p-4 rounded-lg shadow-md ${index < 3 ? `bg-gradient-to-r ${medalColors[index + 1]}` : "bg-gray-100"}`}
-                                        variants={listVariants}
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <motion.div
-                                                className="w-10 h-10 flex items-center justify-center text-white text-lg font-bold rounded-full"
-                                                style={{
-                                                    backgroundColor: index === 0 ? "#FFD700" : index === 1 ? "#C0C0C0" : index === 2 ? "#CD7F32" : "#A0AEC0",
-                                                }}
-                                                whileHover={{ rotate: [0, 10, -10, 0], transition: { duration: 0.4 } }}
-                                            >
-                                                <FaMedal />
-                                            </motion.div>
-                                            <p className={`text-lg font-semibold ${index < 3 ? "text-white" : "text-gray-800"}`}>{student.full_name}</p>
-                                        </div>
-                                        <motion.p
-                                            className={`text-xl font-bold ${index < 3 ? "text-white" : "text-gray-800"}`}
-                                            animate={{ scale: [1, 1.2, 1] }}
-                                            transition={{ duration: 0.6, repeat: Infinity, repeatType: "reverse" }}
-                                        >
-                                            {student.score}
-                                        </motion.p>
-                                    </motion.li>
-                                ))}
-                            </motion.ul>
-                        )}
-                    </div>
-                </motion.div>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                )}
+              </div>
             </div>
-            <Snackbar
-                open={snackbar.open}
-                autoHideDuration={6000}
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: "top", horizontal: "center" }}
-            >
-                <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
-                    {snackbar.message}
-                </Alert>
-            </Snackbar>
+          </motion.div>
         </div>
-    );
+      </div>
+
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </div>
+  );
 };
 
 export default EntranceExamsDashboard;

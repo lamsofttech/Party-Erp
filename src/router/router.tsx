@@ -56,6 +56,11 @@ import StudentDocuments from "../pages/StudentDocuments";
 import ApprovedDocuments from "../pages/ApprovedDocuments";
 import RejectedDocuments from "../pages/RejectedDocuments";
 import Transcripts from "../pages/Transcripts";
+import DocumentsReview from "../pages/DocumentReview";
+import SchoolApplications from "../pages/SchoolApplications";
+import AssignedApplications from "../pages/AssignedApplications";
+import SchoolApplicationDetails from "../pages/Application";
+import RejectedSchoolApplications from "../pages/Rejected";
 
 function Router() {
   return (
@@ -123,6 +128,13 @@ function Router() {
             <Route path="school-admission/application-documents/approved-documents" element={<ApprovedDocuments />} />
             <Route path="school-admission/application-documents/rejected-documents" element={<RejectedDocuments />} />
             <Route path="school-admission/application-documents/transcripts" element={<Transcripts />} />
+            <Route path="school-admission/application-documents/transcripts/:memberName" element={<DocumentsReview />} />
+            <Route path="school-admission/new-school-applications" element={<SchoolApplications />} />
+            <Route path="school-admission/new-school-applications/assigned-applications" element={<AssignedApplications />} />
+            <Route path="school-admission/new-school-applications/assigned-applications/:memberName" element={<SchoolApplicationDetails />} />
+            <Route path="school-admission/new-school-applications/:memberName" element={<SchoolApplicationDetails />} />
+            <Route path="school-admission/new-school-applications/rejected-applications" element={<RejectedSchoolApplications />} />
+            <Route path="school-admission/new-school-applications/rejected-applications/:memberName" element={<SchoolApplicationDetails />} />
           </Route>
         </Route>
       </Routes>

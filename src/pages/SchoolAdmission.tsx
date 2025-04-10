@@ -25,21 +25,21 @@ const actionCards = [
     { title: "Meeting Room", icon: <MeetingRoomIcon />, path: "/school-admission/meeting-requests", count: 5 },
     { title: "GPA Calculation", icon: <CalculateIcon />, path: "/school-admission/GPA-dashboard", count: 8 },
     { title: "School App Documents Review", icon: <DescriptionIcon />, path: "/school-admission/application-documents", count: 10 },
-    { title: "School Application", icon: <SchoolIcon />, path: "/school-application/school-application", count: 15 },
-    { title: "School Application (On Progress)", icon: <HourglassEmptyIcon />, path: "/school-application/on-progress", count: 7 },
-    { title: "School Application (Pending Approval)", icon: <PendingIcon />, path: "/school-application/pending-approval", count: 3 },
-    { title: "School Application Feedback", icon: <FeedbackIcon />, path: "/school-application/school-appfeedback", count: 2 },
+    { title: "School Applications (New)", icon: <SchoolIcon />, path: "/school-admission/new-school-applications", count: 15 },
+    { title: "School Applications (On Progress)", icon: <HourglassEmptyIcon />, path: "/school-application/on-progress", count: 7 },
+    { title: "School Applications (Pending Approval)", icon: <PendingIcon />, path: "/school-application/pending-approval", count: 3 },
+    { title: "School Applications Feedback", icon: <FeedbackIcon />, path: "/school-application/school-appfeedback", count: 2 },
     { title: "Meeting Links", icon: <LinkIcon />, path: "/school-application/meeting-links", count: 20 },
     { title: "Consent Forms", icon: <AssignmentIcon />, path: "/school-application/consent-forms", count: 12 },
 ];
 
 // Data for Statistical Cards
 const statsCards = [
-    { title: "Total Students Relocated", count: 150, color: "#FF9800", path: "/school-application/relocated" },
-    { title: "All Universities", count: 50, color: "#03A9F4", path: "/school-application/all-schools" },
-    { title: "Total Programs", count: 200, color: "#4CAF50", path: "/school-application/programs" },
-    { title: "Total School Application", count: 100, color: "#F44336", path: "/school-application/complete-school-application" },
-    { title: "School App (Per Student)", count: 75, color: "#2196F3", path: "/school-application/complete-school-application-student" },
+    { title: "Total Students Relocated", count: 150, color: {light: "#FF9800", dark: "#FFB74D"}, path: "/school-application/relocated" },
+    { title: "All Universities", count: 50, color: {light: "#03A9F4", dark: "#4FC3F7"}, path: "/school-application/all-schools" },
+    { title: "Total Programs", count: 200, color: {light: "#4CAF50", dark: "#81C784"}, path: "/school-application/programs" },
+    { title: "Total School Application", count: 100, color: {light: "#F44336", dark: "#E57373"}, path: "/school-application/complete-school-application" },
+    { title: "School App (Per Student)", count: 75, color: {light: "#2196F3", dark: "#64B5F6"}, path: "/school-application/complete-school-application-student" },
 ];
 
 // Data for Line Chart
@@ -62,56 +62,62 @@ const chartData = {
     ],
 };
 
-const chartOptions = {
-    maintainAspectRatio: false,
-    responsive: true,
-    plugins: {
-        legend: {
-            display: false,
-        },
-        tooltip: {
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            titleColor: '#333',
-            bodyColor: '#333',
-            borderColor: '#ddd',
-            borderWidth: 1,
-            padding: 12,
-            cornerRadius: 12,
-            displayColors: false,
-            callbacks: {
-                label: function (context: { parsed: { y: any; }; }) {
-                    return `Applications: ${context.parsed.y}`;
-                }
-            }
-        }
-    },
-    scales: {
-        x: {
-            grid: {
-                display: false,
-            },
-            ticks: {
-                color: '#9e9e9e',
-            }
-        },
-        y: {
-            grid: {
-                color: 'rgba(0, 0, 0, 0.04)',
-                drawBorder: false,
-            },
-            ticks: {
-                color: '#9e9e9e',
-                padding: 8,
-            },
-            border: {
-                dash: [4, 4],
-            }
-        },
-    },
-};
-
 const SchoolApplicationDashboard = () => {
     const theme = useTheme();
+    const isDarkMode = theme.palette.mode === 'dark';
+
+    // Chart options with dark mode support
+    const chartOptions = {
+        maintainAspectRatio: false,
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false,
+            },
+            tooltip: {
+                backgroundColor: isDarkMode ? 'rgba(30, 30, 30, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+                titleColor: isDarkMode ? '#fff' : '#333',
+                bodyColor: isDarkMode ? '#fff' : '#333',
+                borderColor: isDarkMode ? '#444' : '#ddd',
+                borderWidth: 1,
+                padding: 12,
+                cornerRadius: 12,
+                displayColors: false,
+                callbacks: {
+                    label: function (context: { parsed: { y: any; }; }) {
+                        return `Applications: ${context.parsed.y}`;
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {
+                grid: {
+                    display: false,
+                    color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)',
+                },
+                ticks: {
+                    color: isDarkMode ? '#9e9e9e' : '#9e9e9e',
+                }
+            },
+            y: {
+                grid: {
+                    color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)',
+                    drawBorder: false,
+                },
+                ticks: {
+                    color: isDarkMode ? '#9e9e9e' : '#9e9e9e',
+                    padding: 8,
+                },
+                border: {
+                    dash: [4, 4],
+                }
+            },
+        },
+    };
+
+    // Primary colors
+    const primaryMain = '#2164a6';
 
     // Container animation variants
     const containerVariants = {
@@ -135,45 +141,16 @@ const SchoolApplicationDashboard = () => {
     };
 
     return (
-        <Box
-            sx={{
-                padding: { xs: 2, md: 4 },
-                minHeight: '100vh',
-                borderRadius: 4,
-                mb: 2,
-                background: 'linear-gradient(to bottom, #f9fafc, #f1f4f9)',
-            }}
-        >
-            {/* Header */}
-            <Box sx={{ mb: 5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.6 }}
-                >
-                    <Typography
-                        variant="h5"
-                        sx={{
-                            color: '#2164A6',
-                            fontWeight: 700,
-                            position: 'relative',
-                            '&:after': {
-                                content: '""',
-                                position: 'absolute',
-                                bottom: -8,
-                                left: 0,
-                                width: 60,
-                                height: 3,
-                                borderRadius: 2,
-                                backgroundColor: theme.palette.primary.main,
-                            }
-                        }}
-                    >
-                        School Admission Dashboard
-                    </Typography>
-                </motion.div>
-            </Box>
-
+        <main className='px-4 mb-8'>
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-4">
+                    <div className="w-1 h-8 bg-gradient-to-b from-[#1a9970] to-[#2164a6] rounded"></div>
+                    School Admission Dashboard
+                </h1>
+                <p className="text-gray-500 dark:text-gray-400 mt-2">
+                    Oversee school applications, monitor trends, and access key admission stats.
+                </p>
+            </div>
             <Grid container spacing={3}>
                 {/* Main Content Area */}
                 <Grid item xs={12} lg={8}>
@@ -194,10 +171,12 @@ const SchoolApplicationDashboard = () => {
                                                 display: 'flex',
                                                 flexDirection: 'column',
                                                 height: '150px',
-                                                padding: 0, // Remove default padding
+                                                padding: 0,
                                                 borderRadius: 4,
-                                                backgroundColor: '#fff',
-                                                boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
+                                                backgroundColor: theme => theme.palette.mode === 'dark' ? '#1e1e2d' : '#fff',
+                                                boxShadow: theme => theme.palette.mode === 'dark' 
+                                                    ? '0 4px 20px rgba(0,0,0,0.2)' 
+                                                    : '0 4px 20px rgba(0,0,0,0.05)',
                                                 transition: 'all 0.3s ease',
                                                 textDecoration: 'none',
                                                 color: 'inherit',
@@ -205,7 +184,9 @@ const SchoolApplicationDashboard = () => {
                                                 overflow: 'hidden',
                                                 '&:hover': {
                                                     transform: 'translateY(-5px)',
-                                                    boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+                                                    boxShadow: theme => theme.palette.mode === 'dark'
+                                                        ? '0 10px 30px rgba(0,0,0,0.3)'
+                                                        : '0 10px 30px rgba(0,0,0,0.1)',
                                                     '& .icon-container': {
                                                         transform: 'scale(1.1)',
                                                     }
@@ -216,9 +197,9 @@ const SchoolApplicationDashboard = () => {
                                                     position: 'absolute',
                                                     top: 0,
                                                     left: 0,
-                                                    width: '4px', // Slightly thicker for better visibility
+                                                    width: '4px',
                                                     height: '100%',
-                                                    background: theme.palette.primary.main,
+                                                    background: primaryMain,
                                                     opacity: 0.8,
                                                 }
                                             }}
@@ -236,18 +217,17 @@ const SchoolApplicationDashboard = () => {
                                                             width: 48,
                                                             height: 48,
                                                             borderRadius: '14px',
-                                                            backgroundColor: alpha(theme.palette.primary.main, 0.09),
-                                                            color: theme.palette.primary.main,
+                                                            backgroundColor: theme => alpha(primaryMain, theme.palette.mode === 'dark' ? 0.2 : 0.09),
+                                                            color: primaryMain,
                                                             transition: 'transform 0.3s ease'
                                                         }}
                                                     >
                                                         {React.cloneElement(card.icon, { sx: { fontSize: 24 } })}
                                                     </Box>
-
                                                     {card.count && (
                                                         <Box
                                                             sx={{
-                                                                backgroundColor: theme.palette.primary.main,
+                                                                backgroundColor: primaryMain,
                                                                 color: '#fff',
                                                                 display: 'flex',
                                                                 alignItems: 'center',
@@ -265,7 +245,6 @@ const SchoolApplicationDashboard = () => {
                                                         </Box>
                                                     )}
                                                 </Box>
-
                                                 {/* Content section with auto spacing */}
                                                 <Box sx={{ mt: 2, mb: 'auto' }}>
                                                     <Typography
@@ -275,7 +254,7 @@ const SchoolApplicationDashboard = () => {
                                                             fontWeight: 600,
                                                             lineHeight: 1.3,
                                                             mb: 0.75,
-                                                            color: '#222',
+                                                            color: theme => theme.palette.mode === 'dark' ? '#fff' : '#222',
                                                             overflow: 'hidden',
                                                             textOverflow: 'ellipsis',
                                                             display: '-webkit-box',
@@ -285,12 +264,11 @@ const SchoolApplicationDashboard = () => {
                                                     >
                                                         {card.title}
                                                     </Typography>
-
                                                     {card.info && (
                                                         <Typography
                                                             variant="body2"
                                                             sx={{
-                                                                color: '#666',
+                                                                color: theme => theme.palette.mode === 'dark' ? '#aaa' : '#666',
                                                                 fontSize: '0.85rem',
                                                                 overflow: 'hidden',
                                                                 textOverflow: 'ellipsis',
@@ -303,13 +281,12 @@ const SchoolApplicationDashboard = () => {
                                                         </Typography>
                                                     )}
                                                 </Box>
-
                                                 {/* Optional hover indicator at bottom */}
                                                 <Box
                                                     sx={{
                                                         height: 4,
                                                         width: '50px',
-                                                        backgroundColor: '#eee',
+                                                        backgroundColor: theme => theme.palette.mode === 'dark' ? '#333' : '#eee',
                                                         borderRadius: 2,
                                                         transition: 'all 0.3s ease',
                                                         alignSelf: 'center',
@@ -318,7 +295,7 @@ const SchoolApplicationDashboard = () => {
                                                         opacity: 0.6,
                                                         '&:hover': {
                                                             width: '80px',
-                                                            backgroundColor: theme.palette.primary.light,
+                                                            backgroundColor: primaryMain,
                                                         }
                                                     }}
                                                 />
@@ -329,7 +306,6 @@ const SchoolApplicationDashboard = () => {
                             ))}
                         </Grid>
                     </motion.div>
-
                     {/* Line Chart */}
                     <motion.div
                         variants={itemVariants}
@@ -340,16 +316,21 @@ const SchoolApplicationDashboard = () => {
                         <Box sx={{ mt: 4 }}>
                             <Box
                                 sx={{
-                                    backgroundColor: 'white',
+                                    backgroundColor: theme => theme.palette.mode === 'dark' ? '#1e1e2d' : 'white',
                                     borderRadius: 4,
-                                    boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
+                                    boxShadow: theme => theme.palette.mode === 'dark' 
+                                        ? '0 4px 20px rgba(0,0,0,0.2)' 
+                                        : '0 4px 20px rgba(0,0,0,0.05)',
                                     p: 3,
                                     overflow: 'hidden',
                                 }}
                             >
                                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                                    <TrendingUpIcon sx={{ color: theme.palette.primary.main, fontSize: 28, mr: 1.5 }} />
-                                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                                    <TrendingUpIcon sx={{ color: primaryMain, fontSize: 28, mr: 1.5 }} />
+                                    <Typography variant="h6" sx={{ 
+                                        fontWeight: 600,
+                                        color: theme => theme.palette.mode === 'dark' ? '#fff' : 'inherit'
+                                    }}>
                                         Application Trends
                                     </Typography>
                                 </Box>
@@ -360,7 +341,6 @@ const SchoolApplicationDashboard = () => {
                         </Box>
                     </motion.div>
                 </Grid>
-
                 {/* Stats Cards Sidebar */}
                 <Grid item xs={12} lg={4}>
                     <motion.div
@@ -375,16 +355,20 @@ const SchoolApplicationDashboard = () => {
                                     <motion.div variants={itemVariants}>
                                         <Box
                                             sx={{
-                                                backgroundColor: 'white',
+                                                backgroundColor: theme => theme.palette.mode === 'dark' ? '#1e1e2d' : 'white',
                                                 borderRadius: 4,
-                                                boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
+                                                boxShadow: theme => theme.palette.mode === 'dark' 
+                                                    ? '0 4px 20px rgba(0,0,0,0.2)' 
+                                                    : '0 4px 20px rgba(0,0,0,0.05)',
                                                 position: 'relative',
                                                 overflow: 'hidden',
                                                 p: 2.5,
                                                 transition: 'all 0.3s ease',
                                                 '&:hover': {
                                                     transform: 'translateY(-5px)',
-                                                    boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+                                                    boxShadow: theme => theme.palette.mode === 'dark'
+                                                        ? '0 10px 30px rgba(0,0,0,0.3)'
+                                                        : '0 10px 30px rgba(0,0,0,0.1)',
                                                 },
                                                 display: 'flex',
                                                 flexDirection: { xs: 'row', lg: 'column' },
@@ -393,14 +377,21 @@ const SchoolApplicationDashboard = () => {
                                             }}
                                         >
                                             <Box sx={{ position: 'relative', zIndex: 1 }}>
-                                                <Typography variant="body2" sx={{ color: '#666', mb: 1 }}>
+                                                <Typography variant="body2" sx={{ 
+                                                    color: theme => theme.palette.mode === 'dark' ? '#aaa' : '#666',
+                                                    mb: 1 
+                                                }}>
                                                     {stat.title}
                                                 </Typography>
                                                 <Typography
                                                     variant="h4"
                                                     sx={{
                                                         fontWeight: 700,
-                                                        backgroundImage: `linear-gradient(45deg, ${stat.color}, ${alpha(stat.color, 0.7)})`,
+                                                        backgroundImage: theme => `linear-gradient(45deg, ${
+                                                            theme.palette.mode === 'dark' ? stat.color.dark : stat.color.light
+                                                        }, ${
+                                                            alpha(theme.palette.mode === 'dark' ? stat.color.dark : stat.color.light, 0.7)
+                                                        })`,
                                                         backgroundClip: 'text',
                                                         textFillColor: 'transparent',
                                                         WebkitBackgroundClip: 'text',
@@ -411,23 +402,24 @@ const SchoolApplicationDashboard = () => {
                                                     {stat.count.toLocaleString()}
                                                 </Typography>
                                             </Box>
-
                                             <Button
                                                 component={RouterLink}
                                                 to={stat.path}
                                                 endIcon={<ArrowForwardIcon />}
                                                 sx={{
                                                     textTransform: 'none',
-                                                    color: stat.color,
+                                                    color: theme => theme.palette.mode === 'dark' ? stat.color.dark : stat.color.light,
                                                     borderRadius: 3,
                                                     '&:hover': {
-                                                        backgroundColor: alpha(stat.color, 0.1),
+                                                        backgroundColor: theme => alpha(
+                                                            theme.palette.mode === 'dark' ? stat.color.dark : stat.color.light, 
+                                                            theme.palette.mode === 'dark' ? 0.15 : 0.1
+                                                        ),
                                                     }
                                                 }}
                                             >
                                                 More info
                                             </Button>
-
                                             {/* Decorative background element */}
                                             <Box
                                                 sx={{
@@ -437,8 +429,8 @@ const SchoolApplicationDashboard = () => {
                                                     width: 120,
                                                     height: 120,
                                                     borderRadius: '50%',
-                                                    backgroundColor: stat.color,
-                                                    opacity: 0.07,
+                                                    backgroundColor: theme => theme.palette.mode === 'dark' ? stat.color.dark : stat.color.light,
+                                                    opacity: theme => theme.palette.mode === 'dark' ? 0.12 : 0.07,
                                                     zIndex: 0
                                                 }}
                                             />
@@ -450,7 +442,7 @@ const SchoolApplicationDashboard = () => {
                     </motion.div>
                 </Grid>
             </Grid>
-        </Box>
+        </main>
     );
 };
 

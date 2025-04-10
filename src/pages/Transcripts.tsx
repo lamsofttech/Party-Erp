@@ -29,6 +29,8 @@ import {
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import CloseIcon from "@mui/icons-material/Close";
 import { motion } from "framer-motion";
+import * as XLSX from "xlsx";
+import { Link } from "react-router-dom";
 
 // Interfaces
 interface Student {
@@ -51,6 +53,8 @@ const Transcripts: React.FC = () => {
   // State management
   const [loading, setLoading] = useState<boolean>(true);
   const [students, setStudents] = useState<Student[]>([]);
+  const [filteredStudents, setFilteredStudents] = useState<Student[]>([]); // For search functionality
+  const [searchQuery, setSearchQuery] = useState<string>(""); // Search query state
   const [verifyOptions, setVerifyOptions] = useState<VerifyOption[]>([]);
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [selectedStudent, setSelectedStudent] = useState<string>("");
@@ -74,6 +78,7 @@ const Transcripts: React.FC = () => {
       const response = await axios.get(`${API_URL}?action=list`);
       if (response.data.success) {
         setStudents(response.data.data);
+        setFilteredStudents(response.data.data); // Initialize filtered students
       } else {
         setSnackbar({ open: true, message: "Error fetching students", severity: "error" });
       }
@@ -111,10 +116,13 @@ const Transcripts: React.FC = () => {
 
     const formData = new FormData();
     formData.append("action", "verify");
+    let email = emailInput;
     if (selectedStudent) {
-      formData.append("stu_id", selectedStudent);
+      const [id, selectedEmail] = selectedStudent.split(",");
+      formData.append("stu_id", id);
+      email = selectedEmail;
     }
-    formData.append("stu_email", emailInput);
+    formData.append("stu_email", email);
     formData.append("stu_doc", file);
 
     try {
@@ -126,12 +134,49 @@ const Transcripts: React.FC = () => {
         setEmailInput("");
         setFile(null);
         fetchStudents(); // Refresh the list
+        fetchVerifyOptions();
       } else {
         setSnackbar({ open: true, message: response.data.message, severity: "error" });
       }
     } catch (error) {
       setSnackbar({ open: true, message: "Error verifying document", severity: "error" });
     }
+  };
+
+  // Handle search
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const query = event.target.value.toLowerCase();
+    setSearchQuery(query);
+
+    if (query === "") {
+      setFilteredStudents(students);
+      return;
+    }
+
+    const filtered = students.filter((student) =>
+      student.member_no.toLowerCase().includes(query) ||
+      student.full_name.toLowerCase().includes(query) ||
+      student.email.toLowerCase().includes(query) ||
+      student.documents_count.toString().includes(query)
+    );
+
+    setFilteredStudents(filtered);
+  };
+
+  // Export to Excel (excluding Action column)
+  const handleExportExcel = () => {
+    const exportData = filteredStudents.map((student) => ({
+      "No.": student.id,
+      "Member No": student.member_no,
+      "Full Name": student.full_name,
+      "Email": student.email,
+      "Documents": student.documents_count,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Student Transcripts");
+    XLSX.writeFile(workbook, "student_transcripts.xlsx");
   };
 
   return (
@@ -141,13 +186,27 @@ const Transcripts: React.FC = () => {
       transition={{ duration: 0.5 }}
       className="px-3"
     >
-      <Paper elevation={3} className="p-4 mb-4">
+      <Paper elevation={3} className="p-4 mb-4 min-h-screen">
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
           <Typography variant="h6" className="font-semibold">
             Student Documents
           </Typography>
           <Button variant="contained" color="success" onClick={() => setOpenModal(true)}>
             Verify Documents
+          </Button>
+        </Box>
+
+        {/* Search and Export Row */}
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+          <TextField
+            label="Search students..."
+            variant="outlined"
+            value={searchQuery}
+            onChange={handleSearch}
+            sx={{ flex: 1, mr: 2 }}
+          />
+          <Button variant="contained" onClick={handleExportExcel}>
+            Export to Excel
           </Button>
         </Box>
 
@@ -164,34 +223,34 @@ const Transcripts: React.FC = () => {
                   <TableCell>Member No</TableCell>
                   <TableCell>Full Name</TableCell>
                   <TableCell>Email</TableCell>
-                  <TableCell>Documents</TableCell>
+                  <TableCell align="center">Documents</TableCell>
                   <TableCell>Action</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {students.map((student) => (
+                {filteredStudents.map((student) => (
                   <TableRow key={student.id}>
                     <TableCell>{student.id}</TableCell>
                     <TableCell>{student.member_no}</TableCell>
                     <TableCell>{student.full_name}</TableCell>
                     <TableCell>{student.email}</TableCell>
-                    <TableCell>
+                    <TableCell align="center">
                       <Chip label={student.documents_count} color="success" />
                     </TableCell>
                     <TableCell>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        startIcon={<VisibilityIcon />}
-                        href={`/transcripts-view?email=${student.email}`}
-                        size="small"
-                      >
-                        View Doc
-                      </Button>
+                      <Box>
+                        <IconButton
+                          color="primary"
+                          component={Link}
+                          to={`/school-admission/application-documents/transcripts/${student.full_name}?email=${student.email}`}
+                        >
+                          <VisibilityIcon />
+                        </IconButton>
+                      </Box>
                     </TableCell>
                   </TableRow>
                 ))}
-                {students.length === 0 && (
+                {filteredStudents.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={6} align="center">
                       No student documents found
@@ -219,6 +278,7 @@ const Transcripts: React.FC = () => {
             <InputLabel id="student-select-label">Select Student</InputLabel>
             <Select
               labelId="student-select-label"
+              label="Select Student"
               value={selectedStudent}
               onChange={(e) => setSelectedStudent(e.target.value as string)}
             >

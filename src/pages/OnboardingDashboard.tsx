@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, IconButton, Card, Typography, LinearProgress } from "@mui/material";
+import { Box, IconButton, Card, Typography, LinearProgress, useTheme } from "@mui/material";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
@@ -32,6 +32,7 @@ const OnboardingDashboard: React.FC = () => {
         totalApprovedApplications: 0,
     });
     const [loading, setLoading] = useState(true);
+    const theme = useTheme();
 
     useEffect(() => {
         fetch('https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/onboarding/APIs/stats.php')
@@ -63,9 +64,15 @@ const OnboardingDashboard: React.FC = () => {
     const approvalRate = ((stats.totalApprovedApplications / stats.totalApplications) * 100).toFixed(1);
 
     return (
-        <main>
-            <div className="font-bold text-[24px] text-[#2164A6] dark:text-white">
-                <p>Onboarding Dashboard</p>
+        <main className="px-4">
+            <div className="">
+                <h1 className="text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-4">
+                    <div className="w-1 h-8 bg-gradient-to-b from-[#1a9970] to-[#2164a6] rounded"></div>
+                    Onboarding Dashboard
+                </h1>
+                <p className="text-gray-500 dark:text-gray-400 mt-2">
+                    Manage and track applications, review stats, and navigate onboarding tasks
+                </p>
             </div>
             <div className="flex items-center gap-10">
                 <Box sx={{ width: 500, height: 500, position: "relative", display: "flex", justifyContent: "center", alignItems: "center" }}>
@@ -100,7 +107,15 @@ const OnboardingDashboard: React.FC = () => {
                                 style={{ position: "absolute", left: x, top: y }}
                             >
                                 <Link to={link.path} style={{ textDecoration: "none", textAlign: "center" }}>
-                                    <IconButton sx={{ width: 60, height: 60, backgroundColor: "white", color: "green", boxShadow: "0px 0px 5px rgba(0,0,0,0.2)" }}>
+                                    <IconButton
+                                        sx={{
+                                            width: 60,
+                                            height: 60,
+                                            color: theme.palette.mode === "dark" ? "aqua" : "green",
+                                            boxShadow: "0px 0px 5px rgba(0,0,0,0.2)",
+                                            bgcolor: theme.palette.mode === "dark" ? "grey.700" : "white",
+                                        }}
+                                    >
                                         {link.icon}
                                     </IconButton>
                                     <Typography className="text-blue-500 dark:text-white" variant="caption" sx={{ display: "block", mt: 1, textAlign: "center", fontSize: "0.8rem" }}>

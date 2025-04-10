@@ -8,6 +8,7 @@ import {
     Button,
     LinearProgress,
     useTheme,
+    CircularProgress,
 } from '@mui/material';
 import {
     DescriptionOutlined,
@@ -19,19 +20,23 @@ import {
 } from '@mui/icons-material';
 import { styled } from '@mui/system';
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
-// Mock data - replace with actual API calls
-const documentStats = {
-    studentDocuments: 24,
-    approvedDocuments: 18,
-    rejectedDocuments: 9,
-    transcripts: 15,
-    recentUploads: [
-        { name: 'John_Doe_Transcript.pdf', date: '2023-06-15', status: 'approved' },
-        { name: 'Jane_Smith_Passport.pdf', date: '2023-06-14', status: 'pending' },
-        { name: 'Robert_Johnson_Recommendation.pdf', date: '2023-06-13', status: 'rejected' },
-    ]
-};
+interface DocumentStats {
+    studentDocuments: number;
+    approvedDocuments: number;
+    rejectedDocuments: number;
+    transcripts: number;
+    recentUploads: { name: string; date: string; status: string }[];
+    approvalRate: number;
+    processingTime: number;
+    rejectionRate: number;
+    studentDocumentsToday: number;
+    approvedDocumentsToday: number;
+    rejectedDocumentsToday: number;
+    transcriptsToday: number;
+}
 
 const StatusIndicator = styled('span')<{ status: string }>(({ theme, status }) => ({
     display: 'inline-block',
@@ -47,16 +52,59 @@ const StatusIndicator = styled('span')<{ status: string }>(({ theme, status }) =
 
 const DocumentDashboard = () => {
     const theme = useTheme();
+    const [documentStats, setDocumentStats] = useState<DocumentStats | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    const API_URL = 'https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/school-application/APIs/stats.php';
+
+    useEffect(() => {
+        const fetchDocumentStats = async () => {
+            try {
+                const response = await axios.get(API_URL);
+                if (response.data.success) {
+                    setDocumentStats(response.data.data);
+                } else {
+                    setError(response.data.message || 'Failed to fetch document stats');
+                }
+            } catch (err) {
+                setError('Error connecting to the server');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDocumentStats();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <CircularProgress />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="p-6">
+                <Typography color="error">{error}</Typography>
+                <Button onClick={() => window.location.reload()}>Retry</Button>
+            </div>
+        );
+    }
 
     return (
         <div className="p-6 bg-gray-50 dark:bg-gray-700 min-h-screen mb-6 rounded-md">
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-                <div className="flex items-center mb-4 md:mb-0">
-                    <Typography variant="h4" className="font-bold" style={{ fontFamily: "'Century Gothic', sans-serif", color: "#2461A6" }}>
-                        Documents Dashboard
-                    </Typography>
-                </div>
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-4">
+                    <div className="w-1 h-8 bg-gradient-to-b from-[#1a9970] to-[#2164a6] rounded"></div>
+                    Documents Dashboard
+                </h1>
+                <p className="text-gray-500 dark:text-gray-400 mt-2">
+                Track document uploads, review processing stats, and manage approvals.
+                </p>
             </div>
 
             {/* Stats Cards */}
@@ -79,10 +127,10 @@ const DocumentDashboard = () => {
                                     Student Documents
                                 </Typography>
                                 <Typography variant="h5" className="font-bold">
-                                    {documentStats.studentDocuments}
+                                    {documentStats?.studentDocuments}
                                 </Typography>
                                 <Typography variant="caption" color="textSecondary">
-                                    <span className="text-green-500">+3 new</span> today
+                                    <span className="text-green-500">+{documentStats?.studentDocumentsToday} new</span> today
                                 </Typography>
                             </div>
                         </CardContent>
@@ -120,10 +168,10 @@ const DocumentDashboard = () => {
                                     Approved Documents
                                 </Typography>
                                 <Typography variant="h5" className="font-bold">
-                                    {documentStats.approvedDocuments}
+                                    {documentStats?.approvedDocuments}
                                 </Typography>
                                 <Typography variant="caption" color="textSecondary">
-                                    <span className="text-green-500">92%</span> approval rate
+                                    <span className="text-green-500">{documentStats?.approvalRate}%</span> approval rate
                                 </Typography>
                             </div>
                         </CardContent>
@@ -161,10 +209,10 @@ const DocumentDashboard = () => {
                                     Rejected Documents
                                 </Typography>
                                 <Typography variant="h5" className="font-bold">
-                                    {documentStats.rejectedDocuments}
+                                    {documentStats?.rejectedDocuments}
                                 </Typography>
                                 <Typography variant="caption" color="textSecondary">
-                                    <span className="text-red-500">+1 new</span> today
+                                    <span className="text-red-500">+{documentStats?.rejectedDocumentsToday} new</span> today
                                 </Typography>
                             </div>
                         </CardContent>
@@ -202,10 +250,10 @@ const DocumentDashboard = () => {
                                     Transcripts
                                 </Typography>
                                 <Typography variant="h5" className="font-bold">
-                                    {documentStats.transcripts}
+                                    {documentStats?.transcripts}
                                 </Typography>
                                 <Typography variant="caption" color="textSecondary">
-                                    <span className="text-green-500">+2 new</span> today
+                                    <span className="text-green-500">+0 new</span> today
                                 </Typography>
                             </div>
                         </CardContent>
@@ -239,7 +287,7 @@ const DocumentDashboard = () => {
                             </div>
 
                             <div className="space-y-3">
-                                {documentStats.recentUploads.map((file, index) => (
+                                {documentStats?.recentUploads.map((file, index) => (
                                     <div key={index} className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md">
                                         <div className="flex items-center">
                                             <StatusIndicator status={file.status} />
@@ -280,7 +328,7 @@ const DocumentDashboard = () => {
                                 <div>
                                     <div className="flex justify-between mb-1">
                                         <Typography variant="caption">Approval Rate</Typography>
-                                        <Typography variant="caption">92%</Typography>
+                                        <Typography variant="caption">{documentStats?.approvalRate}%</Typography>
                                     </div>
                                     <LinearProgress variant="determinate" value={92} color="success" />
                                 </div>
@@ -288,7 +336,7 @@ const DocumentDashboard = () => {
                                 <div>
                                     <div className="flex justify-between mb-1">
                                         <Typography variant="caption">Processing Time</Typography>
-                                        <Typography variant="caption">1.2 days avg.</Typography>
+                                        <Typography variant="caption">{documentStats?.processingTime} days avg.</Typography>
                                     </div>
                                     <LinearProgress variant="determinate" value={75} color="info" />
                                 </div>
@@ -296,7 +344,7 @@ const DocumentDashboard = () => {
                                 <div>
                                     <div className="flex justify-between mb-1">
                                         <Typography variant="caption">Rejection Rate</Typography>
-                                        <Typography variant="caption">8%</Typography>
+                                        <Typography variant="caption">{documentStats?.rejectionRate}%</Typography>
                                     </div>
                                     <LinearProgress variant="determinate" value={8} color="error" />
                                 </div>
