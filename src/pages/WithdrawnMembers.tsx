@@ -129,7 +129,7 @@ const Withdrawals: React.FC = () => {
                             color="primary"
                             size="small"
                             onClick={() => handleStatusUpdate(params.row.member_no, "2")}
-                            sx={{ mr: 1 }}
+                            sx={{ mr: 1, textTransform: 'none' }}
                         >
                             Start
                         </Button>
@@ -140,7 +140,7 @@ const Withdrawals: React.FC = () => {
                             color="secondary"
                             size="small"
                             onClick={() => handleStatusUpdate(params.row.member_no, "3")}
-                            sx={{ mr: 1 }}
+                            sx={{ mr: 1, textTransform: 'none' }}
                         >
                             Continue
                         </Button>
@@ -151,12 +151,13 @@ const Withdrawals: React.FC = () => {
                             color="success"
                             size="small"
                             onClick={() => handleOpenSettleModal(params.row)}
-                            sx={{ mr: 1 }}
+                            sx={{ mr: 1, textTransform: 'none' }}
                         >
                             Settle
                         </Button>
                     )}
                     <Button
+                        sx={{ textTransform: 'none' }}
                         variant="outlined"
                         color="error"
                         size="small"
@@ -214,8 +215,8 @@ const Withdrawals: React.FC = () => {
                     </Table>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenSettleModal(false)}>Cancel</Button>
-                    <Button onClick={handleSettle} color="success">Confirm</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setOpenSettleModal(false)}>Cancel</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={handleSettle} color="success">Confirm</Button>
                 </DialogActions>
             </Dialog>
 
@@ -233,8 +234,8 @@ const Withdrawals: React.FC = () => {
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenRejectModal(false)}>Cancel</Button>
-                    <Button onClick={handleReject} color="error">Reject</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setOpenRejectModal(false)}>Cancel</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={handleReject} color="error">Reject</Button>
                 </DialogActions>
             </Dialog>
         </Box>

@@ -250,6 +250,7 @@ const RejectedDocuments: React.FC = () => {
                         <TableCell>
                           <Button
                             variant="contained"
+                            sx={{ textTransform: 'none' }}
                             color="primary"
                             startIcon={<VisibilityIcon />}
                             onClick={() => handleViewDocuments(student)}
@@ -333,6 +334,7 @@ const RejectedDocuments: React.FC = () => {
                       <TableCell>
                         <Button
                           variant="contained"
+                          sx={{ textTransform: 'none' }}
                           color="primary"
                           size="small"
                           onClick={() => handleOpenDocument(doc)}
@@ -348,7 +350,7 @@ const RejectedDocuments: React.FC = () => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenModal(false)}>Close</Button>
+          <Button sx={{ textTransform: 'none' }} onClick={() => setOpenModal(false)}>Close</Button>
         </DialogActions>
       </Dialog>
 
@@ -383,6 +385,7 @@ const RejectedDocuments: React.FC = () => {
           <Button
             onClick={() => setDocumentViewer({ ...documentViewer, open: false })}
             color="primary"
+            sx={{ textTransform: 'none' }}
           >
             Close
           </Button>

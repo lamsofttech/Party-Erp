@@ -205,6 +205,7 @@ const ExamApplicant: React.FC = () => {
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                     <Button
                         variant="outlined"
+                        sx={{ textTransform: 'none' }}
                         color="success"
                         onClick={() => setOpenApproveModal(true)} // Open the confirmation modal
                         disabled={applicant?.status === 2 || applicant?.status === 3}
@@ -216,6 +217,7 @@ const ExamApplicant: React.FC = () => {
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                     <Button
                         variant="outlined"
+                        sx={{ textTransform: 'none' }}
                         color="error"
                         onClick={() => setOpenRejectModal(true)}
                         disabled={applicant?.status === 2 || applicant?.status === 3}
@@ -225,7 +227,7 @@ const ExamApplicant: React.FC = () => {
                     </Button>
                 </motion.div>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                    <Button variant="contained" color="warning" onClick={() => setOpenStatementModal(true)} className="font-semibold">
+                    <Button sx={{ textTransform: 'none' }} variant="contained" color="warning" onClick={() => setOpenStatementModal(true)} className="font-semibold">
                         Total Contribution
                     </Button>
                 </motion.div>
@@ -253,6 +255,7 @@ const ExamApplicant: React.FC = () => {
                     <div className="flex justify-between mt-4">
                         <Button
                             variant="contained"
+                            sx={{ textTransform: 'none' }}
                             color="success"
                             onClick={() => {
                                 handleApprove();
@@ -261,7 +264,7 @@ const ExamApplicant: React.FC = () => {
                         >
                             {isApproving ? 'Approving...' : 'Yes'}
                         </Button>
-                        <Button variant="outlined" onClick={() => setOpenApproveModal(false)}>
+                        <Button sx={{ textTransform: 'none' }} variant="outlined" onClick={() => setOpenApproveModal(false)}>
                             No
                         </Button>
                     </div>
@@ -296,13 +299,14 @@ const ExamApplicant: React.FC = () => {
                     <div className="flex justify-between mt-4">
                         <Button
                             variant="contained"
+                            sx={{ textTransform: 'none' }}
                             color="error"
                             onClick={handleReject}
                             disabled={isRejecting}
                         >
                             {isRejecting ? 'Rejecting...' : 'Reject'}
                         </Button>
-                        <Button variant="outlined" onClick={() => setOpenRejectModal(false)}>
+                        <Button sx={{ textTransform: 'none' }} variant="outlined" onClick={() => setOpenRejectModal(false)}>
                             Cancel
                         </Button>
                     </div>
@@ -425,10 +429,10 @@ const ExamApplicant: React.FC = () => {
                     </div>
 
                     <div className="flex justify-between mt-6">
-                        <Button variant="contained" color="primary" onClick={handlePrint} startIcon={<PrintIcon />}>
+                        <Button sx={{ textTransform: 'none' }} variant="contained" color="primary" onClick={handlePrint} startIcon={<PrintIcon />}>
                             Print
                         </Button>
-                        <Button variant="outlined" color="error" onClick={() => setOpenStatementModal(false)}>
+                        <Button sx={{ textTransform: 'none' }} variant="outlined" color="error" onClick={() => setOpenStatementModal(false)}>
                             Close
                         </Button>
                     </div>

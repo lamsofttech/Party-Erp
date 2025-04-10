@@ -249,6 +249,7 @@ const ApprovedDocuments: React.FC = () => {
                         <TableCell>
                           <Button
                             variant="contained"
+                            sx={{ textTransform: 'none' }}
                             color="primary"
                             startIcon={<VisibilityIcon />}
                             onClick={() => handleViewDocuments(student)}
@@ -330,6 +331,7 @@ const ApprovedDocuments: React.FC = () => {
                       <TableCell>
                         <Button
                           variant="contained"
+                          sx={{ textTransform: 'none' }}
                           color="primary"
                           size="small"
                           onClick={() => handleOpenDocument(doc)}
@@ -345,7 +347,7 @@ const ApprovedDocuments: React.FC = () => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenModal(false)}>Close</Button>
+          <Button sx={{ textTransform: 'none' }} onClick={() => setOpenModal(false)}>Close</Button>
         </DialogActions>
       </Dialog>
 
@@ -380,6 +382,7 @@ const ApprovedDocuments: React.FC = () => {
           <Button
             onClick={() => setDocumentViewer({ ...documentViewer, open: false })}
             color="primary"
+            sx={{ textTransform: 'none' }}
           >
             Close
           </Button>

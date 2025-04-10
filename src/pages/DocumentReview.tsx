@@ -118,7 +118,7 @@ const DocumentsReview: React.FC = () => {
                     <Typography variant="h6" className="font-semibold">
                         Documents Review
                     </Typography>
-                    <Button variant="contained" onClick={handleExportExcel}>
+                    <Button sx={{ textTransform: 'none' }} variant="contained" onClick={handleExportExcel}>
                         Export to Excel
                     </Button>
                 </Box>
@@ -206,7 +206,7 @@ const DocumentsReview: React.FC = () => {
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setViewModal({ open: false, url: "" })}>Close</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setViewModal({ open: false, url: "" })}>Close</Button>
                 </DialogActions>
             </Dialog>
 

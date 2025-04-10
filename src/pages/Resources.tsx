@@ -324,10 +324,10 @@ const Resources: React.FC = () => {
                     onChange={handleSearch}
                     sx={{ input: { backgroundColor: "white" }, flex: 1 }}
                 />
-                <Button variant="contained" color="primary" onClick={handleExportExcel}>
+                <Button sx={{ textTransform: 'none' }} variant="contained" color="primary" onClick={handleExportExcel}>
                     Export to Excel
                 </Button>
-                <Button variant="contained" color="primary" onClick={() => setOpenAddModal(true)}>
+                <Button sx={{ textTransform: 'none' }} variant="contained" color="primary" onClick={() => setOpenAddModal(true)}>
                     Add Resource
                 </Button>
             </div>
@@ -464,10 +464,10 @@ const Resources: React.FC = () => {
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenAddModal(false)} disabled={isSubmitting}>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setOpenAddModal(false)} disabled={isSubmitting}>
                         Cancel
                     </Button>
-                    <Button onClick={handleAddSubmit} color="primary" disabled={isSubmitting}>
+                    <Button sx={{ textTransform: 'none' }} onClick={handleAddSubmit} color="primary" disabled={isSubmitting}>
                         {isSubmitting ? "Adding..." : "Add"}
                     </Button>
                 </DialogActions>
@@ -488,7 +488,7 @@ const Resources: React.FC = () => {
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenViewModal(false)}>Close</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setOpenViewModal(false)}>Close</Button>
                 </DialogActions>
             </Dialog>
 
@@ -497,10 +497,10 @@ const Resources: React.FC = () => {
                 <DialogTitle>Confirm Deletion</DialogTitle>
                 <DialogContent>Are you sure you want to delete this resource?</DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenDeleteModal(false)} disabled={isSubmitting}>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setOpenDeleteModal(false)} disabled={isSubmitting}>
                         Cancel
                     </Button>
-                    <Button onClick={confirmDelete} color="error" disabled={isSubmitting}>
+                    <Button sx={{ textTransform: 'none' }} onClick={confirmDelete} color="error" disabled={isSubmitting}>
                         {isSubmitting ? "Deleting..." : "Delete"}
                     </Button>
                 </DialogActions>

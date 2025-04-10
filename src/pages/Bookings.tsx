@@ -267,6 +267,7 @@ const Bookings: React.FC = () => {
                 />
                 <Button
                     variant="contained"
+                    sx={{ textTransform: 'none' }}
                     color="primary"
                     size="small"
                     onClick={() => {
@@ -322,7 +323,7 @@ const Bookings: React.FC = () => {
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenDetailsModal(false)}>Close</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setOpenDetailsModal(false)}>Close</Button>
                 </DialogActions>
             </Dialog>
 
@@ -363,13 +364,14 @@ const Bookings: React.FC = () => {
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenApproveModal(false)} disabled={isSubmitting}>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setOpenApproveModal(false)} disabled={isSubmitting}>
                         Cancel
                     </Button>
                     <Button
                         onClick={handleApprove}
                         color="primary"
                         disabled={isSubmitting}
+                        sx={{ textTransform: 'none' }}
                     >
                         {isSubmitting ? "Approving..." : "Approve"}
                     </Button>
@@ -391,11 +393,12 @@ const Bookings: React.FC = () => {
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenRejectModal(false)} disabled={isSubmitting}>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setOpenRejectModal(false)} disabled={isSubmitting}>
                         Cancel
                     </Button>
                     <Button
                         onClick={handleReject}
+                        sx={{ textTransform: 'none' }}
                         color="error"
                         disabled={isSubmitting}
                     >

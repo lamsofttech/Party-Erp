@@ -225,11 +225,12 @@ const Mocks: React.FC = () => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenReviewModal(false)} disabled={isSubmitting}>
+          <Button sx={{ textTransform: 'none' }} onClick={() => setOpenReviewModal(false)} disabled={isSubmitting}>
             Cancel
           </Button>
           <Button
             onClick={handleReviewSubmit}
+            sx={{ textTransform: 'none' }}
             color="primary"
             disabled={isSubmitting}
           >

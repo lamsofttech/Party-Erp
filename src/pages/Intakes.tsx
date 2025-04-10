@@ -375,6 +375,7 @@ const Intakes: React.FC = () => {
                                                     <div className="d-flex justify-content-end mb-4">
                                                         <Button
                                                             variant="contained"
+                                                            sx={{ textTransform: 'none' }}
                                                             color="primary"
                                                             startIcon={<AddIcon />}
                                                             onClick={() => setOpenAddModal(true)}
@@ -397,6 +398,7 @@ const Intakes: React.FC = () => {
                                                             sx={{ flex: 1 }}
                                                         />
                                                         <Button
+                                                            sx={{ textTransform: 'none' }}
                                                             variant="contained"
                                                             color="primary"
                                                             size="small"
@@ -484,11 +486,12 @@ const Intakes: React.FC = () => {
                     </Box>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenAddModal(false)}>Cancel</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setOpenAddModal(false)}>Cancel</Button>
                     <Button
                         onClick={handleAddSubmit}
                         variant="contained"
                         disabled={isSubmitting}
+                        sx={{ textTransform: 'none' }}
                     >
                         {isSubmitting ? "Adding..." : "Add Intake"}
                     </Button>
@@ -548,12 +551,13 @@ const Intakes: React.FC = () => {
                     </Box>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenEditModal(false)}>Cancel</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setOpenEditModal(false)}>Cancel</Button>
                     <Button
                         onClick={handleEditSubmit}
                         variant="contained"
                         color="success"
                         disabled={isSubmitting}
+                        sx={{ textTransform: 'none' }}
                     >
                         {isSubmitting ? "Saving..." : "Save Changes"}
                     </Button>
@@ -569,9 +573,10 @@ const Intakes: React.FC = () => {
                     </Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenEndModal(false)}>Cancel</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setOpenEndModal(false)}>Cancel</Button>
                     <Button
                         onClick={handleEndIntake}
+                        sx={{ textTransform: 'none' }}
                         variant="contained"
                         color="error"
                         disabled={isSubmitting}

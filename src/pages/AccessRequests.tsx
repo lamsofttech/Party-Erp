@@ -99,6 +99,7 @@ const AccessRequests: React.FC = () => {
             renderCell: (params) => (
                 <>
                     <Button
+                        sx={{ textTransform: 'none' }}
                         variant="contained"
                         color="success"
                         onClick={() => handleOpenModal(params.row, "accept")}
@@ -106,6 +107,7 @@ const AccessRequests: React.FC = () => {
                         Accept
                     </Button>
                     <Button
+                        sx={{ textTransform: 'none' }}
                         variant="contained"
                         color="error"
                         onClick={() => handleOpenModal(params.row, "deny")}
@@ -153,8 +155,8 @@ const AccessRequests: React.FC = () => {
                     Are you sure you want to {confirmAction} this request?
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setConfirmAction(null)}>Cancel</Button>
-                    <Button onClick={handleConfirm} color="primary">
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setConfirmAction(null)}>Cancel</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={handleConfirm} color="primary">
                         Confirm
                     </Button>
                 </DialogActions>

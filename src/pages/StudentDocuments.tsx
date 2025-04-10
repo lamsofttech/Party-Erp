@@ -316,7 +316,7 @@ const StudentDocuments: React.FC = () => {
             });
             return;
         }
-    
+
         if (!rejectionForm.docId || !rejectionForm.email || !rejectionForm.docType) {
             setSnackbar({
                 open: true,
@@ -325,7 +325,7 @@ const StudentDocuments: React.FC = () => {
             });
             return;
         }
-    
+
         setRejectionForm({ ...rejectionForm, isSubmitting: true });
         try {
             const formData = new FormData();
@@ -334,20 +334,20 @@ const StudentDocuments: React.FC = () => {
             formData.append('email', rejectionForm.email);
             formData.append('remark', rejectionForm.remark);
             formData.append('doc_type', rejectionForm.docType.toString());
-    
+
             if (rejectionForm.attachment) {
                 formData.append('attachments', rejectionForm.attachment);
             }
-    
+
             // Store email for later use
             const studentEmail = rejectionForm.email;
-    
+
             const response = await axios.post(API_URL, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
-    
+
             if (response.data.success) {
                 // First close both modals
                 setDocumentViewer(prev => ({ ...prev, open: false }));
@@ -360,11 +360,11 @@ const StudentDocuments: React.FC = () => {
                     attachment: null,
                     isSubmitting: false
                 });
-                
+
                 // Then refresh data
                 await fetchStudentDocDetails(studentEmail);
                 await fetchStudentDocuments();
-                
+
                 // Show success message
                 setSnackbar({
                     open: true,
@@ -534,6 +534,7 @@ const StudentDocuments: React.FC = () => {
                                 </Typography>
                                 <Button
                                     variant="outlined"
+                                    sx={{ textTransform: 'none' }}
                                     color="primary"
                                 >
                                     Approved Documents
@@ -552,7 +553,7 @@ const StudentDocuments: React.FC = () => {
                                             <Button
                                                 variant="contained"
                                                 onClick={handleExportExcel}
-                                                sx={{ ml: 1 }}
+                                                sx={{ ml: 1, textTransform: 'none' }}
                                             >
                                                 Export
                                             </Button>
@@ -633,6 +634,7 @@ const StudentDocuments: React.FC = () => {
                                             <TableCell>
                                                 <Button
                                                     variant="contained"
+                                                    sx={{ textTransform: 'none' }}
                                                     color="primary"
                                                     size="small"
                                                     onClick={() => handleOpenDocument(doc)}
@@ -648,7 +650,7 @@ const StudentDocuments: React.FC = () => {
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenModal(false)}>Close</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setOpenModal(false)}>Close</Button>
                 </DialogActions>
             </Dialog>
 
@@ -675,6 +677,7 @@ const StudentDocuments: React.FC = () => {
                         <div className="flex gap-10">
                             <Button
                                 variant="contained"
+                                sx={{ textTransform: 'none' }}
                                 onClick={() => handleApproveDocument()}
                                 color="success"
                                 startIcon={<CheckIcon />}
@@ -684,6 +687,7 @@ const StudentDocuments: React.FC = () => {
                             </Button>
                             <Button
                                 onClick={() => handleOpenRejectionForm()}
+                                sx={{ textTransform: 'none' }}
                                 color="error"
                                 variant="outlined"
                                 startIcon={<CancelIcon />}
@@ -710,6 +714,7 @@ const StudentDocuments: React.FC = () => {
                     <Button
                         onClick={() => setDocumentViewer({ ...documentViewer, open: false })}
                         color="primary"
+                        sx={{ textTransform: 'none' }}
                     >
                         Close
                     </Button>
@@ -762,7 +767,7 @@ const StudentDocuments: React.FC = () => {
                             }}
                         />
                         <label htmlFor="rejection-attachment">
-                            <Button variant="outlined" component="span" fullWidth>
+                            <Button sx={{ textTransform: 'none' }} variant="outlined" component="span" fullWidth>
                                 {rejectionForm.attachment ?
                                     `Attachment: ${rejectionForm.attachment.name}` :
                                     "Attach Screenshot (Optional)"}
@@ -774,6 +779,7 @@ const StudentDocuments: React.FC = () => {
                     <Button
                         onClick={() => setRejectionForm({ ...rejectionForm, open: false })}
                         disabled={rejectionForm.isSubmitting}
+                        sx={{ textTransform: 'none' }}
                     >
                         Cancel
                     </Button>
@@ -781,6 +787,7 @@ const StudentDocuments: React.FC = () => {
                         onClick={() => handleRejectDocument()}
                         color="error"
                         variant="contained"
+                        sx={{ textTransform: 'none' }}
                         disabled={!rejectionForm.remark || rejectionForm.isSubmitting}
                     >
                         {rejectionForm.isSubmitting ? 'Submitting...' : 'Submit Rejection'}
@@ -800,10 +807,12 @@ const StudentDocuments: React.FC = () => {
                     <Button
                         onClick={() => setConfirmation({ ...confirmation, open: false })}
                         color="primary"
+                        sx={{ textTransform: 'none' }}
                     >
                         Cancel
                     </Button>
                     <Button
+                        sx={{ textTransform: 'none' }}
                         onClick={confirmation.onConfirm}
                         color="primary"
                         variant="contained"

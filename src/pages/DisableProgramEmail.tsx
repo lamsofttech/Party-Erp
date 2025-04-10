@@ -96,6 +96,7 @@ const DisableProgramEmail: React.FC = () => {
             renderCell: (params) => (
                 <Button
                     variant="contained"
+                    sx={{ textTransform: 'none' }}
                     color="error"
                     onClick={() => {
                         setSelectedMemberId(params.row.id);
@@ -121,7 +122,7 @@ const DisableProgramEmail: React.FC = () => {
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
-                <Button variant="contained" color="success" onClick={() => setOpenUpdateAllDialog(true)}>
+                <Button sx={{ textTransform: 'none' }} variant="contained" color="success" onClick={() => setOpenUpdateAllDialog(true)}>
                     Update All
                 </Button>
             </div>
@@ -147,8 +148,8 @@ const DisableProgramEmail: React.FC = () => {
                     Are you sure you want to disable the program email for this member?
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenConfirmDialog(false)} color="secondary">Cancel</Button>
-                    <Button onClick={handleDisableEmail} variant="contained" color="error">Disable</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setOpenConfirmDialog(false)} color="secondary">Cancel</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={handleDisableEmail} variant="contained" color="error">Disable</Button>
                 </DialogActions>
             </Dialog>
 
@@ -159,8 +160,8 @@ const DisableProgramEmail: React.FC = () => {
                     Are you sure you want to update all passwords?
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenUpdateAllDialog(false)} color="secondary">Cancel</Button>
-                    <Button onClick={handleUpdateAll} variant="contained" color="success">Update All</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setOpenUpdateAllDialog(false)} color="secondary">Cancel</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={handleUpdateAll} variant="contained" color="success">Update All</Button>
                 </DialogActions>
             </Dialog>
 

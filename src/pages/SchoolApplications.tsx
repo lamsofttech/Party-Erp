@@ -243,6 +243,7 @@ const SchoolApplications: React.FC = () => {
                                                 <div className="flex justify-content-end mb-4 gap-4">
                                                     <Button
                                                         component={Link}
+                                                        sx={{ textTransform: 'none' }}
                                                         to="/school-admission/new-school-applications/assigned-applications"
                                                         variant="outlined"
                                                         color="success"
@@ -252,6 +253,7 @@ const SchoolApplications: React.FC = () => {
                                                     </Button>
                                                     <Button
                                                         component={Link}
+                                                        sx={{ textTransform: 'none' }}
                                                         to="/school-admission/new-school-applications/rejected-applications"
                                                         variant="outlined"
                                                         color="error"
@@ -316,9 +318,10 @@ const SchoolApplications: React.FC = () => {
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenRejectDialog(false)}>Cancel</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setOpenRejectDialog(false)}>Cancel</Button>
                     <Button
                         onClick={confirmReject}
+                        sx={{ textTransform: 'none' }}
                         color="error"
                         disabled={!rejectionReason.trim() || isRejecting} // Disable if no reason is provided
                     >

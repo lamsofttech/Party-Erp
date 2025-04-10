@@ -186,6 +186,7 @@ const CareerGpaCalculations: React.FC = () => {
                                                     <Button
                                                         variant="contained"
                                                         color="success"
+                                                        sx={{ textTransform: 'none' }}
                                                         onClick={handleExportExcel}
                                                     >
                                                         Export to Excel

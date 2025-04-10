@@ -205,7 +205,7 @@ const Trainings: React.FC = () => {
             </div>
 
             <div className="flex justify-end mb-4">
-                <Button variant="contained" color="primary" onClick={() => setOpenAddModal(true)}>
+                <Button sx={{ textTransform: 'none' }} variant="contained" color="primary" onClick={() => setOpenAddModal(true)}>
                     <AddIcon />
                 </Button>
             </div>
@@ -283,6 +283,7 @@ const Trainings: React.FC = () => {
                     <div className="flex justify-between gap-2">
                         <Button
                             variant="contained"
+                            sx={{ textTransform: 'none' }}
                             color="primary"
                             onClick={handleAddSubmit}
                             disabled={isSubmitting}
@@ -292,6 +293,7 @@ const Trainings: React.FC = () => {
                         </Button>
                         <Button
                             variant="outlined"
+                            sx={{ textTransform: 'none' }}
                             onClick={() => setOpenAddModal(false)}
                             disabled={isSubmitting}
                             fullWidth
@@ -363,13 +365,14 @@ const Trainings: React.FC = () => {
                     <div className="flex justify-between">
                         <Button
                             variant="contained"
+                            sx={{ textTransform: 'none' }}
                             color="primary"
                             onClick={handleEditSubmit}
                             disabled={isSubmitting}
                         >
                             {isSubmitting ? "Updating..." : "Update"}
                         </Button>
-                        <Button variant="outlined" onClick={() => setOpenEditModal(false)} disabled={isSubmitting}>
+                        <Button sx={{ textTransform: 'none' }} variant="outlined" onClick={() => setOpenEditModal(false)} disabled={isSubmitting}>
                             Cancel
                         </Button>
                     </div>
@@ -382,10 +385,10 @@ const Trainings: React.FC = () => {
                     <Typography>Are you sure you want to delete this training?</Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenDeleteDialog(false)} disabled={isSubmitting}>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setOpenDeleteDialog(false)} disabled={isSubmitting}>
                         Cancel
                     </Button>
-                    <Button onClick={handleDelete} color="error" disabled={isSubmitting}>
+                    <Button sx={{ textTransform: 'none' }} onClick={handleDelete} color="error" disabled={isSubmitting}>
                         {isSubmitting ? "Deleting..." : "Delete"}
                     </Button>
                 </DialogActions>

@@ -170,7 +170,7 @@ const UpdatePassword: React.FC = () => {
             renderCell: (params) => (
                 <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                     <input type="text" value={params.value} readOnly style={{ flex: 1, marginRight: '5px'}} />
-                    <Button onClick={() => handleCopy(params.value)} size="small" variant="outlined">
+                    <Button sx={{ textTransform: 'none' }} onClick={() => handleCopy(params.value)} size="small" variant="outlined">
                         Copy
                     </Button>
                 </div>
@@ -183,7 +183,7 @@ const UpdatePassword: React.FC = () => {
             renderCell: (params) => (
                 <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                     <input type="text" value={params.value} readOnly style={{ flex: 1, marginRight: '5px' }} />
-                    <Button onClick={() => handleCopy(params.value)} size="small" variant="outlined">
+                    <Button sx={{ textTransform: 'none' }} onClick={() => handleCopy(params.value)} size="small" variant="outlined">
                         Copy
                     </Button>
                 </div>
@@ -198,6 +198,7 @@ const UpdatePassword: React.FC = () => {
             renderCell: (params) => (
                 <Button
                     variant="contained"
+                    sx={{ textTransform: 'none' }}
                     size='small'
                     color="primary"
                     onClick={() => {
@@ -221,8 +222,8 @@ const UpdatePassword: React.FC = () => {
 
             <div className="flex flex-col sm:flex-row gap-4 mb-4">
                 <TextField label="Search by Name or Email" variant="outlined" fullWidth onChange={handleSearch} value={searchQuery} sx={{ flex: 1 }} />
-                <Button variant="contained" onClick={exportToExcel} className="bg-green-600 hover:bg-green-700 text-white">Export to Excel</Button>
-                <Button variant="contained" color="success" onClick={() => setOpenUpdateAllDialog(true)}>
+                <Button sx={{ textTransform: 'none' }} variant="contained" onClick={exportToExcel} className="bg-green-600 hover:bg-green-700 text-white">Export to Excel</Button>
+                <Button sx={{ textTransform: 'none' }} variant="contained" color="success" onClick={() => setOpenUpdateAllDialog(true)}>
                     Update All
                 </Button>
             </div>
@@ -247,8 +248,8 @@ const UpdatePassword: React.FC = () => {
                     <p>Are you sure you want to update the password for {selectedMember?.fullnames}?</p>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenConfirmDialog(false)} color="secondary">Cancel</Button>
-                    <Button onClick={handleUpdatePassword} variant="contained" color="primary" disabled={updating}>{updating ? "Updating..." : "Update"}</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setOpenConfirmDialog(false)} color="secondary">Cancel</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={handleUpdatePassword} variant="contained" color="primary" disabled={updating}>{updating ? "Updating..." : "Update"}</Button>
                 </DialogActions>
             </Dialog>
 
@@ -259,8 +260,8 @@ const UpdatePassword: React.FC = () => {
                     <p>Are you sure you want to update all passwords?</p>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenUpdateAllDialog(false)} color="secondary">Cancel</Button>
-                    <Button onClick={handleUpdateAll} variant="contained" color="success" disabled={updatingAll}>{updatingAll ? "Updating..." : "Update All"}</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setOpenUpdateAllDialog(false)} color="secondary">Cancel</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={handleUpdateAll} variant="contained" color="success" disabled={updatingAll}>{updatingAll ? "Updating..." : "Update All"}</Button>
                 </DialogActions>
             </Dialog>
 

@@ -128,7 +128,7 @@ const Onboarding: React.FC = () => {
             renderCell: (params) => (
                 <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                     <input type="text" value={params.value} readOnly style={{ flex: 1, marginRight: '5px' }} />
-                    <Button onClick={() => handleCopy(params.value)} size="small" variant="outlined">Copy</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => handleCopy(params.value)} size="small" variant="outlined">Copy</Button>
                 </div>
             ),
         },
@@ -139,7 +139,7 @@ const Onboarding: React.FC = () => {
             renderCell: (params) => (
                 <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                     <input type="text" value={params.value} readOnly style={{ flex: 1, marginRight: '0px' }} />
-                    <Button onClick={() => handleCopy(params.value)} size="small" variant="outlined">Copy</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => handleCopy(params.value)} size="small" variant="outlined">Copy</Button>
                 </div>
             ),
         },
@@ -150,7 +150,7 @@ const Onboarding: React.FC = () => {
             sortable: false,
             filterable: false,
             renderCell: (params) => (
-                <Button variant="contained" size='small' color="success" onClick={() => handleOpenConfirmDialog(params.row)}>
+                <Button sx={{ textTransform: 'none' }} variant="contained" size='small' color="success" onClick={() => handleOpenConfirmDialog(params.row)}>
                     Confirm Created
                 </Button>
             ),
@@ -167,17 +167,17 @@ const Onboarding: React.FC = () => {
 
             <div className="flex flex-col sm:flex-row gap-4 mb-4">
                 <TextField label="Search by Name or Email" variant="outlined" fullWidth onChange={handleSearch} value={searchQuery} sx={{ flex: 1 }} />
-                <Button variant="contained" onClick={exportToExcel} className="bg-green-600 hover:bg-green-700 text-white">
+                <Button sx={{ textTransform: 'none' }} variant="contained" onClick={exportToExcel} className="bg-green-600 hover:bg-green-700 text-white">
                     Export to Excel
                 </Button>
             </div>
 
             <div className='flex items-center justify-start gap-4 py-2'>
                 <Link to='/onboarding/onboard/disable-program-email'>
-                    <Button variant='outlined' color='error'>Disable Program Email</Button>
+                    <Button sx={{ textTransform: 'none' }} variant='outlined' color='error'>Disable Program Email</Button>
                 </Link>
                 <Link to='/onboarding/onboard/update-password'>
-                    <Button variant='outlined' color='success'>Update Password</Button>
+                    <Button sx={{ textTransform: 'none' }} variant='outlined' color='success'>Update Password</Button>
                 </Link>
             </div>
 
@@ -200,8 +200,8 @@ const Onboarding: React.FC = () => {
                     Are you sure you want to confirm the email created for <b>{selectedStudent?.fullnames}?</b>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseConfirmDialog} color="secondary">Cancel</Button>
-                    <Button onClick={handleConfirmOnboard} variant="contained" color="primary" disabled={confirming}>{confirming ? 'Confirming...' : 'Confirm'}</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={handleCloseConfirmDialog} color="secondary">Cancel</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={handleConfirmOnboard} variant="contained" color="primary" disabled={confirming}>{confirming ? 'Confirming...' : 'Confirm'}</Button>
                 </DialogActions>
             </Dialog>
 

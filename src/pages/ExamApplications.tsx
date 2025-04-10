@@ -89,6 +89,7 @@ const ExamApplicants: React.FC = () => {
                 />
                 <Button
                     variant="contained"
+                    sx={{ textTransform: 'none' }}
                     color="primary"
                     size="small"
                     onClick={() => {

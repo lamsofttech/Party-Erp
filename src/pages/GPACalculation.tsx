@@ -185,6 +185,7 @@ const GpaCalculations: React.FC = () => {
                                                 <div className="d-flex justify-content-between mb-4">
                                                     <Button
                                                         variant="contained"
+                                                        sx={{ textTransform: 'none' }}
                                                         color="success"
                                                         onClick={handleExportExcel}
                                                     >

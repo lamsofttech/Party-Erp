@@ -592,14 +592,14 @@ const ApplicationDetails: React.FC = () => {
                         </div>
                         <div className="grid grid-cols-2 items-center gap-10 mt-4">
                             <TextField className="bg-white dark:bg-transparent" label="GPA Points" value={gpa} onChange={(e) => setGpa(e.target.value)} fullWidth />
-                            <Button onClick={updateGPA} variant="contained" disabled={updating}>
+                            <Button sx={{ textTransform: 'none' }} onClick={updateGPA} variant="contained" disabled={updating}>
                                 {updating ? "Updating..." : "Update GPA"}
                             </Button>
                         </div>
                         {(application?.gpa_doc === null || application?.status === "12") && (
                             <div className="grid grid-cols-2 items-center gap-10 mt-4">
                                 <input type="file" accept=".pdf" onChange={handleFileChange} className="border border-gray-300 rounded-md px-4 py-2 bg-white" />
-                                <Button onClick={uploadGPAReport} variant="contained" disabled={uploading}>
+                                <Button sx={{ textTransform: 'none' }} onClick={uploadGPAReport} variant="contained" disabled={uploading}>
                                     {uploading ? "Uploading..." : "Upload GPA Report"}
                                 </Button>
                             </div>
@@ -659,11 +659,12 @@ const ApplicationDetails: React.FC = () => {
                                 </form>
                             </DialogContent>
                             <DialogActions>
-                                <Button onClick={() => setOpenCommentModal(false)} color="secondary">
+                                <Button sx={{ textTransform: 'none' }} onClick={() => setOpenCommentModal(false)} color="secondary">
                                     Cancel
                                 </Button>
                                 <Button
                                     onClick={handleSubmitComment}
+                                    sx={{ textTransform: 'none' }}
                                     variant="contained"
                                     color="primary"
                                     disabled={submittingComment}
@@ -695,10 +696,10 @@ const ApplicationDetails: React.FC = () => {
                     </div>
                     {(application?.status === "10") && (
                         <div className="flex items-center gap-4">
-                            <Button className="w-96" variant="outlined" color="success" onClick={handleOpenApprove}>
+                            <Button sx={{ textTransform: 'none' }} className="w-96" variant="outlined" color="success" onClick={handleOpenApprove}>
                                 <CheckCircleIcon />&nbsp;&nbsp;Approve GPA
                             </Button>
-                            <Button className="w-96" variant="outlined" color="error" onClick={handleOpenReject}>
+                            <Button sx={{ textTransform: 'none' }} className="w-96" variant="outlined" color="error" onClick={handleOpenReject}>
                                 <CancelIcon />&nbsp;&nbsp;Reject GPA
                             </Button>
                         </div>
@@ -711,8 +712,8 @@ const ApplicationDetails: React.FC = () => {
                             <p>Are you sure you want to approve the GPA for <b>{application?.fullnames}</b>?</p>
                         </DialogContent>
                         <DialogActions>
-                            <Button onClick={handleCloseApprove} color="secondary">Cancel</Button>
-                            <Button onClick={handleApproveGPA} variant="contained" color="success" disabled={loading2}>
+                            <Button sx={{ textTransform: 'none' }} onClick={handleCloseApprove} color="secondary">Cancel</Button>
+                            <Button sx={{ textTransform: 'none' }} onClick={handleApproveGPA} variant="contained" color="success" disabled={loading2}>
                                 {loading2 ? "Processing..." : "Confirm"}
                             </Button>
                         </DialogActions>
@@ -733,15 +734,15 @@ const ApplicationDetails: React.FC = () => {
                             />
                         </DialogContent>
                         <DialogActions>
-                            <Button onClick={handleCloseReject} color="secondary">Cancel</Button>
-                            <Button onClick={handleRejectGPA} variant="contained" color="error" disabled={loading2}>
+                            <Button sx={{ textTransform: 'none' }} onClick={handleCloseReject} color="secondary">Cancel</Button>
+                            <Button sx={{ textTransform: 'none' }} onClick={handleRejectGPA} variant="contained" color="error" disabled={loading2}>
                                 {loading2 ? "Processing..." : "Reject"}
                             </Button>
                         </DialogActions>
                     </Dialog>
                 </div>
                 <div className="flex flex-col items-center justify-center gap-6">
-                    <Button onClick={handleOpen2} className="w-96" variant="contained">
+                    <Button sx={{ textTransform: 'none' }} onClick={handleOpen2} className="w-96" variant="contained">
                         <InfoIcon />&nbsp;&nbsp;Request Extra Info
                     </Button>
                     <Dialog open={open2} onClose={handleClose2} fullWidth maxWidth="sm">
@@ -779,17 +780,17 @@ const ApplicationDetails: React.FC = () => {
                             </form>
                         </DialogContent>
                         <DialogActions>
-                            <Button onClick={handleClose2} color="secondary">
+                            <Button sx={{ textTransform: 'none' }} onClick={handleClose2} color="secondary">
                                 Cancel
                             </Button>
-                            <Button onClick={handleSubmit} variant="contained" color="primary" disabled={submitting}>
+                            <Button sx={{ textTransform: 'none' }} onClick={handleSubmit} variant="contained" color="primary" disabled={submitting}>
                                 {submitting ? "Sending..." : "Send Request"}
                             </Button>
                         </DialogActions>
                     </Dialog>
 
                     {(application?.gpa_doc != null && application?.status === "11") && (
-                        <Button className="w-96" variant="contained" color="success" onClick={handleOpenFinalApprove}>
+                        <Button sx={{ textTransform: 'none' }} className="w-96" variant="contained" color="success" onClick={handleOpenFinalApprove}>
                             <CheckCircleIcon />&nbsp;&nbsp;Approve
                         </Button>
                     )}
@@ -807,11 +808,12 @@ const ApplicationDetails: React.FC = () => {
                             </Typography>
                         </DialogContent>
                         <DialogActions>
-                            <Button onClick={handleCloseFinalApprove} color="secondary">
+                            <Button sx={{ textTransform: 'none' }} onClick={handleCloseFinalApprove} color="secondary">
                                 Cancel
                             </Button>
                             <Button
                                 onClick={handleFinalApproval}
+                                sx={{ textTransform: 'none' }}
                                 variant="contained"
                                 color="success"
                                 disabled={approvingFinal}
@@ -822,7 +824,7 @@ const ApplicationDetails: React.FC = () => {
                     </Dialog>
 
                     {(application?.gpa_doc != null && application?.status === "11") && (
-                        <Button className="w-96" variant="contained" color="success" onClick={handleOpenRefer}>
+                        <Button sx={{ textTransform: 'none' }} className="w-96" variant="contained" color="success" onClick={handleOpenRefer}>
                             <CheckCircleIcon />&nbsp;&nbsp;Approve For Other Option
                         </Button>
                     )}
@@ -841,11 +843,12 @@ const ApplicationDetails: React.FC = () => {
                             </Typography>
                         </DialogContent>
                         <DialogActions>
-                            <Button onClick={handleCloseRefer} color="secondary">
+                            <Button sx={{ textTransform: 'none' }} onClick={handleCloseRefer} color="secondary">
                                 Cancel
                             </Button>
                             <Button
                                 onClick={handleReferApproval}
+                                sx={{ textTransform: 'none' }}
                                 variant="contained"
                                 color="success"
                                 disabled={referring}
@@ -855,7 +858,7 @@ const ApplicationDetails: React.FC = () => {
                         </DialogActions>
                     </Dialog>
 
-                    <Button className="w-96" variant="contained" color="error" onClick={handleOpenRejectModal}>
+                    <Button sx={{ textTransform: 'none' }} className="w-96" variant="contained" color="error" onClick={handleOpenRejectModal}>
                         <CancelIcon />&nbsp;&nbsp;Reject
                     </Button>
                     {/* Reject Applicant Dialog */}
@@ -875,10 +878,10 @@ const ApplicationDetails: React.FC = () => {
                             />
                         </DialogContent>
                         <DialogActions>
-                            <Button onClick={handleCloseRejectModal} color="secondary">
+                            <Button sx={{ textTransform: 'none' }} onClick={handleCloseRejectModal} color="secondary">
                                 Cancel
                             </Button>
-                            <Button onClick={handleRejectSubmit} variant="contained" color="error" disabled={submitting}>
+                            <Button sx={{ textTransform: 'none' }} onClick={handleRejectSubmit} variant="contained" color="error" disabled={submitting}>
                                 {submitting ? "Rejecting..." : "Submit Rejection"}
                             </Button>
                         </DialogActions>
@@ -903,11 +906,12 @@ const ApplicationDetails: React.FC = () => {
                             </Typography>
                         </DialogContent>
                         <DialogActions>
-                            <Button onClick={handleCloseApproveDocs} color="secondary">
+                            <Button sx={{ textTransform: 'none' }} onClick={handleCloseApproveDocs} color="secondary">
                                 Cancel
                             </Button>
                             <Button
                                 onClick={handleApproveRequestedDocs}
+                                sx={{ textTransform: 'none' }}
                                 variant="contained"
                                 color="success"
                                 disabled={approvingDocs}
@@ -941,6 +945,7 @@ const ApplicationDetails: React.FC = () => {
                                                 <td>
                                                     <Button
                                                         variant="outlined"
+                                                        sx={{ textTransform: 'none' }}
                                                         startIcon={<VisibilityIcon />}
                                                         onClick={() => handleViewEmail(email.id)}
                                                     >
@@ -1015,7 +1020,7 @@ const ApplicationDetails: React.FC = () => {
                                         )}
                                     </DialogContent>
                                     <DialogActions sx={{ borderTop: "1px solid #e0e0e0", bgcolor: "#f5f5f5" }}>
-                                        <Button onClick={() => setOpenEmailDialog(false)} variant="contained" color="primary">
+                                        <Button sx={{ textTransform: 'none' }} onClick={() => setOpenEmailDialog(false)} variant="contained" color="primary">
                                             Close
                                         </Button>
                                     </DialogActions>

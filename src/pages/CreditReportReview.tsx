@@ -200,7 +200,7 @@ const CreditReportReview: React.FC = () => {
             sortable: false,
             filterable: false,
             renderCell: (params) => (
-                <Button variant="contained" color="success" onClick={() => handleOpenActionDialog(params.row.id)}>
+                <Button sx={{ textTransform: 'none' }} variant="contained" color="success" onClick={() => handleOpenActionDialog(params.row.id)}>
                     Action
                 </Button>
             ),
@@ -217,7 +217,7 @@ const CreditReportReview: React.FC = () => {
 
             <div className="flex flex-col sm:flex-row gap-4 mb-4">
                 <TextField label="Search by Name, Email, ID Number, or Phone" variant="outlined" fullWidth onChange={handleSearch} value={searchQuery} sx={{ flex: 1 }} />
-                <Button variant="contained" onClick={exportToExcel} className="bg-green-600 hover:bg-green-700 text-white">Export to Excel</Button>
+                <Button sx={{ textTransform: 'none' }} variant="contained" onClick={exportToExcel} className="bg-green-600 hover:bg-green-700 text-white">Export to Excel</Button>
             </div>
 
             <div className="bg-white shadow-md rounded-lg overflow-hidden">
@@ -243,7 +243,7 @@ const CreditReportReview: React.FC = () => {
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseImageDialog} variant="contained" color="primary">Close</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={handleCloseImageDialog} variant="contained" color="primary">Close</Button>
                 </DialogActions>
             </Dialog>
 
@@ -312,8 +312,8 @@ const CreditReportReview: React.FC = () => {
                             )}
 
                             <DialogActions>
-                                <Button onClick={handleCloseActionDialog} color="secondary">Cancel</Button>
-                                <Button type="submit" variant="contained" color="primary" disabled={!action || submitting}>{submitting ? 'Submitting...' : 'Submit'}</Button>
+                                <Button sx={{ textTransform: 'none' }} onClick={handleCloseActionDialog} color="secondary">Cancel</Button>
+                                <Button sx={{ textTransform: 'none' }} type="submit" variant="contained" color="primary" disabled={!action || submitting}>{submitting ? 'Submitting...' : 'Submit'}</Button>
                             </DialogActions>
                         </form>
                     ) : (

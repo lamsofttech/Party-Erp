@@ -89,7 +89,7 @@ const DocumentDashboard = () => {
         return (
             <div className="p-6">
                 <Typography color="error">{error}</Typography>
-                <Button onClick={() => window.location.reload()}>Retry</Button>
+                <Button sx={{ textTransform: 'none' }} onClick={() => window.location.reload()}>Retry</Button>
             </div>
         );
     }

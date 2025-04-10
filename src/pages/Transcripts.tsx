@@ -191,7 +191,7 @@ const Transcripts: React.FC = () => {
           <Typography variant="h6" className="font-semibold">
             Student Documents
           </Typography>
-          <Button variant="contained" color="success" onClick={() => setOpenModal(true)}>
+          <Button sx={{ textTransform: 'none' }} variant="contained" color="success" onClick={() => setOpenModal(true)}>
             Verify Documents
           </Button>
         </Box>
@@ -205,7 +205,7 @@ const Transcripts: React.FC = () => {
             onChange={handleSearch}
             sx={{ flex: 1, mr: 2 }}
           />
-          <Button variant="contained" onClick={handleExportExcel}>
+          <Button sx={{ textTransform: 'none' }} variant="contained" onClick={handleExportExcel}>
             Export to Excel
           </Button>
         </Box>
@@ -306,15 +306,15 @@ const Transcripts: React.FC = () => {
               onChange={handleFileChange}
             />
             <label htmlFor="upload-file">
-              <Button variant="outlined" component="span" fullWidth>
+              <Button sx={{ textTransform: 'none' }} variant="outlined" component="span" fullWidth>
                 {file ? file.name : "Upload Document"}
               </Button>
             </label>
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenModal(false)}>Cancel</Button>
-          <Button variant="contained" color="primary" onClick={handleVerifySubmit}>
+          <Button sx={{ textTransform: 'none' }} onClick={() => setOpenModal(false)}>Cancel</Button>
+          <Button sx={{ textTransform: 'none' }} variant="contained" color="primary" onClick={handleVerifySubmit}>
             Verify
           </Button>
         </DialogActions>

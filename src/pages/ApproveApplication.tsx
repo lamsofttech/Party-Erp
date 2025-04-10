@@ -164,6 +164,7 @@ const NewApplicantsWithGpa: React.FC = () => {
                 <div className="flex gap-4">
                     <Button
                         variant="contained"
+                        sx={{ textTransform: 'none' }}
                         onClick={exportToExcel}
                         className="bg-green-600 hover:bg-green-700 text-white"
                     >

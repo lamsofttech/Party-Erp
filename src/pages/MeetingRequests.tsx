@@ -587,6 +587,7 @@ const MeetingRequests: React.FC = () => {
                                 <Tooltip title="Meet">
                                     <Button
                                         variant="outlined"
+                                        sx={{ textTransform: 'none' }}
                                         color="success"
                                         size="small"
                                         onClick={() => {
@@ -601,6 +602,7 @@ const MeetingRequests: React.FC = () => {
                                 <Tooltip title="Cancel">
                                     <Button
                                         variant="outlined"
+                                        sx={{ textTransform: 'none' }}
                                         color="error"
                                         size="small"
                                         onClick={() => {
@@ -615,6 +617,7 @@ const MeetingRequests: React.FC = () => {
                                     <Tooltip title="End">
                                         <Button
                                             variant="outlined"
+                                            sx={{ textTransform: 'none' }}
                                             color="primary"
                                             size="small"
                                             onClick={() => handleOpenEndModal(meeting)}
@@ -627,6 +630,7 @@ const MeetingRequests: React.FC = () => {
                                 <Tooltip title="Share">
                                     <Button
                                         variant="outlined"
+                                        sx={{ textTransform: 'none' }}
                                         color="warning"
                                         size="small"
                                         onClick={async () => {
@@ -645,6 +649,7 @@ const MeetingRequests: React.FC = () => {
                             <Tooltip title="View">
                                 <Button
                                     variant="outlined"
+                                    sx={{ textTransform: 'none' }}
                                     color="primary"
                                     size="small"
                                     onClick={() => {
@@ -689,6 +694,7 @@ const MeetingRequests: React.FC = () => {
                                                                 variant="contained"
                                                                 color="success"
                                                                 className="m-1"
+                                                                sx={{ textTransform: 'none' }}
                                                             >
                                                                 My Room
                                                             </Button>
@@ -705,6 +711,7 @@ const MeetingRequests: React.FC = () => {
                                                                         variant="contained"
                                                                         color="primary"
                                                                         className="m-1"
+                                                                        sx={{ textTransform: 'none' }}
                                                                     >
                                                                         Room of {teamMember.email}
                                                                     </Button>
@@ -724,7 +731,7 @@ const MeetingRequests: React.FC = () => {
                                                             onChange={handleSearch}
                                                             sx={{ width: "50%" }}
                                                         />
-                                                        <Button variant="contained" color="primary" onClick={handleExportExcel}>
+                                                        <Button sx={{ textTransform: 'none' }} variant="contained" color="primary" onClick={handleExportExcel}>
                                                             Export to Excel
                                                         </Button>
                                                     </div>
@@ -758,6 +765,7 @@ const MeetingRequests: React.FC = () => {
                     <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
                         <Button
                             variant="outlined"
+                            sx={{ textTransform: 'none' }}
                             color="primary"
                             onClick={() => {
                                 fetchSchools();
@@ -768,6 +776,7 @@ const MeetingRequests: React.FC = () => {
                         </Button>
                         <Button
                             variant="outlined"
+                            sx={{ textTransform: 'none' }}
                             color="success"
                             onClick={handleMarkAttended}
                             disabled={selectedMeeting?.meeting_status === "2"}
@@ -776,6 +785,7 @@ const MeetingRequests: React.FC = () => {
                         </Button>
                         <Button
                             variant="outlined"
+                            sx={{ textTransform: 'none' }}
                             color="error"
                             onClick={() => setOpenEndModal(true)}
                         >
@@ -796,6 +806,7 @@ const MeetingRequests: React.FC = () => {
                                     renderCell: (params: GridRenderCellParams<ProposedCourse>) => (
                                         <Button
                                             variant="outlined"
+                                            sx={{ textTransform: 'none' }}
                                             color="error"
                                             size="small"
                                             onClick={() => handleDeleteProposedCourse(params.row.id)}
@@ -812,7 +823,7 @@ const MeetingRequests: React.FC = () => {
                     </div>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setMeetModalOpen(false)}>Close</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setMeetModalOpen(false)}>Close</Button>
                 </DialogActions>
             </Dialog>
 
@@ -858,8 +869,8 @@ const MeetingRequests: React.FC = () => {
                     </Select>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setProposeCourseDialogOpen(false)}>Cancel</Button>
-                    <Button onClick={handleProposeCourse} disabled={isSubmitting || !school || !course}>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setProposeCourseDialogOpen(false)}>Cancel</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={handleProposeCourse} disabled={isSubmitting || !school || !course}>
                         {isSubmitting ? "Proposing..." : "Propose"}
                     </Button>
                 </DialogActions>
@@ -875,11 +886,12 @@ const MeetingRequests: React.FC = () => {
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setMarkAttendedModalOpen(false)} disabled={isSubmitting}>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setMarkAttendedModalOpen(false)} disabled={isSubmitting}>
                         Cancel
                     </Button>
                     <Button
                         onClick={confirmMarkAttended}
+                        sx={{ textTransform: 'none' }}
                         color="success"
                         variant="contained"
                         disabled={isSubmitting}
@@ -898,11 +910,12 @@ const MeetingRequests: React.FC = () => {
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setDeleteModalOpen(false)} disabled={isSubmitting}>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setDeleteModalOpen(false)} disabled={isSubmitting}>
                         Cancel
                     </Button>
                     <Button
                         onClick={confirmDeleteProposedCourse}
+                        sx={{ textTransform: 'none' }}
                         color="error"
                         variant="contained"
                         disabled={isSubmitting}
@@ -923,6 +936,7 @@ const MeetingRequests: React.FC = () => {
                     <Box sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 2 }}>
                         <Button
                             variant="contained"
+                            sx={{ textTransform: 'none' }}
                             color="error"
                             onClick={handleCancelIndividual}
                             disabled={!selectedMeeting?.cancel_url || isSubmitting}
@@ -931,6 +945,7 @@ const MeetingRequests: React.FC = () => {
                         </Button>
                         <Button
                             variant="contained"
+                            sx={{ textTransform: 'none' }}
                             color="error"
                             onClick={handleCancelEvent}
                             disabled={isSubmitting || !selectedMeeting?.event}
@@ -940,7 +955,7 @@ const MeetingRequests: React.FC = () => {
                     </Box>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setCancelModalOpen(false)} disabled={isSubmitting}>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setCancelModalOpen(false)} disabled={isSubmitting}>
                         Close
                     </Button>
                 </DialogActions>
@@ -964,11 +979,12 @@ const MeetingRequests: React.FC = () => {
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenEndModal(false)} color="secondary" disabled={isSubmitting}>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setOpenEndModal(false)} color="secondary" disabled={isSubmitting}>
                         Close
                     </Button>
                     <Button
                         onClick={handleEndMeeting}
+                        sx={{ textTransform: 'none' }}
                         variant="contained"
                         color="primary"
                         disabled={isSubmitting || !remarks}
@@ -1003,11 +1019,12 @@ const MeetingRequests: React.FC = () => {
                     </Select>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setShareDialogOpen(false)} disabled={isSubmitting}>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setShareDialogOpen(false)} disabled={isSubmitting}>
                         Cancel
                     </Button>
                     <Button
                         onClick={handleShareMeeting}
+                        sx={{ textTransform: 'none' }}
                         variant="contained"
                         color="primary"
                         disabled={isSubmitting || !selectedAdvisor}
@@ -1037,7 +1054,7 @@ const MeetingRequests: React.FC = () => {
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setViewLogsDialogOpen(false)}>Close</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setViewLogsDialogOpen(false)}>Close</Button>
                 </DialogActions>
             </Dialog>
 

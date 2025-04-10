@@ -172,6 +172,7 @@ const CosignerDetails: React.FC = () => {
                                         <td>
                                             <Button
                                                 variant="outlined"
+                                                sx={{ textTransform: 'none' }}
                                                 startIcon={<VisibilityIcon />}
                                                 onClick={() => handleViewEmail(email.id)}
                                             >
@@ -246,7 +247,7 @@ const CosignerDetails: React.FC = () => {
                                 )}
                             </DialogContent>
                             <DialogActions sx={{ borderTop: "1px solid #e0e0e0", bgcolor: "#f5f5f5" }}>
-                                <Button onClick={() => setOpenEmailDialog(false)} variant="contained" color="primary">
+                                <Button sx={{ textTransform: 'none' }} onClick={() => setOpenEmailDialog(false)} variant="contained" color="primary">
                                     Close
                                 </Button>
                             </DialogActions>

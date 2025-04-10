@@ -260,11 +260,11 @@ const ViewIntake: React.FC = () => {
                                                 }}
                                             />
                                             <Button
-                                            className="px-4"
+                                                className="px-4"
                                                 variant="contained"
                                                 startIcon={<FileDownloadIcon />}
                                                 onClick={handleExportExcel}
-                                                sx={{ whiteSpace: "nowrap" }}
+                                                sx={{ whiteSpace: "nowrap", textTransform: 'none' }}
                                             >
                                                 Excel
                                             </Button>

@@ -182,6 +182,7 @@ const Resubmissions: React.FC = () => {
                                                 <div className="d-flex justify-content-between mb-4">
                                                     <Button
                                                         variant="contained"
+                                                        sx={{ textTransform: 'none' }}
                                                         color="success"
                                                         onClick={handleExportExcel}
                                                         startIcon={<i className="fas fa-file-excel"></i>}

@@ -269,6 +269,7 @@ const Results: React.FC = () => {
         />
         <Button
           variant="contained"
+          sx={{ textTransform: 'none' }}
           color="primary"
           size="small"
           onClick={() => {
@@ -330,10 +331,10 @@ const Results: React.FC = () => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenApproveModal(false)} disabled={isSubmitting}>
+          <Button sx={{ textTransform: 'none' }} onClick={() => setOpenApproveModal(false)} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button onClick={handleApproveSubmit} color="primary" disabled={isSubmitting}>
+          <Button sx={{ textTransform: 'none' }} onClick={handleApproveSubmit} color="primary" disabled={isSubmitting}>
             {isSubmitting ? "Approving..." : "Approve"}
           </Button>
         </DialogActions>
@@ -355,10 +356,10 @@ const Results: React.FC = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenRejectModal(false)} disabled={isSubmitting}>
+          <Button sx={{ textTransform: 'none' }} onClick={() => setOpenRejectModal(false)} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button onClick={handleRejectSubmit} color="error" disabled={isSubmitting}>
+          <Button sx={{ textTransform: 'none' }} onClick={handleRejectSubmit} color="error" disabled={isSubmitting}>
             {isSubmitting ? "Rejecting..." : "Reject"}
           </Button>
         </DialogActions>

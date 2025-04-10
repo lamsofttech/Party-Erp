@@ -488,10 +488,10 @@ const MemberSidenav: React.FC<MemberNavigationProps> = ({ membershipType, member
                             required
                         />
                         <div className="flex justify-between mt-4">
-                            <Button type="submit" variant="contained" color="primary" disabled={loading}>
+                            <Button sx={{ textTransform: 'none' }} type="submit" variant="contained" color="primary" disabled={loading}>
                                 {loading ? "Processing..." : "Submit"}
                             </Button>
-                            <Button type="button" onClick={() => setOpenDisburseLoan(false)} variant="outlined" color="error">
+                            <Button sx={{ textTransform: 'none' }} type="button" onClick={() => setOpenDisburseLoan(false)} variant="outlined" color="error">
                                 Cancel
                             </Button>
                         </div>
@@ -537,10 +537,10 @@ const MemberSidenav: React.FC<MemberNavigationProps> = ({ membershipType, member
                             required
                         />
                         <div className="flex justify-between mt-4">
-                            <Button type="submit" variant="contained" color="primary" disabled={loading}>
+                            <Button sx={{ textTransform: 'none' }} type="submit" variant="contained" color="primary" disabled={loading}>
                                 {loading ? "Processing..." : "Submit"}
                             </Button>
-                            <Button type="button" onClick={() => setOpenExtraLoan(false)} variant="outlined" color="error">
+                            <Button sx={{ textTransform: 'none' }} type="button" onClick={() => setOpenExtraLoan(false)} variant="outlined" color="error">
                                 Cancel
                             </Button>
                         </div>
@@ -592,10 +592,10 @@ const MemberSidenav: React.FC<MemberNavigationProps> = ({ membershipType, member
                             required
                         />
                         <div className="flex justify-between mt-4">
-                            <Button type="submit" variant="contained" color="primary" disabled={loading}>
+                            <Button sx={{ textTransform: 'none' }} type="submit" variant="contained" color="primary" disabled={loading}>
                                 {loading ? "Processing..." : "Submit"}
                             </Button>
-                            <Button type="button" onClick={() => setOpenDeduction(false)} variant="outlined" color="error">
+                            <Button sx={{ textTransform: 'none' }} type="button" onClick={() => setOpenDeduction(false)} variant="outlined" color="error">
                                 Cancel
                             </Button>
                         </div>
@@ -635,10 +635,10 @@ const MemberSidenav: React.FC<MemberNavigationProps> = ({ membershipType, member
                             </Select>
                         </FormControl>
                         <div className="flex justify-between mt-4">
-                            <Button type="submit" variant="contained" color="primary" disabled={loading || !selectedDeductionId}>
+                            <Button sx={{ textTransform: 'none' }} type="submit" variant="contained" color="primary" disabled={loading || !selectedDeductionId}>
                                 {loading ? "Processing..." : "Reverse"}
                             </Button>
-                            <Button type="button" onClick={() => setOpenReverseDeduction(false)} variant="outlined" color="error">
+                            <Button sx={{ textTransform: 'none' }} type="button" onClick={() => setOpenReverseDeduction(false)} variant="outlined" color="error">
                                 Cancel
                             </Button>
                         </div>
@@ -698,8 +698,8 @@ const MemberSidenav: React.FC<MemberNavigationProps> = ({ membershipType, member
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenSpecialFunction(false)} color="error">Cancel</Button>
-                    <Button onClick={handleSpecialFunctionSubmit} color="primary" variant="contained">Submit</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={() => setOpenSpecialFunction(false)} color="error">Cancel</Button>
+                    <Button sx={{ textTransform: 'none' }} onClick={handleSpecialFunctionSubmit} color="primary" variant="contained">Submit</Button>
                 </DialogActions>
             </Dialog>
 
@@ -721,10 +721,10 @@ const MemberSidenav: React.FC<MemberNavigationProps> = ({ membershipType, member
                     <form onSubmit={(e) => handleSubmit(e, 'confirm_withdrawal', { email: memberEmail, memberNo: student?.memberNo })} className="mt-4">
                         <Typography>Are you sure you want to confirm the withdrawal request?</Typography>
                         <div className="flex justify-between mt-4">
-                            <Button type="submit" variant="contained" color="primary" disabled={loading}>
+                            <Button sx={{ textTransform: 'none' }} type="submit" variant="contained" color="primary" disabled={loading}>
                                 {loading ? "Processing..." : "Confirm"}
                             </Button>
-                            <Button type="button" onClick={() => setOpenConfirmWithdrawal(false)} variant="outlined" color="error">
+                            <Button sx={{ textTransform: 'none' }} type="button" onClick={() => setOpenConfirmWithdrawal(false)} variant="outlined" color="error">
                                 Cancel
                             </Button>
                         </div>
@@ -759,10 +759,10 @@ const MemberSidenav: React.FC<MemberNavigationProps> = ({ membershipType, member
                             required
                         />
                         <div className="flex justify-between mt-4">
-                            <Button type="submit" variant="contained" color="primary" disabled={loading}>
+                            <Button sx={{ textTransform: 'none' }} type="submit" variant="contained" color="primary" disabled={loading}>
                                 {loading ? "Processing..." : "Submit"}
                             </Button>
-                            <Button type="button" onClick={() => setOpenRequestAccess(false)} variant="outlined" color="error">
+                            <Button sx={{ textTransform: 'none' }} type="button" onClick={() => setOpenRequestAccess(false)} variant="outlined" color="error">
                                 Cancel
                             </Button>
                         </div>
@@ -788,10 +788,10 @@ const MemberSidenav: React.FC<MemberNavigationProps> = ({ membershipType, member
                     <form onSubmit={(e) => handleSubmit(e, 'cancel_request', { email: memberEmail })} className="mt-4">
                         <Typography>Are you sure you want to cancel the access request?</Typography>
                         <div className="flex justify-between mt-4">
-                            <Button type="submit" variant="contained" color="primary" disabled={loading}>
+                            <Button sx={{ textTransform: 'none' }} type="submit" variant="contained" color="primary" disabled={loading}>
                                 {loading ? "Processing..." : "Confirm"}
                             </Button>
-                            <Button type="button" onClick={() => setOpenCancelRequest(false)} variant="outlined" color="error">
+                            <Button sx={{ textTransform: 'none' }} type="button" onClick={() => setOpenCancelRequest(false)} variant="outlined" color="error">
                                 Cancel
                             </Button>
                         </div>

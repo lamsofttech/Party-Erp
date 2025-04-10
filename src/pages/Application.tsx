@@ -349,6 +349,7 @@ const SchoolApplicationDetails: React.FC = () => {
                                                         </Typography>
                                                     ) : (
                                                         <Button
+                                                            sx={{ textTransform: "none" }}
                                                             variant="outlined"
                                                             color="error"
                                                             size="small"
@@ -400,7 +401,7 @@ const SchoolApplicationDetails: React.FC = () => {
                                         startIcon={<PlayArrowIcon />}
                                         onClick={() => handleAction("start_application")}
                                         disabled={processing}
-                                        sx={{ minWidth: "180px" }}
+                                        sx={{ minWidth: "180px", textTransform: "none" }}
                                     >
                                         {processing ? "Processing..." : "Start Application"}
                                     </Button>
@@ -420,7 +421,7 @@ const SchoolApplicationDetails: React.FC = () => {
                                             startIcon={<DoneIcon />}
                                             onClick={() => handleAction("done_application")}
                                             disabled={processing}
-                                            sx={{ minWidth: "180px" }}
+                                            sx={{ minWidth: "180px", textTransform: "none" }}
                                         >
                                             {processing ? "Processing..." : "Complete Application"}
                                         </Button>
@@ -433,7 +434,7 @@ const SchoolApplicationDetails: React.FC = () => {
                                         color="primary"
                                         startIcon={<AssignmentIndIcon />}
                                         onClick={() => setOpenAssignDialog(true)}
-                                        sx={{ minWidth: "180px" }}
+                                        sx={{ minWidth: "180px", textTransform: "none" }}
                                     >
                                         Assign Staff
                                     </Button>
@@ -517,13 +518,15 @@ const SchoolApplicationDetails: React.FC = () => {
                     </DialogContent>
                     <DialogActions sx={{ px: 3, pb: 3 }}>
                         <Button
+                            sx={{ textTransform: "none" }}
                             onClick={() => setOpenAssignDialog(false)}
                             variant="outlined"
                         >
                             Cancel
                         </Button>
                         <Button
-                            onClick={handleAssignUser}
+                            sx={{ textTransform: 'none' }}
+                            onClick={() => handleAssignUser()}
                             variant="contained"
                             color="primary"
                             disabled={processing}
@@ -567,13 +570,15 @@ const SchoolApplicationDetails: React.FC = () => {
                     </DialogContent>
                     <DialogActions sx={{ px: 3, pb: 3 }}>
                         <Button
+                            sx={{ textTransform: "none" }}
                             onClick={() => setOpenRejectDialog(false)}
                             variant="outlined"
                         >
                             Cancel
                         </Button>
                         <Button
-                            onClick={handleRejectDocument}
+                            sx={{ textTransform: 'none' }}
+                            onClick={() => handleRejectDocument()}
                             variant="contained"
                             color="error"
                             disabled={processing || !rejectionReason.trim()}

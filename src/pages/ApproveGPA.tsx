@@ -164,6 +164,7 @@ const GpaApprovals: React.FC = () => {
                 <Button
                     variant="contained"
                     onClick={exportToExcel}
+                    sx={{ textTransform: 'none' }}
                     className="bg-green-600 hover:bg-green-700 text-white"
                 >
                     Export to Excel
