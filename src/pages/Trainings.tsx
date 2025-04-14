@@ -161,7 +161,7 @@ const Trainings: React.FC = () => {
         },
         { field: "phase_name", headerName: "Phase", flex: 2 },
         { field: "test_type", headerName: "Test Type", flex: 1 },
-        { field: "weeks", headerName: "Training Weeks", flex: 1 },
+        { field: "weeks", headerName: "Weeks", flex: 1 },
         {
             field: "action",
             headerName: "Action",
@@ -200,7 +200,7 @@ const Trainings: React.FC = () => {
         <main className="min-h-[80vh] p-4">
             <div className="bg-[linear-gradient(0deg,#2164A6_80.26%,rgba(33,100,166,0)_143.39%)] rounded-xl mb-4">
                 <p className="font-bold text-[24px] text-white dark:text-white py-4 text-center">
-                    Cohorts Table
+                    Phases Table
                 </p>
             </div>
 
@@ -246,7 +246,7 @@ const Trainings: React.FC = () => {
                     transition={{ duration: 0.3 }}
                 >
                     <Typography variant="h6" className="font-bold">
-                        Add Training
+                        Add Phase
                     </Typography>
                     <FormControl fullWidth>
                         <InputLabel>Phase</InputLabel>
@@ -256,8 +256,8 @@ const Trainings: React.FC = () => {
                             label="Phase"
                             required
                         >
-                            <MenuItem value="Phase 1">Phase 1</MenuItem>
-                            <MenuItem value="Phase 2">Phase 2</MenuItem>
+                            <MenuItem value="Training Phase">Training Phase</MenuItem>
+                            <MenuItem value="Mock Phase">Mock Phase</MenuItem>
                         </Select>
                     </FormControl>
                     <FormControl fullWidth>
@@ -270,11 +270,12 @@ const Trainings: React.FC = () => {
                         >
                             <MenuItem value="GMAT">GMAT</MenuItem>
                             <MenuItem value="GRE">GRE</MenuItem>
+                            <MenuItem value="Duolingo">Duolingo</MenuItem>
                         </Select>
                     </FormControl>
                     <TextField
                         fullWidth
-                        label="Training Weeks"
+                        label="Weeks"
                         type="number"
                         value={addWeeks}
                         onChange={(e) => setAddWeeks(e.target.value)}
@@ -337,8 +338,8 @@ const Trainings: React.FC = () => {
                             label="Phase"
                             required
                         >
-                            <MenuItem value="Phase 1">Phase 1</MenuItem>
-                            <MenuItem value="Phase 2">Phase 2</MenuItem>
+                            <MenuItem value="Training Phase">Training Phase</MenuItem>
+                            <MenuItem value="Mock Phase">Mock Phase</MenuItem>
                         </Select>
                     </FormControl>
                     <FormControl fullWidth>
@@ -351,6 +352,7 @@ const Trainings: React.FC = () => {
                         >
                             <MenuItem value="GMAT">GMAT</MenuItem>
                             <MenuItem value="GRE">GRE</MenuItem>
+                            <MenuItem value="Duolingo">Duolingo</MenuItem>
                         </Select>
                     </FormControl>
                     <TextField

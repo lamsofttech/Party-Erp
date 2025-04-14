@@ -53,6 +53,7 @@ export interface Student {
     emails: Email[];
     payments: Payment[];
     expenditure: Expenditure[];
+    photo: string;
 }
 
 // 🔹 Create Context for Student Data
@@ -83,6 +84,8 @@ function ViewMember() {
             // console.log("Raw API Response:", text);
             
             const data = JSON.parse(text);
+            // console.log("Parsed Data:", data);
+            // console.log("Parsed Photo Field:", data.data.photo);
             if (data.status === "success" && data.data) {
                 setStudent({
                     id: Number(data.data.id),
@@ -112,6 +115,7 @@ function ViewMember() {
                     emails: data.emails || [],
                     payments: data.payments || [],
                     expenditure:data.expenditures || [],
+                    photo:data.data.photo || null,
                 });
             } else {
                 setError(data.message || "Student not found.");

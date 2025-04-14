@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import assets from "../assets/assets";
 import { PieChart } from "@mui/x-charts/PieChart";
 import { motion } from "framer-motion";
+import { useUser } from '../contexts/UserContext';
 import { messages, applications, fees, onboards, members, totalApplicationsToday, totalFees, totalOnboardsToday, totalMembersToday, valueFormatter } from "../data/data";
 
 function Dashboard() {
     const [currentDate, setCurrentDate] = useState("");
     const [dailyMessage, setDailyMessage] = useState("");
+    const { user } = useUser();
 
     const applicationsData = {
         data: applications,
@@ -50,7 +52,7 @@ function Dashboard() {
                     <div className="flex flex-col text-white gap-12">
                         <p>{currentDate}</p>
                         <div>
-                            <p className="font-bold text-[25px]">Welcome back, John!</p>
+                            <p className="font-bold text-[25px]">Welcome back, {user?.name}!</p>
                             <p>{dailyMessage}</p>
                         </div>
                     </div>

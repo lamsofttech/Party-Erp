@@ -65,7 +65,7 @@ const MemberSidenav: React.FC<MemberNavigationProps> = ({ membershipType, member
         email: memberEmail,
         loan_type: "",
         loan_amount: "",
-        due_date:"",
+        due_date: "",
     });
 
     const [deductionFormData, setDeductionFormData] = useState({
@@ -84,6 +84,11 @@ const MemberSidenav: React.FC<MemberNavigationProps> = ({ membershipType, member
     const [level, setLevel] = useState("");
     const [specialId, setSpecialId] = useState("");
     const [specialComment, setSpecialComment] = useState("");
+    // console.log("Photo in sidenav:", student?.photo)
+    // console.log("Student in Sidenav:", student);
+    const profileImage = student?.photo
+        ? `https://finkapinternational.qhtestingserver.com/login/member/imgs/${student.photo}`
+        : assets.displayPic;
 
     useEffect(() => {
         const fetchMemberData = async () => {
@@ -286,7 +291,7 @@ const MemberSidenav: React.FC<MemberNavigationProps> = ({ membershipType, member
                     )}
                 </div>
 
-                <img className="h-32 dark:opacity-75" src={assets.displayPic} alt="Display Picture" />
+                <img className="h-32 dark:opacity-75 rounded-lg" src={profileImage} alt="Display Picture" />
 
                 <nav className="flex flex-col gap-2 mt-4">
                     {[

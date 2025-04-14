@@ -59,15 +59,15 @@ const Sections: Section[] = [
     description: "Student applications" 
   },
   { 
-    title: "Trainings", 
-    path: "/entrance-exams/trainings", 
+    title: "Phases", 
+    path: "/entrance-exams/phases", 
     icon: <GraduationCap size={24} />, 
     statKey: "total_phases", 
     colorClass: "text-[#2164a6] bg-[#2164a6]/10 border-[#2164a6]",
-    description: "Active training phases" 
+    description: "Active test phases" 
   },
   { 
-    title: "Mocks", 
+    title: "Mock Bookings", 
     path: "/entrance-exams/mocks", 
     icon: <FileText size={24} />, 
     statKey: "total_active_mocks", 
@@ -316,7 +316,7 @@ const EntranceExamsDashboard: React.FC = () => {
               </div>
               
               {/* GRE Leaderboard */}
-              <div>
+              <div className="pb-4">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-semibold text-gray-800 dark:text-white">GRE</h3>
                   <span className="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
@@ -327,6 +327,49 @@ const EntranceExamsDashboard: React.FC = () => {
                 {stats.top_gre_students.length === 0 ? (
                   <div className="text-center py-6 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
                     <p className="text-gray-500 dark:text-gray-400 text-sm italic">No GRE scores available</p>
+                  </div>
+                ) : (
+                  <motion.div 
+                    className="space-y-3"
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                  >
+                    {stats.top_gre_students.map((student, index) => (
+                      <motion.div 
+                        key={`gre-${student.full_name}`}
+                        variants={itemVariants}
+                        className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-700/30"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`w-8 h-8 flex items-center justify-center rounded-full text-white text-xs font-medium
+                            ${index === 0 ? 'bg-[#1a9970]' : index === 1 ? 'bg-[#2164a6]' : index === 2 ? 'bg-[#1a9970]/80' : 'bg-gray-300 dark:bg-gray-600'}`}
+                          >
+                            {index + 1}
+                          </div>
+                          <span className="font-medium text-gray-800 dark:text-white text-sm">{student.full_name}</span>
+                        </div>
+                        <div className="px-3 py-1 rounded-full bg-[#1a9970]/10 dark:bg-[#1a9970]/20 text-[#1a9970] dark:text-green-300 font-semibold text-sm">
+                          {student.score}
+                        </div>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                )}
+              </div>
+
+              {/* Duolingo Leaderboard */}
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold text-gray-800 dark:text-white">Duolingo</h3>
+                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
+                    Top Scores
+                  </span>
+                </div>
+                
+                {stats.top_gre_students.length === 0 ? (
+                  <div className="text-center py-6 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
+                    <p className="text-gray-500 dark:text-gray-400 text-sm italic">No Duolingo scores available</p>
                   </div>
                 ) : (
                   <motion.div 

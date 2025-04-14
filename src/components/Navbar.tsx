@@ -3,15 +3,48 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import assets from '../assets/assets';
 import { motion } from "framer-motion";
 import LightModeIcon from "@mui/icons-material/LightMode";
-import { IconButton } from "@mui/material";
-import { useContext } from "react";
+import { IconButton, Menu, MenuItem } from "@mui/material";
+import { useContext, useState } from "react";
 import { ThemeContext } from "../contexts/ThemeContext";
 import BreadcrumbsNav from './BreadcrumbsNav';
+import { useUser } from '../contexts/UserContext';
+import axios from 'axios';
+import { config } from '../config';
 
 function Navbar() {
     const themeContext = useContext(ThemeContext);
+    const { user, setUser } = useUser();
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const open = Boolean(anchorEl);
 
     if (!themeContext) return null;
+
+    const handleProfileClick = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handleLogout = async () => {
+        try {
+            // Optionally call a logout endpoint to clear server-side session
+            await axios.post(
+                'https://finkapinternational.qhtestingserver.com/login/logout_api.php',
+                {},
+                { withCredentials: true }
+            );
+        } catch (error) {
+            console.error('Logout API error:', error);
+        } finally {
+            // Clear user from context
+            setUser(null);
+            // Redirect to login page
+            window.location.href = config.loginUrl;
+        }
+    };
+
     return (
         <main className="sticky top-3 mb-6 z-50">
             <motion.div
@@ -30,7 +63,34 @@ function Navbar() {
                         {themeContext.theme === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
                     </IconButton>
                     <button><NotificationsIcon /></button>
-                    <button className="flex items-center gap-2"><img className="h-8 rounded-full border border-[#2164A6]" src={assets.profile} alt="profile" />John Doe</button>
+                    <button
+            className="flex items-center gap-2"
+            onClick={handleProfileClick}
+            aria-controls={open ? 'profile-menu' : undefined}
+            aria-haspopup="true"
+            aria-expanded={open ? 'true' : undefined}
+          >
+            <img
+              className="h-8 rounded-full border border-[#2164A6]"
+              src={assets.profile}
+              alt="profile"
+            />
+            {user?.name}
+          </button>
+          <Menu
+            id="profile-menu"
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleClose}
+            MenuListProps={{
+              'aria-labelledby': 'profile-button',
+            }}
+            PaperProps={{
+              className: themeContext.theme === 'dark' ? 'bg-[#375472] text-white' : 'bg-white text-black',
+            }}
+          >
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+          </Menu>
                 </div>
             </motion.div>
         </main>

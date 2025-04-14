@@ -101,7 +101,7 @@ function Router() {
             <Route path="entrance-exams" element={<EntranceExamsDashboard />} />
             <Route path="entrance-exams/applications" element={<ExamApplicants />} />
             <Route path="entrance-exams/applications/:memberName" element={<ExamApplicant />} />
-            <Route path="entrance-exams/trainings" element={<Trainings />} />
+            <Route path="entrance-exams/phases" element={<Trainings />} />
             <Route path="entrance-exams/mocks" element={<Mocks />} />
             <Route path="entrance-exams/bookings" element={<Bookings />} />
             <Route path="entrance-exams/booked-exams" element={<BookedExams />} />

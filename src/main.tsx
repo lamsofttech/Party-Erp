@@ -3,14 +3,17 @@ import { createRoot } from 'react-dom/client'
 import {BrowserRouter} from "react-router-dom";
 import Router from './router/router.tsx';
 import { ThemeProviderWrapper } from "./contexts/ThemeContext";
+import { UserProvider } from './contexts/UserContext.tsx';
 import './styles/index.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProviderWrapper>
-      <BrowserRouter>
-        <Router />
-      </BrowserRouter>
-    </ThemeProviderWrapper>
+    <UserProvider>
+      <ThemeProviderWrapper>
+        <BrowserRouter basename="/admin">
+          <Router />
+        </BrowserRouter>
+      </ThemeProviderWrapper>
+    </UserProvider>
   </StrictMode>,
 )
