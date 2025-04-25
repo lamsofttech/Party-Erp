@@ -418,6 +418,7 @@ const ApplicationDetails: React.FC = () => {
     const handleFinalApproval = async () => {
         try {
             setApprovingFinal(true);
+            // console.log("ID", application?.id);
             const response = await axios.post(
                 "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/onboarding/approve.php",
                 { id: application?.id }, // Sending as JSON, adjust if approve.php expects query params

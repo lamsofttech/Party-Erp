@@ -62,6 +62,7 @@ const DocumentDashboard = () => {
         const fetchDocumentStats = async () => {
             try {
                 const response = await axios.get(API_URL);
+                console.log(response.data);
                 if (response.data.success) {
                     setDocumentStats(response.data.data);
                 } else {
@@ -247,13 +248,13 @@ const DocumentDashboard = () => {
                             </Avatar>
                             <div>
                                 <Typography color="textSecondary">
-                                    Transcripts
+                                    Transcripts Requests
                                 </Typography>
                                 <Typography variant="h5" className="font-bold">
                                     {documentStats?.transcripts}
                                 </Typography>
                                 <Typography variant="caption" color="textSecondary">
-                                    <span className="text-green-500">+0 new</span> today
+                                    <span className="text-green-500">+{documentStats?.transcriptsToday} verified</span> today
                                 </Typography>
                             </div>
                         </CardContent>

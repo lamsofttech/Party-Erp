@@ -87,7 +87,7 @@ const MemberSidenav: React.FC<MemberNavigationProps> = ({ membershipType, member
     // console.log("Photo in sidenav:", student?.photo)
     // console.log("Student in Sidenav:", student);
     const profileImage = student?.photo
-        ? `https://finkapinternational.qhtestingserver.com/login/member/imgs/${student.photo}`
+        ? `https://internationalscholars.qhtestingserver.com/apply/uploadfolder/${student.photo}`
         : assets.displayPic;
 
     useEffect(() => {
@@ -96,7 +96,7 @@ const MemberSidenav: React.FC<MemberNavigationProps> = ({ membershipType, member
                 const response = await axios.get(`${API_URL}?action=get_member_data&email=${memberEmail}`);
                 if (response.data.success) {
                     setMemberData(response.data.data);
-                    console.log("Member Data: ", response.data.data);
+                    // console.log("Member Data: ", response.data.data);
                     setDeductionFormData(prev => ({
                         ...prev,
                         package: response.data.data.package,

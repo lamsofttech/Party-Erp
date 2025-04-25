@@ -36,7 +36,7 @@ export default function FullMembers() {
     };
 
     const [orderBy, setOrderBy] = useState<keyof Student>("fullName");
-    const [order, setOrder] = useState<"asc" | "desc">("desc");
+    const [order, setOrder] = useState<"asc" | "desc">("asc");
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(0);
     const rowsPerPage = 10;

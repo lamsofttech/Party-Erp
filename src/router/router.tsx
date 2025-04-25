@@ -61,6 +61,10 @@ import SchoolApplications from "../pages/SchoolApplications";
 import AssignedApplications from "../pages/AssignedApplications";
 import SchoolApplicationDetails from "../pages/Application";
 import RejectedSchoolApplications from "../pages/Rejected";
+import SchoolApplicationsInProgress from "../pages/SchoolApplicationsInProgress";
+import SchoolApplicationsAssigned from "../pages/ApplicationsAssignedStaff";
+import PendingApprovalApplications from "../pages/PendingApprovalApplications";
+import PendingIntoApplications from "../pages/PendingIntoApplications";
 
 function Router() {
   return (
@@ -130,11 +134,31 @@ function Router() {
             <Route path="school-admission/application-documents/transcripts" element={<Transcripts />} />
             <Route path="school-admission/application-documents/transcripts/:memberName" element={<DocumentsReview />} />
             <Route path="school-admission/new-school-applications" element={<SchoolApplications />} />
-            <Route path="school-admission/new-school-applications/assigned-applications" element={<AssignedApplications />} />
-            <Route path="school-admission/new-school-applications/assigned-applications/:memberName" element={<SchoolApplicationDetails />} />
+            <Route path="school-admission/new-school-applications/my-assigned-applications" element={<AssignedApplications />} />
+            <Route path="school-admission/new-school-applications/my-assigned-applications/:memberName" element={<SchoolApplicationDetails />} />
             <Route path="school-admission/new-school-applications/:memberName" element={<SchoolApplicationDetails />} />
             <Route path="school-admission/new-school-applications/rejected-applications" element={<RejectedSchoolApplications />} />
             <Route path="school-admission/new-school-applications/rejected-applications/:memberName" element={<SchoolApplicationDetails />} />
+            <Route path="school-admission/school-applications-in-progress" element={<SchoolApplicationsInProgress />} />
+            <Route path="school-admission/school-applications-in-progress/:memberName" element={<SchoolApplicationDetails />} />
+            <Route path="school-admission/school-applications-in-progress/new-school-applications" element={<SchoolApplications />} />
+            <Route path="school-admission/school-applications-in-progress/rejected-applications" element={<RejectedSchoolApplications />} />
+            <Route path="school-admission/school-applications-in-progress/rejected-applications/:memberName" element={<SchoolApplicationDetails />} />
+            <Route path="school-admission/assigned-school-applications" element={<SchoolApplicationsAssigned />} />
+            <Route path="school-admission/assigned-school-applications/:memberName" element={<SchoolApplicationDetails />} />
+            <Route path="school-admission/assigned-school-applications/new-school-applications" element={<SchoolApplications />} />
+            <Route path="school-admission/assigned-school-applications/rejected-applications" element={<RejectedSchoolApplications />} />
+            <Route path="school-admission/assigned-school-applications/rejected-applications/:memberName" element={<SchoolApplicationDetails />} />
+            <Route path="school-admission/applications-pending-approval" element={<PendingApprovalApplications />} />
+            <Route path="school-admission/applications-pending-approval/:memberName" element={<SchoolApplicationDetails />} />
+            <Route path="school-admission/applications-pending-approval/new-school-applications" element={<SchoolApplications />} />
+            <Route path="school-admission/applications-pending-approval/rejected-applications" element={<RejectedSchoolApplications />} />
+            <Route path="school-admission/applications-pending-approval/rejected-applications/:memberName" element={<SchoolApplicationDetails />} />
+            <Route path="school-admission/pending-into-schools" element={<PendingIntoApplications />} />
+            <Route path="school-admission/pending-into-schools/:memberName" element={<SchoolApplicationDetails />} />
+            <Route path="school-admission/pending-into-schools/new-school-applications" element={<SchoolApplications />} />
+            <Route path="school-admission/pending-into-schools/rejected-applications" element={<RejectedSchoolApplications />} />
+            <Route path="school-admission/pending-into-schools/rejected-applications/:memberName" element={<SchoolApplicationDetails />} />
           </Route>
         </Route>
       </Routes>

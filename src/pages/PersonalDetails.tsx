@@ -21,8 +21,8 @@ function PersonalDetails() {
                 <p><strong>ISP Email Password:</strong> {student.password}</p><br />
                 <p><strong>Program:</strong> {student.programOption}</p><br />
                 <p><strong>Program Version:</strong> {student.programVersion}</p><br />
-                <p><strong>GMAT Score:</strong> {student.gmatScore}</p><br />
-                <p><strong>GRE Score:</strong> {student.greScore}</p><br />
+                {/* <p><strong>GMAT Score:</strong> {student.gmatScore}</p><br />
+                <p><strong>GRE Score:</strong> {student.greScore}</p><br /> */}
             </div>
         </main>
     );

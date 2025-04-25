@@ -5,21 +5,15 @@ import {
     TextField,
     Button,
     IconButton,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
     Snackbar,
     Alert,
     Box,
-    Typography,
     Chip,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import CancelIcon from "@mui/icons-material/Cancel";
 
-// Define the Application interface based on API response
+// Define the Application interface
 interface Application {
     id: number;
     app_id: number;
@@ -33,16 +27,15 @@ interface Application {
     app_status: string;
     status_label: string;
     assigned_to: number;
+    assigned_to_name: string;
     action: string;
     prop_id: string;
 }
 
-const SchoolApplications: React.FC = () => {
+const PendingApprovalApplications: React.FC = () => {
     const [applications, setApplications] = useState<Application[]>([]);
     const [filteredApplications, setFilteredApplications] = useState<Application[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
-    const [openRejectDialog, setOpenRejectDialog] = useState(false);
-    const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
     const [snackbar, setSnackbar] = useState<{
         open: boolean;
         message: string;
@@ -52,12 +45,9 @@ const SchoolApplications: React.FC = () => {
         message: "",
         severity: "success",
     });
-    const userId = "4";
-    const [rejectionReason, setRejectionReason] = useState("");
-    const [isRejecting, setIsRejecting] = useState(false);
 
-    // API URL (adjust to your server)
-    const API_URL = "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/school-application/APIs/school_applications_api.php";
+    // API endpoint for fetching pending approval applications
+    const FETCH_API_URL = "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/school-application/APIs/school_applications_api.php";
 
     // Fetch applications on mount
     useEffect(() => {
@@ -74,7 +64,8 @@ const SchoolApplications: React.FC = () => {
                         app.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                         app.kap_email.toLowerCase().includes(searchQuery.toLowerCase()) ||
                         app.university.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        app.program.toLowerCase().includes(searchQuery.toLowerCase())
+                        app.program.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        app.assigned_to_name.toLowerCase().includes(searchQuery.toLowerCase())
                 )
             );
         } else {
@@ -82,11 +73,10 @@ const SchoolApplications: React.FC = () => {
         }
     }, [searchQuery, applications]);
 
-    // Fetch applications from API
+    // Fetch applications from the API
     const fetchApplications = async () => {
         try {
-            // Pass $test if needed; here it's omitted for simplicity
-            const response = await axios.get(`${API_URL}?action=get_all`);
+            const response = await axios.get(`${FETCH_API_URL}?action=get_pending_approvals`);
             if (response.data.success) {
                 setApplications(response.data.applications);
                 setFilteredApplications(response.data.applications);
@@ -111,53 +101,6 @@ const SchoolApplications: React.FC = () => {
         setSearchQuery(event.target.value);
     };
 
-    // Open reject confirmation dialog
-    const handleReject = (app: Application) => {
-        setSelectedApplication(app);
-        setOpenRejectDialog(true);
-    };
-
-    // Confirm rejection and update API
-    const confirmReject = async () => {
-        if (selectedApplication) {
-            setIsRejecting(true);
-            try {
-                const response = await axios.post(API_URL, {
-                    action: "reject_application",
-                    id: selectedApplication.id,
-                    app_id: selectedApplication.app_id,
-                    remark: rejectionReason,
-                }, { headers: { "Content-Type": "application/x-www-form-urlencoded" } });
-
-                if (response.data.success) {
-                    setSnackbar({
-                        open: true,
-                        message: "Application rejected successfully",
-                        severity: "success",
-                    });
-                    fetchApplications(); // Refresh the table
-                } else {
-                    setSnackbar({
-                        open: true,
-                        message: response.data.message || "Error rejecting application",
-                        severity: "error",
-                    });
-                }
-            } catch (error) {
-                setSnackbar({
-                    open: true,
-                    message: "Error submitting request",
-                    severity: "error",
-                });
-            } finally {
-                setIsRejecting(false);
-                setOpenRejectDialog(false);
-                setSelectedApplication(null);
-                setRejectionReason("");
-            }
-        }
-    };
-
     // Define DataGrid columns
     const columns: GridColDef[] = [
         { field: "member_no", headerName: "Member No", flex: 1 },
@@ -166,61 +109,44 @@ const SchoolApplications: React.FC = () => {
             field: "kap_email",
             headerName: "KAP Email",
             flex: 1,
-            renderCell: (params) => (params.value ? params.value : "N/A"),
+            renderCell: (params) => (params.value !== "N/A" ? params.value : "N/A"),
         },
         {
             field: "university",
             headerName: "University",
             flex: 1,
-            renderCell: (params) => (params.value ? params.value : "N/A"),
+            renderCell: (params) => (params.value !== "N/A" ? params.value : "N/A"),
         },
         {
             field: "program",
             headerName: "Program",
             flex: 1,
-            renderCell: (params) => (params.value ? params.value : "N/A"),
+            renderCell: (params) => (params.value !== "N/A" ? params.value : "N/A"),
         },
+        { field: "assigned_to_name", headerName: "Assigned to", flex: 1 },
         {
             field: "status_label",
             headerName: "Status",
             flex: 1,
-            renderCell: (params) => {
-                switch (params.row.app_status) {
-                    case "1":
-                        return <Chip label="New" color="primary" size="small" />;
-                    case "2":
-                        return <Chip label="Start Application" color="warning" size="small" />;
-                    case "3":
-                        return <Chip label="On Progress" color="secondary" size="small" />;
-                    case "4":
-                        return <Chip label="Pending Approval" color="success" size="small" />;
-                    default:
-                        return <Chip label={params.row.status_label} size="small" />;
-                }
-            },
+            renderCell: (_params) => (
+                <Chip label="Pending Approval" color="success" size="small" />
+            ),
         },
         {
             field: "actions",
             headerName: "Actions",
             flex: 1,
             sortable: false,
-            renderCell: (params) => {
-                const action = params.row.status === 1 ? "View" :
-                    params.row.assigned_to === userId ? "Download" : "view";
-                return (
-                    <Box>
-                        <IconButton
-                            component={Link}
-                            to={`/school-admission/new-school-applications/${params.row.full_name}?id=${params.row.id}&sop=${params.row.sop}&action=${action}&prop_id=${params.row.prop_id}`}
-                        >
-                            <VisibilityIcon color="primary" />
-                        </IconButton>
-                        <IconButton onClick={() => handleReject(params.row)}>
-                            <CancelIcon color="error" />
-                        </IconButton>
-                    </Box>
-                );
-            },
+            renderCell: (params) => (
+                <Box>
+                    <IconButton
+                        component={Link}
+                        to={`/school-admission/applications-pending-approval/${params.row.full_name}?id=${params.row.id}&sop=${params.row.sop}&action=${params.row.action}&prop_id=${params.row.prop_id}`}
+                    >
+                        <VisibilityIcon color="primary" />
+                    </IconButton>
+                </Box>
+            ),
         },
     ];
 
@@ -237,24 +163,24 @@ const SchoolApplications: React.FC = () => {
                                             <div className="card-header">
                                                 <div className="bg-[linear-gradient(0deg,#2164A6_80.26%,rgba(33,100,166,0)_143.39%)] rounded-xl mb-4">
                                                     <p className="font-bold text-[24px] text-white dark:text-white py-4 text-center">
-                                                        New School Applications
+                                                        School Applications Pending Approval
                                                     </p>
                                                 </div>
                                                 <div className="flex justify-content-end mb-4 gap-4">
                                                     <Button
                                                         component={Link}
-                                                        sx={{ textTransform: 'none' }}
-                                                        to="/school-admission/new-school-applications/my-assigned-applications"
+                                                        sx={{ textTransform: "none" }}
+                                                        to="/school-admission/applications-pending-approval/new-school-applications"
                                                         variant="outlined"
-                                                        color="success"
+                                                        color="primary"
                                                         className="m-1"
                                                     >
-                                                        My Assigned Applications
+                                                        New School Applications
                                                     </Button>
                                                     <Button
                                                         component={Link}
-                                                        sx={{ textTransform: 'none' }}
-                                                        to="/school-admission/new-school-applications/rejected-applications"
+                                                        sx={{ textTransform: "none" }}
+                                                        to="/school-admission/applications-pending-approval/rejected-applications"
                                                         variant="outlined"
                                                         color="error"
                                                         className="m-1"
@@ -300,36 +226,6 @@ const SchoolApplications: React.FC = () => {
                 </div>
             </div>
 
-            {/* Reject Confirmation Dialog */}
-            <Dialog open={openRejectDialog} onClose={() => setOpenRejectDialog(false)}>
-                <DialogTitle>Reject Application</DialogTitle>
-                <DialogContent>
-                    <Typography>
-                        Are you sure you want to reject this application? Please provide a reason for rejection.
-                    </Typography>
-                    <TextField
-                        label="Rejection Reason"
-                        variant="outlined"
-                        fullWidth
-                        value={rejectionReason}
-                        onChange={(e) => setRejectionReason(e.target.value)}
-                        margin="normal"
-                        required
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button sx={{ textTransform: 'none' }} onClick={() => setOpenRejectDialog(false)}>Cancel</Button>
-                    <Button
-                        onClick={confirmReject}
-                        sx={{ textTransform: 'none' }}
-                        color="error"
-                        disabled={!rejectionReason.trim() || isRejecting} // Disable if no reason is provided
-                    >
-                        {isRejecting ? "Rejecting..." : "Reject"}
-                    </Button>
-                </DialogActions>
-            </Dialog>
-
             {/* Snackbar for notifications */}
             <Snackbar
                 open={snackbar.open}
@@ -345,4 +241,4 @@ const SchoolApplications: React.FC = () => {
     );
 };
 
-export default SchoolApplications;
+export default PendingApprovalApplications;

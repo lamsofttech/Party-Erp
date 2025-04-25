@@ -134,7 +134,7 @@ export default function FullMembers() {
     };
 
     const handleChangePage = (_event: unknown, newPage: number) => setPage(newPage);
-    const membershipType = "pending-members";
+    const membershipType = "pending-applicants";
 
     return (
         <div className="my-10">

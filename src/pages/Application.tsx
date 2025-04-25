@@ -17,6 +17,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import DescriptionIcon from "@mui/icons-material/Description";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import DoneIcon from "@mui/icons-material/Done";
+import CheckIcon from "@mui/icons-material/Check";
 
 interface Application {
     id: number;
@@ -78,6 +79,17 @@ const SchoolApplicationDetails: React.FC = () => {
     const [openRejectDialog, setOpenRejectDialog] = useState(false);
     const [selectedDocForRejection, setSelectedDocForRejection] = useState<Document | null>(null);
     const [rejectionReason, setRejectionReason] = useState("");
+    const userId = "4";
+    const [openEndDialog, setOpenEndDialog] = useState(false);
+    const [comment, setComment] = useState("");
+    const [isInto, setIsInto] = useState("");
+    const [openEndIntoDialog, setOpenEndIntoDialog] = useState(false);
+    const [endIntoComment, setEndIntoComment] = useState("");
+
+    const getUserNameById = (id: string) => {
+        const user = users.find(u => u.id === id);
+        return user ? user.name : "Unknown";
+    };
 
     const fetchApplication = async () => {
         try {
@@ -111,8 +123,8 @@ const SchoolApplicationDetails: React.FC = () => {
             );
             if (response.data.success) {
                 setSnackbar({ open: true, message: response.data.message, severity: "success" });
-                if (actionType === "start_application") {
-                    setTimeout(() => navigate("/school-admission/new-school-applications/assigned-applications"), 1000);
+                if (actionType === "start_application" || actionType === "done_application") {
+                    setTimeout(() => navigate("/school-admission"), 1000);
                 } else {
                     // For other actions, use the original navigation path
                     setTimeout(() => navigate(`/${fromPage}`), 1500);
@@ -138,11 +150,11 @@ const SchoolApplicationDetails: React.FC = () => {
                 action: "assign_user",
                 id: appId,
                 assigned_user: assignedUser
-            }, { headers: { "Content-Type": "application/json" } });
+            }, { headers: { "Content-Type": "application/x-www-form-urlencoded" } });
             if (response.data.success) {
                 setSnackbar({ open: true, message: response.data.message, severity: "success" });
                 setOpenAssignDialog(false);
-                setTimeout(() => navigate(`/${fromPage}`), 1500);
+                setTimeout(() => navigate("/school-admission/new-school-applications"), 1000);
             } else {
                 setSnackbar({ open: true, message: response.data.message, severity: "error" });
             }
@@ -192,9 +204,85 @@ const SchoolApplicationDetails: React.FC = () => {
         }
     };
 
+    const handleEndApplication = async () => {
+        if (!comment.trim()) {
+            setSnackbar({ open: true, message: "Comment is required", severity: "error" });
+            return;
+        }
+        if (application?.app_status !== 8 && !isInto) {
+            setSnackbar({ open: true, message: "Please select if this is an INTO school", severity: "error" });
+            return;
+        }
+
+        setProcessing(true);
+        try {
+            const formData = new URLSearchParams({
+                action: "end_application",
+                id: appId,
+                comment,
+                is_into: isInto || (application?.app_status === 8 ? "2" : ""),
+            });
+
+            const response = await axios.post(
+                "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/school-application/APIs/view_application_api.php",
+                formData,
+                { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+            );
+
+            if (response.data.success) {
+                setSnackbar({ open: true, message: response.data.message, severity: "success" });
+                setOpenEndDialog(false);
+                setComment("");
+                setIsInto("");
+                setTimeout(() => navigate("/school-admission/applications-pending-approval"), 1000);
+            } else {
+                setSnackbar({ open: true, message: response.data.message, severity: "error" });
+            }
+        } catch (error) {
+            setSnackbar({ open: true, message: "Error ending application!", severity: "error" });
+        } finally {
+            setProcessing(false);
+        }
+    };
+
     useEffect(() => {
         fetchApplication();
     }, [appId, sop, propId]);
+
+    const handleEndIntoApplication = async () => {
+        if (!endIntoComment.trim()) {
+            setSnackbar({ open: true, message: "Comment is required", severity: "error" });
+            return;
+        }
+
+        setProcessing(true);
+        try {
+            const formData = new URLSearchParams({
+                action: "end_into_application",
+                id: appId,
+                comment: endIntoComment,
+            });
+
+            const response = await axios.post(
+                "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/school-application/APIs/view_application_api.php",
+                formData,
+                { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+            );
+
+            if (response.data.success) {
+                setSnackbar({ open: true, message: response.data.message, severity: "success" });
+                setOpenEndIntoDialog(false);
+                setEndIntoComment("");
+                setTimeout(() => navigate("/school-admission/pending-into-schools"), 1200);
+            } else {
+                setSnackbar({ open: true, message: response.data.message, severity: "error" });
+            }
+        } catch (error) {
+            setSnackbar({ open: true, message: "Error completing INTO application!", severity: "error" });
+        } finally {
+            setProcessing(false);
+        }
+    };
 
     const getStatusChip = (status: number) => {
         if (status === 1) return <Chip label="New" color="info" size="small" />;
@@ -202,6 +290,7 @@ const SchoolApplicationDetails: React.FC = () => {
         if (status === 3) return <Chip label="In Progress" color="warning" size="small" />;
         if (status === 4) return <Chip label="Completed" color="success" size="small" />;
         if (status === 5) return <Chip label="Rejected" color="error" size="small" />;
+        if (status === 8) return <Chip label="Pending INTO" color="warning" size="small" />;
         return <Chip label="Unknown" color="default" size="small" />;
     };
 
@@ -394,7 +483,7 @@ const SchoolApplicationDetails: React.FC = () => {
                             </Box>
 
                             <Box display="flex" flexWrap="wrap" gap={2}>
-                                {application.app_status === 2 && (
+                                {application.app_status === 2 && application.assigned_to === userId && (
                                     <Button
                                         variant="contained"
                                         color="primary"
@@ -407,7 +496,7 @@ const SchoolApplicationDetails: React.FC = () => {
                                     </Button>
                                 )}
 
-                                {application.app_status === 3 && (
+                                {application.app_status === 3 && application.assigned_to === userId && (
                                     <>
                                         <Chip
                                             label="In Progress"
@@ -428,6 +517,32 @@ const SchoolApplicationDetails: React.FC = () => {
                                     </>
                                 )}
 
+                                {application.app_status === 4 && (
+                                    <Button
+                                        variant="contained"
+                                        color="success"
+                                        startIcon={<CheckIcon />}
+                                        onClick={() => setOpenEndDialog(true)}
+                                        disabled={processing}
+                                        sx={{ minWidth: "180px", textTransform: "none" }}
+                                    >
+                                        {processing ? "Processing..." : "End Application"}
+                                    </Button>
+                                )}
+
+                                {application.app_status === 8 && (
+                                    <Button
+                                        variant="contained"
+                                        color="success"
+                                        startIcon={<CheckIcon />}
+                                        onClick={() => setOpenEndIntoDialog(true)}
+                                        disabled={processing}
+                                        sx={{ minWidth: "180px", textTransform: "none" }}
+                                    >
+                                        {processing ? "Processing..." : "Complete Application"}
+                                    </Button>
+                                )}
+
                                 {(application.app_status === 1) && (
                                     <Button
                                         variant="contained"
@@ -443,7 +558,7 @@ const SchoolApplicationDetails: React.FC = () => {
                                 {application.app_status !== 1 && application.assigned_to && (
                                     <TextField
                                         label="Assigned Staff"
-                                        value={application.assigned_to}
+                                        value={getUserNameById(application.assigned_to)}
                                         disabled
                                         size="small"
                                         sx={{ minWidth: "220px" }}
@@ -585,6 +700,121 @@ const SchoolApplicationDetails: React.FC = () => {
                             startIcon={<CloseIcon />}
                         >
                             {processing ? "Processing..." : "Reject Document"}
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
+                <Dialog
+                    open={openEndDialog}
+                    onClose={() => setOpenEndDialog(false)}
+                    maxWidth="sm"
+                    fullWidth
+                    PaperProps={{ sx: { borderRadius: 2 } }}
+                >
+                    <DialogTitle sx={{ bgcolor: "success.main", color: "white" }}>
+                        <Box display="flex" alignItems="center">
+                            <CheckIcon sx={{ mr: 1 }} />
+                            End Application
+                        </Box>
+                    </DialogTitle>
+                    <DialogContent sx={{ pt: 3, pb: 1, px: 3, mt: 1 }}>
+                        <Typography variant="subtitle1" gutterBottom>
+                            Add an application comment
+                        </Typography>
+                        <TextField
+                            label="Application Comment"
+                            multiline
+                            rows={4}
+                            fullWidth
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                            placeholder="Enter application comment"
+                            required
+                            sx={{ mb: 2 }}
+                        />
+                        {application?.app_status !== 8 && (
+                            <FormControl fullWidth>
+                                <InputLabel>Was the program applied under INTO platform?</InputLabel>
+                                <Select
+                                    value={isInto}
+                                    onChange={(e) => setIsInto(e.target.value)}
+                                    label="Was the program applied under INTO platform?"
+                                    required
+                                >
+                                    <MenuItem value="">Select</MenuItem>
+                                    <MenuItem value="1">Yes</MenuItem>
+                                    <MenuItem value="2">No</MenuItem>
+                                </Select>
+                            </FormControl>
+                        )}
+                    </DialogContent>
+                    <DialogActions sx={{ px: 3, pb: 3 }}>
+                        <Button
+                            sx={{ textTransform: "none" }}
+                            onClick={() => setOpenEndDialog(false)}
+                            variant="outlined"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            sx={{ textTransform: "none" }}
+                            onClick={handleEndApplication}
+                            variant="contained"
+                            color="success"
+                            disabled={processing || !comment.trim() || (application?.app_status !== 8 && !isInto)}
+                            startIcon={<CheckIcon />}
+                        >
+                            {processing ? "Processing..." : "End Application"}
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
+                <Dialog
+                    open={openEndIntoDialog}
+                    onClose={() => setOpenEndIntoDialog(false)}
+                    maxWidth="sm"
+                    fullWidth
+                    PaperProps={{ sx: { borderRadius: 2 } }}
+                >
+                    <DialogTitle sx={{ bgcolor: "success.main", color: "white" }}>
+                        <Box display="flex" alignItems="center">
+                            <CheckIcon sx={{ mr: 1 }} />
+                            Complete INTO Application
+                        </Box>
+                    </DialogTitle>
+                    <DialogContent sx={{ pt: 3, pb: 1, px: 3, mt: 1 }}>
+                        <Typography variant="subtitle1" gutterBottom>
+                            Add an application comment
+                        </Typography>
+                        <TextField
+                            label="Application Comment"
+                            multiline
+                            rows={4}
+                            fullWidth
+                            value={endIntoComment}
+                            onChange={(e) => setEndIntoComment(e.target.value)}
+                            placeholder="Enter application comment"
+                            required
+                            sx={{ mb: 2 }}
+                        />
+                    </DialogContent>
+                    <DialogActions sx={{ px: 3, pb: 3 }}>
+                        <Button
+                            sx={{ textTransform: "none" }}
+                            onClick={() => setOpenEndIntoDialog(false)}
+                            variant="outlined"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            sx={{ textTransform: "none" }}
+                            onClick={handleEndIntoApplication}
+                            variant="contained"
+                            color="success"
+                            disabled={processing || !endIntoComment.trim()}
+                            startIcon={<CheckIcon />}
+                        >
+                            {processing ? "Processing..." : "Complete Application"}
                         </Button>
                     </DialogActions>
                 </Dialog>

@@ -143,7 +143,7 @@ const AssignedApplications: React.FC = () => {
                     <Box>
                         <IconButton
                             component={Link}
-                            to={`/school-admission/new-school-applications/assigned-applications/${params.row.full_name}?id=${params.row.id}&sop=${params.row.sop}&action=${action}&prop_id=${params.row.prop_id}`}
+                            to={`/school-admission/new-school-applications/my-assigned-applications/${params.row.full_name}?id=${params.row.id}&sop=${params.row.sop}&action=${action}&prop_id=${params.row.prop_id}`}
                         >
                             <VisibilityIcon color="primary" />
                         </IconButton>
@@ -164,7 +164,7 @@ const AssignedApplications: React.FC = () => {
                                     <div className="card-header">
                                         <div className="bg-[linear-gradient(0deg,#2164A6_80.26%,rgba(33,100,166,0)_143.39%)] rounded-xl mb-4">
                                             <p className="font-bold text-[24px] text-white py-4 text-center">
-                                                Assigned Applications
+                                                My Assigned Applications
                                             </p>
                                         </div>
                                     </div>
