@@ -60,6 +60,7 @@ const SchoolApplicationDetails: React.FC = () => {
     const sop = queryParams.get("sop") || "";
     const action = queryParams.get("action") || "";
     const propId = queryParams.get("prop_id") || "";
+    const source = queryParams.get("source") || "";
     const fromPage = action === "rejected" ? "rejected_applications" : action === "download" ? "on_progress" : "school_application";
 
     const [application, setApplication] = useState<Application | null>(null);
@@ -94,7 +95,7 @@ const SchoolApplicationDetails: React.FC = () => {
     const fetchApplication = async () => {
         try {
             const response = await axios.get("https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/school-application/APIs/view_application_api.php", {
-                params: { action: "get_application", app_id: appId, sop, prop_id: propId }
+                params: { action: "get_application", app_id: appId, sop, prop_id: propId, source: source }
             });
             if (response.data.success) {
                 setApplication(response.data.application);

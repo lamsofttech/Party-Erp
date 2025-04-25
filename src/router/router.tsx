@@ -65,6 +65,8 @@ import SchoolApplicationsInProgress from "../pages/SchoolApplicationsInProgress"
 import SchoolApplicationsAssigned from "../pages/ApplicationsAssignedStaff";
 import PendingApprovalApplications from "../pages/PendingApprovalApplications";
 import PendingIntoApplications from "../pages/PendingIntoApplications";
+import SchoolApplicationsFeedback from "../pages/SchoolApplicationsFeedback";
+import ApplicationFeedbacks from "../pages/ApplicationFeedbacks";
 
 function Router() {
   return (
@@ -159,6 +161,10 @@ function Router() {
             <Route path="school-admission/pending-into-schools/new-school-applications" element={<SchoolApplications />} />
             <Route path="school-admission/pending-into-schools/rejected-applications" element={<RejectedSchoolApplications />} />
             <Route path="school-admission/pending-into-schools/rejected-applications/:memberName" element={<SchoolApplicationDetails />} />
+            <Route path="school-admission/school-applications-feedback" element={<SchoolApplicationsFeedback />} />
+            <Route path="school-admission/school-applications-feedback/:memberName" element={<SchoolApplicationDetails />} />
+            <Route path="school-admission/school-applications-feedback/approved-application-feedbacks" element={<ApplicationFeedbacks />} />
+            <Route path="school-admission/school-applications-feedback/rejected-application-feedbacks" element={<ApplicationFeedbacks />} />
           </Route>
         </Route>
       </Routes>

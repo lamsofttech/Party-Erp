@@ -31,7 +31,7 @@ const actionCards = [
     { title: "School Applications (On Progress)", icon: <HourglassEmptyIcon />, path: "/school-admission/school-applications-in-progress", count: 7 },
     { title: "School Applications (Pending Approval)", icon: <PendingIcon />, path: "/school-admission/applications-pending-approval", count: 3 },
     { title: "School Applications (Pending INTO Schools)", icon: <PendingIcon />, path: "/school-admission/pending-into-schools", count: 9 },
-    { title: "School Applications Feedback", icon: <FeedbackIcon />, path: "/school-application/school-appfeedback", count: 2 },
+    { title: "School Applications Feedback", icon: <FeedbackIcon />, path: "/school-admission/school-applications-feedback", count: 2 },
     { title: "Meeting Links", icon: <LinkIcon />, path: "/school-application/meeting-links", count: 20 },
     { title: "Consent Forms", icon: <AssignmentIcon />, path: "/school-application/consent-forms", count: 12 },
 ];
