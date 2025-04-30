@@ -32,14 +32,14 @@ const actionCards = [
     { title: "School Applications (Pending Approval)", icon: <PendingIcon />, path: "/school-admission/applications-pending-approval", count: 3 },
     { title: "School Applications (Pending INTO Schools)", icon: <PendingIcon />, path: "/school-admission/pending-into-schools", count: 9 },
     { title: "School Applications Feedback", icon: <FeedbackIcon />, path: "/school-admission/school-applications-feedback", count: 2 },
-    { title: "Meeting Links", icon: <LinkIcon />, path: "/school-application/meeting-links", count: 20 },
-    { title: "Consent Forms", icon: <AssignmentIcon />, path: "/school-application/consent-forms", count: 12 },
+    { title: "Meeting Links", icon: <LinkIcon />, path: "/school-admission/meeting-links", count: 20 },
+    { title: "Consent Forms", icon: <AssignmentIcon />, path: "/school-admission/consent-forms", count: 12 },
 ];
 
 // Data for Statistical Cards
 const statsCards = [
-    { title: "Total Students Relocated", count: 150, color: {light: "#FF9800", dark: "#FFB74D"}, path: "/school-application/relocated" },
-    { title: "All Universities", count: 50, color: {light: "#03A9F4", dark: "#4FC3F7"}, path: "/school-application/all-schools" },
+    { title: "Total Students Relocated", count: 150, color: {light: "#FF9800", dark: "#FFB74D"}, path: "/school-admission/students-relocated" },
+    { title: "All Universities", count: 50, color: {light: "#03A9F4", dark: "#4FC3F7"}, path: "/school-admission/all-schools" },
     { title: "Total Programs", count: 200, color: {light: "#4CAF50", dark: "#81C784"}, path: "/school-application/programs" },
     { title: "Total School Application", count: 100, color: {light: "#F44336", dark: "#E57373"}, path: "/school-application/complete-school-application" },
     { title: "School App (Per Student)", count: 75, color: {light: "#2196F3", dark: "#64B5F6"}, path: "/school-application/complete-school-application-student" },

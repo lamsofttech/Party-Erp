@@ -67,6 +67,10 @@ import PendingApprovalApplications from "../pages/PendingApprovalApplications";
 import PendingIntoApplications from "../pages/PendingIntoApplications";
 import SchoolApplicationsFeedback from "../pages/SchoolApplicationsFeedback";
 import ApplicationFeedbacks from "../pages/ApplicationFeedbacks";
+import MeetingLinks from "../pages/MeetingLinks";
+import ConsentForms from "../pages/ConsentForms";
+import Relocated from "../pages/Relocated";
+import AllSchools from "../pages/AllSchools";
 
 function Router() {
   return (
@@ -165,6 +169,10 @@ function Router() {
             <Route path="school-admission/school-applications-feedback/:memberName" element={<SchoolApplicationDetails />} />
             <Route path="school-admission/school-applications-feedback/approved-application-feedbacks" element={<ApplicationFeedbacks />} />
             <Route path="school-admission/school-applications-feedback/rejected-application-feedbacks" element={<ApplicationFeedbacks />} />
+            <Route path="school-admission/meeting-links" element={<MeetingLinks />} />
+            <Route path="school-admission/consent-forms" element={<ConsentForms />} />
+            <Route path="school-admission/students-relocated" element={<Relocated />} />
+            <Route path="school-admission/all-schools" element={<AllSchools />} />
           </Route>
         </Route>
       </Routes>
