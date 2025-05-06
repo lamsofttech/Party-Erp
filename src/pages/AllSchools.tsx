@@ -6,8 +6,8 @@ import {
     Checkbox, FormControlLabel, Typography, IconButton, Tooltip
 } from '@mui/material';
 import { Edit, Visibility, Block, CheckCircle } from '@mui/icons-material';
-
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 interface School {
     id: number;
@@ -33,12 +33,12 @@ interface School {
     itwenty_submit?: string;
     itwenty_link?: string;
     itwenty_process?: string;
-    affidavit_form?: string;
     verification?: string;
     verification_email?: string;
+    affidavit_form?: null | string;
 }
 
-const API_URL = "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/school-application/APIs/all_schools_api.php"; // Update with your API URL
+const API_URL = "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/school-application/APIs/all_schools_api.php";
 
 const AllSchools: React.FC = () => {
     const [schools, setSchools] = useState<School[]>([]);
@@ -53,8 +53,36 @@ const AllSchools: React.FC = () => {
         message: '',
         severity: 'success',
     });
-    const [formData, setFormData] = useState<any>({});
-    const [needVerification, setNeedVerification] = useState<string>('No');
+    const [addFormData, setAddFormData] = useState<any>({
+        school_name: '',
+        web_link: '',
+        year_founded: '',
+        partner: '',
+        undergrad: '',
+        postgrad: '',
+        acceptance: '',
+        yearly_fee: '',
+        city: '',
+        airport: '',
+        street: '',
+        zip_code: '',
+        state: '',
+        country: '',
+        app_portal: '',
+        lenders: [],
+        itwenty_submit: '',
+        itwenty_link: '',
+        itwenty_process: '',
+        need_ver: '',
+        verification_email: '',
+        affidavit_form: null,
+    });
+    const [editFormData, setEditFormData] = useState<any>({});
+    const [isAdding, setIsAdding] = useState<boolean>(false);
+    const [isEditing, setIsEditing] = useState<boolean>(false);
+    const [openConfirmModal, setOpenConfirmModal] = useState<boolean>(false);
+    const [confirmSchool, setConfirmSchool] = useState<School | null>(null);
+    const [isPhasing, setIsPhasing] = useState<boolean>(false);
 
     useEffect(() => {
         fetchSchools();
@@ -85,47 +113,210 @@ const AllSchools: React.FC = () => {
     };
 
     const handleAddSchool = async () => {
+        console.log('addFormData:', addFormData);
+
+        // Validate required fields
+        const requiredFields = [
+            'school_name', 'web_link', 'year_founded', 'undergrad', 'postgrad',
+            'acceptance', 'yearly_fee', 'city', 'airport', 'street', 'zip_code',
+            'state', 'country', 'itwenty_submit', 'itwenty_link', 'itwenty_process', 'need_ver'
+        ];
+        const missingFields = requiredFields.filter(field => addFormData[field] === '' || addFormData[field] === undefined || addFormData[field] === null);
+        if (missingFields.length > 0) {
+            setSnackbar({
+                open: true,
+                message: `Please fill all required fields: ${missingFields.join(', ')}`,
+                severity: 'error'
+            });
+            return;
+        }
+
+        // Validate numeric fields
+        if (isNaN(Number(addFormData.year_founded)) || Number(addFormData.year_founded) <= 0) {
+            setSnackbar({ open: true, message: 'Year Founded must be a valid positive number', severity: 'error' });
+            return;
+        }
+        if (isNaN(Number(addFormData.undergrad)) || Number(addFormData.undergrad) < 0) {
+            setSnackbar({ open: true, message: 'Undergraduate Students must be a valid non-negative number', severity: 'error' });
+            return;
+        }
+        if (isNaN(Number(addFormData.postgrad)) || Number(addFormData.postgrad) < 0) {
+            setSnackbar({ open: true, message: 'Postgraduate Students must be a valid non-negative number', severity: 'error' });
+            return;
+        }
+        if (isNaN(Number(addFormData.acceptance)) || Number(addFormData.acceptance) < 0 || Number(addFormData.acceptance) > 100) {
+            setSnackbar({ open: true, message: 'Acceptance Rate must be between 0 and 100', severity: 'error' });
+            return;
+        }
+        if (isNaN(Number(addFormData.yearly_fee)) || Number(addFormData.yearly_fee) < 0) {
+            setSnackbar({ open: true, message: 'Yearly Fee must be a valid non-negative number', severity: 'error' });
+            return;
+        }
+
+        // Validate need_ver
+        if (!['Yes', 'No'].includes(addFormData.need_ver)) {
+            setSnackbar({ open: true, message: 'Requires Verification must be "Yes" or "No"', severity: 'error' });
+            return;
+        }
+
+        setIsAdding(true);
         const form = new FormData();
-        Object.keys(formData).forEach((key) => {
-            if (key === 'lenders') {
-                form.append(key, formData[key].join(','));
-            } else if (key === 'affidavit_form') {
-                form.append(key, formData[key][0]);
-            } else {
-                form.append(key, formData[key]);
-            }
+        form.append('school_name', addFormData.school_name);
+        form.append('web_link', addFormData.web_link);
+        form.append('year_founded', addFormData.year_founded);
+        form.append('partner', addFormData.partner || '');
+        form.append('undergrad', addFormData.undergrad);
+        form.append('postgrad', addFormData.postgrad);
+        form.append('acceptance', addFormData.acceptance);
+        form.append('yearly_fee', addFormData.yearly_fee);
+        form.append('city', addFormData.city);
+        form.append('airport', addFormData.airport);
+        form.append('street', addFormData.street);
+        form.append('zip_code', addFormData.zip_code);
+        form.append('state', addFormData.state);
+        form.append('country', addFormData.country);
+        form.append('app_portal', addFormData.app_portal || '');
+        addFormData.lenders.forEach((lender: string, index: number) => {
+            form.append(`lenders[${index}]`, lender);
         });
+        form.append('itwenty_submit', addFormData.itwenty_submit);
+        form.append('itwenty_link', addFormData.itwenty_link);
+        form.append('itwenty_process', addFormData.itwenty_process);
+        form.append('need_ver', addFormData.need_ver);
+        if (addFormData.need_ver === 'Yes') {
+            form.append('ver_email', addFormData.verification_email || '');
+        }
+        if (addFormData.affidavit_form && addFormData.affidavit_form instanceof File) {
+            form.append('affidavit_form', addFormData.affidavit_form);
+        }
         form.append('action', 'add_school');
 
         try {
+            console.log('Form Data:', Object.fromEntries(form));
             const response = await axios.post(API_URL, form, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
             if (response.data.message === 'success') {
                 setSnackbar({ open: true, message: 'School added successfully', severity: 'success' });
                 setOpenAddModal(false);
+                setAddFormData({
+                    school_name: '',
+                    web_link: '',
+                    year_founded: '',
+                    partner: '',
+                    undergrad: '',
+                    postgrad: '',
+                    acceptance: '',
+                    yearly_fee: '',
+                    city: '',
+                    airport: '',
+                    street: '',
+                    zip_code: '',
+                    state: '',
+                    country: '',
+                    app_portal: '',
+                    lenders: [],
+                    itwenty_submit: '',
+                    itwenty_link: '',
+                    itwenty_process: '',
+                    need_ver: '',
+                    verification_email: '',
+                    affidavit_form: null,
+                });
                 fetchSchools();
             } else {
                 setSnackbar({ open: true, message: response.data.data, severity: 'error' });
             }
         } catch (error) {
             setSnackbar({ open: true, message: 'Failed to add school', severity: 'error' });
+        } finally {
+            setIsAdding(false);
         }
     };
 
     const handleEditSchool = async () => {
+        console.log('editFormData:', editFormData);
+
+        // Validate required fields
+        const requiredFields = [
+            'school_name', 'web_link', 'year_founded', 'undergrad', 'postgrad',
+            'acceptance', 'yearly_fee', 'city', 'airport', 'street', 'zip_code',
+            'state', 'country', 'itwenty_submit', 'itwenty_link', 'itwenty_process', 'need_ver'
+        ];
+
+        const missingFields = requiredFields.filter(field => editFormData[field] === '' || editFormData[field] === undefined || editFormData[field] === null);
+        if (missingFields.length > 0) {
+            console.log('Missing fields:', missingFields);
+            setSnackbar({
+                open: true,
+                message: `Missing required fields: ${missingFields.join(', ')}`,
+                severity: 'error'
+            });
+            return;
+        }
+
+        // Validate numeric fields
+        if (isNaN(Number(editFormData.year_founded)) || Number(editFormData.year_founded) <= 0) {
+            setSnackbar({ open: true, message: 'Year Founded must be a valid positive number', severity: 'error' });
+            return;
+        }
+        if (isNaN(Number(editFormData.undergrad)) || Number(editFormData.undergrad) < 0) {
+            setSnackbar({ open: true, message: 'Undergraduate Students must be a valid non-negative number', severity: 'error' });
+            return;
+        }
+        if (isNaN(Number(editFormData.postgrad)) || Number(editFormData.postgrad) < 0) {
+            setSnackbar({ open: true, message: 'Postgraduate Students must be a valid non-negative number', severity: 'error' });
+            return;
+        }
+        if (isNaN(Number(editFormData.acceptance)) || Number(editFormData.acceptance) < 0 || Number(editFormData.acceptance) > 100) {
+            setSnackbar({ open: true, message: 'Acceptance Rate must be between 0 and 100', severity: 'error' });
+            return;
+        }
+        if (isNaN(Number(editFormData.yearly_fee)) || Number(editFormData.yearly_fee) < 0) {
+            setSnackbar({ open: true, message: 'Yearly Fee must be a valid non-negative number', severity: 'error' });
+            return;
+        }
+
+        // Validate need_ver
+        if (!['Yes', 'No'].includes(editFormData.need_ver)) {
+            setSnackbar({ open: true, message: 'Requires Verification must be "Yes" or "No"', severity: 'error' });
+            return;
+        }
+
+        setIsEditing(true);
         const form = new FormData();
-        Object.keys(formData).forEach((key) => {
-            if (key === 'lenders') {
-                form.append(key, formData[key].join(','));
-            } else if (key === 'affidavit_form') {
-                form.append(key, formData[key][0]);
-            } else {
-                form.append(key, formData[key]);
-            }
-        });
-        form.append('action', 'edit_school');
         form.append('id', selectedSchool!.id.toString());
+        form.append('school_name', editFormData.school_name || '');
+        form.append('web_link', editFormData.web_link || '');
+        form.append('year_founded', editFormData.year_founded || '');
+        form.append('partner', editFormData.partner || '');
+        form.append('undergrad', editFormData.undergrad || '0');
+        form.append('postgrad', editFormData.postgrad || '0');
+        form.append('acceptance', editFormData.acceptance || '0');
+        form.append('yearly_fee', editFormData.yearly_fee || '0');
+        form.append('city', editFormData.city || '');
+        form.append('airport', editFormData.airport || '');
+        form.append('street', editFormData.street || '');
+        form.append('zip_code', editFormData.zip_code || '');
+        form.append('state', editFormData.state || '');
+        form.append('country', editFormData.country || '');
+        form.append('app_portal', editFormData.app_portal || '');
+        editFormData.lenders.forEach((lender: string, index: number) => {
+            form.append(`lenders[${index}]`, lender);
+        });
+        form.append('itwenty_submit', editFormData.itwenty_submit || '');
+        form.append('itwenty_link', editFormData.itwenty_link || '');
+        form.append('itwenty_process', editFormData.itwenty_process || '');
+        form.append('need_ver', editFormData.need_ver);
+        if (editFormData.need_ver === 'Yes') {
+            form.append('ver_email', editFormData.verification_email || '');
+        }
+        if (editFormData.affidavit_form && editFormData.affidavit_form instanceof File) {
+            form.append('affidavit_form', editFormData.affidavit_form);
+        } else {
+            form.append('existing_affidavit', editFormData.affidavit_form || '');
+        }
+        form.append('action', 'edit_school');
 
         try {
             const response = await axios.post(API_URL, form, {
@@ -134,44 +325,104 @@ const AllSchools: React.FC = () => {
             if (response.data.message === 'success') {
                 setSnackbar({ open: true, message: 'School updated successfully', severity: 'success' });
                 setOpenEditModal(false);
+                setEditFormData({});
                 fetchSchools();
             } else {
                 setSnackbar({ open: true, message: response.data.data, severity: 'error' });
             }
         } catch (error) {
+            console.error('Error:', error);
             setSnackbar({ open: true, message: 'Failed to update school', severity: 'error' });
+        } finally {
+            setIsEditing(false);
         }
     };
 
-    const handlePhaseInOut = async (school: School) => {
-        if (!window.confirm(`Are you sure you want to ${school.status === 'in' ? 'phase out' : 'phase in'} this school?`)) return;
+    const handlePhaseInOut = (school: School) => {
+        setConfirmSchool(school);
+        setOpenConfirmModal(true);
+    };
+
+    const confirmPhaseInOut = async () => {
+        if (!confirmSchool) return;
+
+        setIsPhasing(true);
+        const form = new FormData();
+        form.append('action', 'change_status');
+        form.append('id', confirmSchool.id.toString());
+        form.append('status', confirmSchool.status === 'in' ? 'out' : 'in');
+
+        console.log('Phase In/Out FormData:');
+        for (let [key, value] of form.entries()) {
+            console.log(`${key}: ${value}`);
+        }
+
         try {
-            const response = await axios.post(API_URL, {
-                action: 'change_status',
-                id: school.id,
-                status: school.status === 'in' ? 'out' : 'in',
+            const response = await axios.post(API_URL, form, {
+                headers: { 'Content-Type': 'multipart/form-data' },
             });
             if (response.data.message === 'success') {
                 setSnackbar({ open: true, message: 'School status updated', severity: 'success' });
+                setOpenConfirmModal(false);
+                setConfirmSchool(null);
                 fetchSchools();
             } else {
                 setSnackbar({ open: true, message: response.data.data, severity: 'error' });
             }
         } catch (error) {
-            setSnackbar({ open: true, message: 'Failed to update status', severity: 'error' });
+            console.error('Phase In/Out Error:', error);
+            setSnackbar({ open: true, message: "Failed to update status", severity: 'error' });
+        } finally {
+            setIsPhasing(false);
         }
     };
 
     const handleEditClick = async (school: School) => {
         try {
-            const response = await axios.post(API_URL, { action: 'fetch_school_details', id: school.id });
+            const form = new FormData();
+            form.append('action', 'fetch_school_details');
+            form.append('id', school.id.toString());
+
+            const response = await axios.post(API_URL, form, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+
+            console.log('API Response:', response.data);
+
             if (response.data.message === 'success') {
                 setSelectedSchool(school);
-                setFormData({
-                    ...response.data.data,
-                    lenders: response.data.data.lenders.split(','),
+                const lenders = response.data.data.lenders
+                    ? typeof response.data.data.lenders === 'string'
+                        ? response.data.data.lenders.split(',').filter((l: string) => l)
+                        : Array.isArray(response.data.data.lenders)
+                            ? response.data.data.lenders
+                            : []
+                    : [];
+                // Initialize editFormData with all fields to prevent undefined values
+                setEditFormData({
+                    school_name: response.data.data.school_name || '',
+                    web_link: response.data.data.web_link || '',
+                    year_founded: response.data.data.founded || '',
+                    partner: response.data.data.partner || '',
+                    undergrad: response.data.data.undergrad || '',
+                    postgrad: response.data.data.postgrad || '',
+                    acceptance: response.data.data.acceptance || '',
+                    yearly_fee: response.data.data.yearly_fee || '',
+                    city: response.data.data.city || '',
+                    airport: response.data.data.airport || '',
+                    street: response.data.data.street || '',
+                    zip_code: response.data.data.zip_code || '',
+                    state: response.data.data.state || '',
+                    country: response.data.data.country || '',
+                    app_portal: response.data.data.app_portal || '',
+                    lenders: lenders,
+                    itwenty_submit: response.data.data.itwenty_submit || '',
+                    itwenty_link: response.data.data.itwenty_link || '',
+                    itwenty_process: response.data.data.itwenty_process || '',
+                    need_ver: response.data.data.verification || 'No',
+                    verification_email: response.data.data.verification_email || '',
+                    affidavit_form: response.data.data.affidavit_form || null,
                 });
-                setNeedVerification(response.data.data.verification || 'No');
                 setOpenEditModal(true);
             } else {
                 setSnackbar({ open: true, message: response.data.data, severity: 'error' });
@@ -201,7 +452,8 @@ const AllSchools: React.FC = () => {
                     <Tooltip title="View School">
                         <IconButton
                             color="primary"
-                            onClick={() => alert('View functionality not implemented')}
+                            component={Link}
+                            to={`/school-admission/all-schools/${params.row.school_name}?id=${params.row.id}`}
                         >
                             <Visibility />
                         </IconButton>
@@ -218,6 +470,7 @@ const AllSchools: React.FC = () => {
                         <IconButton
                             color={params.row.status === 'in' ? 'error' : 'success'}
                             onClick={() => handlePhaseInOut(params.row)}
+                            disabled={isPhasing}
                         >
                             {params.row.status === 'in' ? <Block /> : <CheckCircle />}
                         </IconButton>
@@ -227,179 +480,217 @@ const AllSchools: React.FC = () => {
         },
     ];
 
-    const renderForm = (isEdit: boolean) => (
-        <Box component="form" sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-            <TextField
-                label="School Name"
-                value={formData.school_name || ''}
-                onChange={(e) => setFormData({ ...formData, school_name: e.target.value })}
-                required
-            />
-            <TextField
-                label="Website Link"
-                value={formData.web_link || ''}
-                onChange={(e) => setFormData({ ...formData, web_link: e.target.value })}
-                required
-            />
-            <TextField
-                label="Year Founded"
-                type="number"
-                value={formData.founded || ''}
-                onChange={(e) => setFormData({ ...formData, founded: e.target.value })}
-                required
-            />
-            <FormControl>
-                <InputLabel>Official Partner</InputLabel>
-                <Select
-                    value={formData.partner || ''}
-                    onChange={(e) => setFormData({ ...formData, partner: e.target.value })}
-                    required
-                >
-                    <MenuItem value="">Select</MenuItem>
-                    <MenuItem value="Yes">Yes</MenuItem>
-                    <MenuItem value="No">No</MenuItem>
-                </Select>
-            </FormControl>
-            <TextField
-                label="Undergraduate Students"
-                type="number"
-                value={formData.undergrad || ''}
-                onChange={(e) => setFormData({ ...formData, undergrad: e.target.value })}
-                required
-            />
-            <TextField
-                label="Postgraduate Students"
-                type="number"
-                value={formData.postgrad || ''}
-                onChange={(e) => setFormData({ ...formData, postgrad: e.target.value })}
-                required
-            />
-            <TextField
-                label="Acceptance Rate (%)"
-                type="number"
-                value={formData.acceptance || ''}
-                onChange={(e) => setFormData({ ...formData, acceptance: e.target.value })}
-                required
-            />
-            <TextField
-                label="Yearly Fee"
-                type="number"
-                value={formData.yearly_fee || ''}
-                onChange={(e) => setFormData({ ...formData, yearly_fee: e.target.value })}
-                required
-            />
-            <TextField
-                label="City"
-                value={formData.city || ''}
-                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                required
-            />
-            <TextField
-                label="Nearest Airport"
-                value={formData.airport || ''}
-                onChange={(e) => setFormData({ ...formData, airport: e.target.value })}
-                required
-            />
-            <TextField
-                label="Street"
-                value={formData.street || ''}
-                onChange={(e) => setFormData({ ...formData, street: e.target.value })}
-                required
-            />
-            <TextField
-                label="Zip Code"
-                value={formData.zip_code || ''}
-                onChange={(e) => setFormData({ ...formData, zip_code: e.target.value })}
-                required
-            />
-            <TextField
-                label="State"
-                value={formData.state || ''}
-                onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                required
-            />
-            <TextField
-                label="Country"
-                value={formData.country || ''}
-                onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                required
-            />
-            <TextField
-                label="Portal Link"
-                value={formData.app_portal || ''}
-                onChange={(e) => setFormData({ ...formData, app_portal: e.target.value })}
-            />
-            <Box>
-                <Typography>Lenders</Typography>
-                {['MPOWER', '8B', 'Sallie', 'KAP'].map((lender) => (
-                    <FormControlLabel
-                        key={lender}
-                        control={
-                            <Checkbox
-                                checked={formData.lenders?.includes(lender) || false}
-                                onChange={(e) => {
-                                    const lenders = formData.lenders || [];
-                                    if (e.target.checked) {
-                                        setFormData({ ...formData, lenders: [...lenders, lender] });
-                                    } else {
-                                        setFormData({ ...formData, lenders: lenders.filter((l: string) => l !== lender) });
-                                    }
-                                }}
-                            />
-                        }
-                        label={lender === 'MPOWER' ? 'MPOWER Financing' : lender === '8B' ? '8B Education Investments' : lender === 'Sallie' ? 'Sallie Mae' : 'ISP'}
-                    />
-                ))}
-            </Box>
-            <FormControl>
-                <InputLabel>Requires Verification</InputLabel>
-                <Select
-                    value={needVerification}
-                    onChange={(e) => {
-                        setNeedVerification(e.target.value as string);
-                        setFormData({ ...formData, need_ver: e.target.value });
-                    }}
-                >
-                    <MenuItem value="No">No</MenuItem>
-                    <MenuItem value="Yes">Yes</MenuItem>
-                </Select>
-            </FormControl>
-            {needVerification === 'Yes' && (
+    const renderForm = (isEdit: boolean) => {
+        const formData = isEdit ? editFormData : addFormData;
+        const setFormData = isEdit ? setEditFormData : setAddFormData;
+
+        return (
+            <Box component="form" sx={{ 
+                display: 'grid', 
+                gridTemplateColumns: '1fr 1fr', 
+                gap: 2,
+                padding: 2,
+                '& .MuiTextField-root': { marginBottom: 2 },
+                '& .MuiFormControl-root': { marginBottom: 2 },
+            }}>
                 <TextField
-                    label="Verification Email"
-                    value={formData.verification_email || ''}
-                    onChange={(e) => setFormData({ ...formData, verification_email: e.target.value })}
+                    label="School Name"
+                    value={formData.school_name || ''}
+                    onChange={(e) => setFormData({ ...formData, school_name: e.target.value })}
                     required
+                    fullWidth
                 />
-            )}
-            <TextField
-                label="I-20 Submission"
-                value={formData.itwenty_submit || ''}
-                onChange={(e) => setFormData({ ...formData, itwenty_submit: e.target.value })}
-            />
-            <TextField
-                label="I-20 Link/Email"
-                value={formData.itwenty_link || ''}
-                onChange={(e) => setFormData({ ...formData, itwenty_link: e.target.value })}
-            />
-            <TextField
-                label="I-20 Process"
-                multiline
-                rows={4}
-                value={formData.itwenty_process || ''}
-                onChange={(e) => setFormData({ ...formData, itwenty_process: e.target.value })}
-            />
-            <TextField
-                type="file"
-                label="Affidavit Form"
-                InputLabelProps={{ shrink: true }}
-                onChange={(e: any) => setFormData({ ...formData, affidavit_form: e.target.files })}
-            />
-            {isEdit && formData.affidavit_form && (
-                <Typography>Existing Affidavit: {formData.affidavit_form}</Typography>
-            )}
-        </Box>
-    );
+                <TextField
+                    label="Website Link"
+                    value={formData.web_link || ''}
+                    onChange={(e) => setFormData({ ...formData, web_link: e.target.value })}
+                    required
+                    fullWidth
+                />
+                <TextField
+                    label="Year Founded"
+                    type="number"
+                    value={formData.year_founded || ''}
+                    onChange={(e) => setFormData({ ...formData, year_founded: e.target.value })}
+                    required
+                    fullWidth
+                />
+                <FormControl fullWidth>
+                    <InputLabel>Official Partner</InputLabel>
+                    <Select
+                        label="Official Partner"
+                        value={formData.partner || ''}
+                        onChange={(e) => setFormData({ ...formData, partner: e.target.value })}
+                        required
+                    >
+                        <MenuItem value="">Select</MenuItem>
+                        <MenuItem value="Yes">Yes</MenuItem>
+                        <MenuItem value="No">No</MenuItem>
+                    </Select>
+                </FormControl>
+                <TextField
+                    label="Undergraduate Students"
+                    type="number"
+                    value={formData.undergrad || ''}
+                    onChange={(e) => setFormData({ ...formData, undergrad: e.target.value })}
+                    required
+                    fullWidth
+                />
+                <TextField
+                    label="Postgraduate Students"
+                    type="number"
+                    value={formData.postgrad || ''}
+                    onChange={(e) => setFormData({ ...formData, postgrad: e.target.value })}
+                    required
+                    fullWidth
+                />
+                <TextField
+                    label="Acceptance Rate (%)"
+                    type="number"
+                    value={formData.acceptance || ''}
+                    onChange={(e) => setFormData({ ...formData, acceptance: e.target.value })}
+                    required
+                    fullWidth
+                />
+                <TextField
+                    label="Yearly Fee"
+                    type="number"
+                    value={formData.yearly_fee || ''}
+                    onChange={(e) => setFormData({ ...formData, yearly_fee: e.target.value })}
+                    required
+                    fullWidth
+                />
+                <TextField
+                    label="City"
+                    value={formData.city || ''}
+                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                    required
+                    fullWidth
+                />
+                <TextField
+                    label="Nearest Airport"
+                    value={formData.airport || ''}
+                    onChange={(e) => setFormData({ ...formData, airport: e.target.value })}
+                    required
+                    fullWidth
+                />
+                <TextField
+                    label="Street"
+                    value={formData.street || ''}
+                    onChange={(e) => setFormData({ ...formData, street: e.target.value })}
+                    required
+                    fullWidth
+                />
+                <TextField
+                    label="Zip Code"
+                    value={formData.zip_code || ''}
+                    onChange={(e) => setFormData({ ...formData, zip_code: e.target.value })}
+                    required
+                    fullWidth
+                />
+                <TextField
+                    label="State"
+                    value={formData.state || ''}
+                    onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                    required
+                    fullWidth
+                />
+                <TextField
+                    label="Country"
+                    value={formData.country || ''}
+                    onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                    required
+                    fullWidth
+                />
+                <TextField
+                    label="Portal Link"
+                    value={formData.app_portal || ''}
+                    onChange={(e) => setFormData({ ...formData, app_portal: e.target.value })}
+                    fullWidth
+                />
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    <Typography>Lenders</Typography>
+                    {['MPOWER', 'Prodigy', 'Sallie', 'KAP'].map((lender) => (
+                        <FormControlLabel
+                            key={lender}
+                            control={
+                                <Checkbox
+                                    checked={Array.isArray(formData.lenders) && formData.lenders.includes(lender)}
+                                    onChange={(e) => {
+                                        const lenders = Array.isArray(formData.lenders) ? formData.lenders : [];
+                                        if (e.target.checked) {
+                                            setFormData({ ...formData, lenders: [...lenders, lender] });
+                                        } else {
+                                            setFormData({ ...formData, lenders: lenders.filter((l: string) => l !== lender) });
+                                        }
+                                    }}
+                                />
+                            }
+                            label={lender === 'MPOWER' ? 'MPOWER Financing' : lender === 'Prodigy' ? 'Prodigy Finance' : lender === 'Sallie' ? 'Sallie Mae' : 'ISP'}
+                        />
+                    ))}
+                </Box>
+                <FormControl fullWidth>
+                    <InputLabel>Requires Verification</InputLabel>
+                    <Select
+                        label="Requires Verification"
+                        value={formData.need_ver || ''}
+                        onChange={(e) => setFormData({ ...formData, need_ver: e.target.value })}
+                        required
+                    >
+                        <MenuItem value="">Select</MenuItem>
+                        <MenuItem value="No">No</MenuItem>
+                        <MenuItem value="Yes">Yes</MenuItem>
+                    </Select>
+                </FormControl>
+                {formData.need_ver === 'Yes' && (
+                    <TextField
+                        label="Verification Email"
+                        value={formData.verification_email || ''}
+                        onChange={(e) => setFormData({ ...formData, verification_email: e.target.value })}
+                        required
+                        fullWidth
+                    />
+                )}
+                <TextField
+                    label="I-20 Submission"
+                    value={formData.itwenty_submit || ''}
+                    onChange={(e) => setFormData({ ...formData, itwenty_submit: e.target.value })}
+                    required
+                    fullWidth
+                />
+                <TextField
+                    label="I-20 Link/Email"
+                    value={formData.itwenty_link || ''}
+                    onChange={(e) => setFormData({ ...formData, itwenty_link: e.target.value })}
+                    required
+                    fullWidth
+                />
+                <TextField
+                    label="I-20 Process"
+                    multiline
+                    rows={4}
+                    value={formData.itwenty_process || ''}
+                    onChange={(e) => setFormData({ ...formData, itwenty_process: e.target.value })}
+                    required
+                    fullWidth
+                />
+                <TextField
+                    type="file"
+                    label="Affidavit Form"
+                    inputProps={{ accept: 'application/pdf,.pdf' }}
+                    InputLabelProps={{ shrink: true }}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setFormData({ ...formData, affidavit_form: e.target.files ? e.target.files[0] : null });
+                    }}
+                    fullWidth
+                />
+                {/* {isEdit && formData.affidavit_form && typeof formData.affidavit_form === 'string' && (
+                    <Typography sx={{ gridColumn: 'span 2' }}>Existing Affidavit: {formData.affidavit_form}</Typography>
+                )} */}
+            </Box>
+        );
+    };
 
     return (
         <Box sx={{ p: 3 }}>
@@ -441,16 +732,34 @@ const AllSchools: React.FC = () => {
                 <DialogTitle>Add School</DialogTitle>
                 <DialogContent>{renderForm(false)}</DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenAddModal(false)}>Close</Button>
-                    <Button onClick={handleAddSchool} color="success">Add School</Button>
+                    <Button sx={{ textTransform: "none" }} onClick={() => setOpenAddModal(false)}>Close</Button>
+                    <Button sx={{ textTransform: "none" }} onClick={handleAddSchool} color="success" disabled={isAdding}>
+                        {isAdding ? 'Adding...' : 'Add School'}
+                    </Button>
                 </DialogActions>
             </Dialog>
-            <Dialog open={openEditModal} onClose={() => setOpenEditModal(false)} maxWidth="md" fullWidth>
+            <Dialog open={openEditModal} onClose={() => { setOpenEditModal(false); setEditFormData({}); }} maxWidth="md" fullWidth>
                 <DialogTitle>Edit School</DialogTitle>
                 <DialogContent>{renderForm(true)}</DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenEditModal(false)}>Close</Button>
-                    <Button onClick={handleEditSchool} color="success">Save</Button>
+                    <Button sx={{ textTransform: "none" }} onClick={() => { setOpenEditModal(false); setEditFormData({}); }}>Close</Button>
+                    <Button sx={{ textTransform: "none" }} onClick={handleEditSchool} color="success" disabled={isEditing}>
+                        {isEditing ? 'Saving...' : 'Save'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={openConfirmModal} onClose={() => setOpenConfirmModal(false)}>
+                <DialogTitle>Confirm Action</DialogTitle>
+                <DialogContent>
+                    <Typography>
+                        Are you sure you want to {confirmSchool?.status === 'in' ? 'phase out' : 'phase in'} {confirmSchool?.school_name}?
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenConfirmModal(false)} disabled={isPhasing}>Cancel</Button>
+                    <Button onClick={confirmPhaseInOut} color="error" disabled={isPhasing}>
+                        {isPhasing ? 'Processing...' : 'Confirm'}
+                    </Button>
                 </DialogActions>
             </Dialog>
             <Snackbar

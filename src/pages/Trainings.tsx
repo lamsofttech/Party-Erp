@@ -107,8 +107,8 @@ const Trainings: React.FC = () => {
     };
 
     const handleEditSubmit = async () => {
-        if (!editId || !editName || !editWeeks || !editType) {
-            setSnackbar({ open: true, message: "Please fill all fields", severity: "warning" });
+        if (!editId || !editWeeks) {
+            setSnackbar({ open: true, message: "Weeks must have a positive value.", severity: "warning" });
             return;
         }
         setIsSubmitting(true);
@@ -116,8 +116,6 @@ const Trainings: React.FC = () => {
             const response = await axios.post(API_URL, {
                 action: "update",
                 id: editId,
-                phase_name: editName,
-                test_type: editType,
                 weeks: editWeeks,
             });
             if (response.data.success) {
@@ -154,10 +152,9 @@ const Trainings: React.FC = () => {
 
     const columns: GridColDef<Training>[] = [
         {
-            field: "sn",
-            headerName: "S/N",
+            field: "id",
+            headerName: "ID",
             flex: 1,
-            valueGetter: (_, row) => row.sn,
         },
         { field: "phase_name", headerName: "Phase", flex: 2 },
         { field: "test_type", headerName: "Test Type", flex: 1 },
@@ -230,7 +227,7 @@ const Trainings: React.FC = () => {
                         top: "30%",
                         left: "40%",
                         transform: "translate(-50%, -50%)",
-                        width:  400 , // Responsive width: 90% on mobile, 400px on larger screens
+                        width: 400, // Responsive width: 90% on mobile, 400px on larger screens
                         maxWidth: "100%", // Prevent overflow on small screens
                         bgcolor: "background.paper",
                         boxShadow: 24,
@@ -312,7 +309,7 @@ const Trainings: React.FC = () => {
                         top: "30%",
                         left: "40%",
                         transform: "translate(-50%, -50%)",
-                        width:  400 , // Responsive width: 90% on mobile, 400px on larger screens
+                        width: 400, // Responsive width: 90% on mobile, 400px on larger screens
                         maxWidth: "100%", // Prevent overflow on small screens
                         bgcolor: "background.paper",
                         boxShadow: 24,
@@ -328,33 +325,14 @@ const Trainings: React.FC = () => {
                     transition={{ duration: 0.3 }}
                 >
                     <Typography variant="h6" className="font-bold mb-4">
-                        Edit Training
+                        <strong>Edit Training</strong>
                     </Typography>
-                    <FormControl fullWidth>
-                        <InputLabel>Phase</InputLabel>
-                        <Select
-                            value={editName}
-                            onChange={(e) => setEditName(e.target.value)}
-                            label="Phase"
-                            required
-                        >
-                            <MenuItem value="Training Phase">Training Phase</MenuItem>
-                            <MenuItem value="Mock Phase">Mock Phase</MenuItem>
-                        </Select>
-                    </FormControl>
-                    <FormControl fullWidth>
-                        <InputLabel>Test Type</InputLabel>
-                        <Select
-                            value={editType}
-                            onChange={(e) => setEditType(e.target.value)}
-                            label="Test Type"
-                            required
-                        >
-                            <MenuItem value="GMAT">GMAT</MenuItem>
-                            <MenuItem value="GRE">GRE</MenuItem>
-                            <MenuItem value="Duolingo">Duolingo</MenuItem>
-                        </Select>
-                    </FormControl>
+                    <p className="p-3 shadow-md rounded-md">
+                        <strong>Phase:</strong> {editName}
+                    </p>
+                    <p className="p-3 shadow-md rounded-md mb-2">
+                        <strong>Test Type:</strong> {editType}
+                    </p>
                     <TextField
                         fullWidth
                         label="Training Weeks"

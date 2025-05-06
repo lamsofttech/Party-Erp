@@ -67,7 +67,7 @@ const Sections: Section[] = [
     description: "Active test phases" 
   },
   { 
-    title: "Mock Bookings", 
+    title: "Mock Results", 
     path: "/entrance-exams/mocks", 
     icon: <FileText size={24} />, 
     statKey: "total_active_mocks", 
@@ -138,37 +138,37 @@ const EntranceExamsDashboard: React.FC = () => {
   
   const [loading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(
-          "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/stats.php"
-        );
+  // useEffect(() => {
+  //   const fetchStats = async () => {
+  //     try {
+  //       setLoading(true);
+  //       const response = await axios.get(
+  //         "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/stats.php"
+  //       );
         
-        if (response.data.success) {
-          setStats(response.data.stats);
-        } else {
-          setSnackbar({
-            open: true,
-            message: response.data.message || "Failed to load statistics",
-            severity: "error",
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching stats:", error);
-        setSnackbar({
-          open: true,
-          message: "Error loading statistics",
-          severity: "error",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
+  //       if (response.data.success) {
+  //         setStats(response.data.stats);
+  //       } else {
+  //         setSnackbar({
+  //           open: true,
+  //           message: response.data.message || "Failed to load statistics",
+  //           severity: "error",
+  //         });
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching stats:", error);
+  //       setSnackbar({
+  //         open: true,
+  //         message: "Error loading statistics",
+  //         severity: "error",
+  //       });
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    fetchStats();
-  }, []);
+  //   fetchStats();
+  // }, []);
 
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
@@ -192,16 +192,16 @@ const EntranceExamsDashboard: React.FC = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center">
-          <div className="w-12 h-12 border-4 border-t-4 border-gray-200 border-t-[#1a9970] rounded-full animate-spin"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading dashboard data...</p>
-        </div>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="flex items-center justify-center min-h-screen">
+  //       <div className="flex flex-col items-center">
+  //         <div className="w-12 h-12 border-4 border-t-4 border-gray-200 border-t-[#1a9970] rounded-full animate-spin"></div>
+  //         <p className="mt-4 text-gray-600 dark:text-gray-400">Loading dashboard data...</p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="container mx-auto px-4 pb-8">

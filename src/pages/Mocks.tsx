@@ -11,6 +11,7 @@ import {
   DialogActions,
   TextField,
   Button,
+  Typography,
 } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 
@@ -20,9 +21,8 @@ interface MockBooking {
   fullnames: string;
   test_type: string;
   mock: string;
-  date_submitted: string;
   marks: string;
-  proof?: string; // Optional, included when fetching details
+  proof?: string; // Optional, included in the response
   sn?: number; // Serial number added dynamically
 }
 
@@ -42,8 +42,7 @@ const Mocks: React.FC = () => {
     severity: "success",
   });
 
-  const API_URL =
-    "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/mocks_api.php";
+  const API_URL = "https://finkapinternational.qhtestingserver.com/login/main/APIs/student_management/school-application/entrance_exams/mocks.php";
 
   useEffect(() => {
     fetchMocks();
@@ -51,95 +50,119 @@ const Mocks: React.FC = () => {
 
   const fetchMocks = async () => {
     try {
-      const response = await axios.get(`${API_URL}`);
-      if (response.data.success) {
-        setMocks(response.data.mocks);
+      const response = await axios.get(API_URL, {
+        params: { action: "fetch_mock_results", status: 1 },
+      });
+      if (response.data.status === "success") {
+        setMocks(response.data.data); // New API returns results in `data`
       } else {
         setSnackbar({
           open: true,
-          message: response.data.message || "No mock bookings found",
+          message: response.data.message || "No mock results found",
           severity: "warning",
         });
       }
     } catch (error) {
       setSnackbar({
         open: true,
-        message: "Error fetching mock bookings",
+        message: "Error fetching mock results",
         severity: "error",
       });
     }
   };
 
-  const fetchMockDetails = async (id: number) => {
+  const handleReviewClick = (mock: MockBooking) => {
+    setSelectedMock(mock);
+    setComment(""); // Reset comment
+    setOpenReviewModal(true);
+  };
+
+  const handleApprove = async () => {
+    if (!selectedMock) return;
+
+    setIsSubmitting(true);
     try {
-      const response = await axios.get(`${API_URL}?id=${id}`);
-      if (response.data.success) {
-        setSelectedMock(response.data.mock);
-        setOpenReviewModal(true);
+      const response = await axios.get(API_URL, {
+        params: {
+          action: "approve_result",
+          result_id: selectedMock.id,
+          student_email: selectedMock.email,
+          comment: comment || "", // Comment is optional
+        },
+      });
+
+      if (response.data.status === "success") {
+        setSnackbar({
+          open: true,
+          message: response.data.message || "Mock result approved successfully",
+          severity: "success",
+        });
+        setOpenReviewModal(false);
+        setComment("");
+        fetchMocks(); // Refresh the list
       } else {
         setSnackbar({
           open: true,
-          message: response.data.message || "Mock not found",
+          message: response.data.message || "Error approving mock result",
           severity: "error",
         });
       }
     } catch (error) {
       setSnackbar({
         open: true,
-        message: "Error fetching mock details",
+        message: "Error submitting approval",
         severity: "error",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleReviewSubmit = async () => {
+  const handleReject = async () => {
     if (!selectedMock || !comment) {
       setSnackbar({
         open: true,
-        message: "Please provide a comment",
+        message: "Comment is required for rejection",
         severity: "warning",
       });
       return;
     }
 
-    setIsSubmitting(true); // Track submission state
-
+    setIsSubmitting(true);
     try {
-      const formData = new FormData();
-      formData.append("action", "review");
-      formData.append("mock_id", selectedMock.id.toString());
-      formData.append("comment", comment);
-
-      const response = await axios.post(API_URL, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const response = await axios.get(API_URL, {
+        params: {
+          action: "reject_result",
+          result_id: selectedMock.id,
+          student_email: selectedMock.email,
+          comment: comment,
+        },
       });
 
-      if (response.data.success) {
+      if (response.data.status === "success") {
         setSnackbar({
           open: true,
-          message: response.data.message || "Mock reviewed successfully",
+          message: response.data.message || "Mock result rejected successfully",
           severity: "success",
         });
         setOpenReviewModal(false);
         setComment("");
-        fetchMocks(); // Refresh the mock list
+        fetchMocks(); // Refresh the list
       } else {
         setSnackbar({
           open: true,
-          message: response.data.message || "Error reviewing mock",
+          message: response.data.message || "Error rejecting mock result",
           severity: "error",
         });
-        setOpenReviewModal(false); // Close modal on failure
       }
     } catch (error) {
       setSnackbar({
         open: true,
-        message: "Error submitting review",
+        message: "Error submitting rejection",
         severity: "error",
       });
-      setOpenReviewModal(false); // Close modal on failure
     } finally {
-      setIsSubmitting(false); // Reset submission state
+      setIsSubmitting(false);
     }
   };
 
@@ -159,7 +182,6 @@ const Mocks: React.FC = () => {
       renderCell: (params) => <span className="badge bg-success">{params.value}</span>,
     },
     { field: "test_type", headerName: "Test Type", flex: 1 },
-    { field: "date_submitted", headerName: "Date Submitted", flex: 2 },
     { field: "marks", headerName: "Marks", flex: 1 },
     {
       field: "action",
@@ -170,7 +192,7 @@ const Mocks: React.FC = () => {
       renderCell: (params) => (
         <IconButton
           title="Review"
-          onClick={() => fetchMockDetails(params.row.id)}
+          onClick={() => handleReviewClick(params.row)}
         >
           <VisibilityIcon className="text-blue-600" />
         </IconButton>
@@ -184,7 +206,7 @@ const Mocks: React.FC = () => {
     <main className="min-h-[80vh] p-4">
       <div className="bg-[linear-gradient(0deg,#2164A6_80.26%,rgba(33,100,166,0)_143.39%)] rounded-xl mb-4">
         <p className="font-bold text-[24px] text-white dark:text-white py-4 text-center">
-          Mock Bookings
+          Mock Results
         </p>
       </div>
 
@@ -196,25 +218,34 @@ const Mocks: React.FC = () => {
           initialState={{ pagination: { paginationModel: { pageSize: 5 } } }}
           getRowId={(row) => row.id}
           disableRowSelectionOnClick
-          localeText={{ noRowsLabel: "No mock bookings found!" }}
+          localeText={{ noRowsLabel: "No mock results found!" }}
           className="border-none"
         />
       </div>
 
-      <Dialog open={openReviewModal} onClose={() => setOpenReviewModal(false)} maxWidth="md" fullWidth>
+      <Dialog
+        open={openReviewModal}
+        onClose={() => setOpenReviewModal(false)}
+        maxWidth="md"
+        fullWidth
+      >
         <DialogTitle>Review Mock</DialogTitle>
         <DialogContent>
           {selectedMock && (
             <>
-            <TextField
+              <TextField
                 fullWidth
                 label="Review Comment"
                 multiline
                 rows={4}
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
-                sx={{ mb: 2, mt: 2 }}
+                sx={{ mt: 2 }}
               />
+              <Typography variant="caption" sx={{ fontStyle: 'italic', marginBottom: "20px" }} color="text.secondary">
+                <strong>*Comment is optional for approval but required for rejection.</strong>
+              </Typography>
+              <div className="mb-8"></div>
               <iframe
                 src={`https://finkapinternational.qhtestingserver.com/login/member/dashboard/uploads/mocks/${selectedMock.proof}`}
                 width="100%"
@@ -225,16 +256,28 @@ const Mocks: React.FC = () => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button sx={{ textTransform: 'none' }} onClick={() => setOpenReviewModal(false)} disabled={isSubmitting}>
+          <Button
+            sx={{ textTransform: "none" }}
+            onClick={() => setOpenReviewModal(false)}
+            disabled={isSubmitting}
+          >
             Cancel
           </Button>
           <Button
-            onClick={handleReviewSubmit}
-            sx={{ textTransform: 'none' }}
+            onClick={handleReject}
+            sx={{ textTransform: "none" }}
+            color="error"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Submitting..." : "Reject"}
+          </Button>
+          <Button
+            onClick={handleApprove}
+            sx={{ textTransform: "none" }}
             color="primary"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Submitting..." : "Submit Review"}
+            {isSubmitting ? "Submitting..." : "Approve"}
           </Button>
         </DialogActions>
       </Dialog>

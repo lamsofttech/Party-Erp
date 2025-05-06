@@ -71,6 +71,7 @@ import MeetingLinks from "../pages/MeetingLinks";
 import ConsentForms from "../pages/ConsentForms";
 import Relocated from "../pages/Relocated";
 import AllSchools from "../pages/AllSchools";
+import ViewSchool from "../pages/ViewSchool";
 
 function Router() {
   return (
@@ -173,6 +174,7 @@ function Router() {
             <Route path="school-admission/consent-forms" element={<ConsentForms />} />
             <Route path="school-admission/students-relocated" element={<Relocated />} />
             <Route path="school-admission/all-schools" element={<AllSchools />} />
+            <Route path="school-admission/all-schools/:schoolName" element={<ViewSchool />} />
           </Route>
         </Route>
       </Routes>

@@ -10,7 +10,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
 import LockIcon from '@mui/icons-material/Lock';
 
-const API_URL = 'https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/applicant_api.php';
+const API_URL = 'https://finkapinternational.qhtestingserver.com/login/main/APIs/student_management/school-application/entrance_exams/enrollment_requests.php';
 
 interface Applicant {
     full_name: string;
@@ -41,6 +41,7 @@ const ExamApplicant: React.FC = () => {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const email = queryParams.get("email");
+    const requestId = queryParams.get("request_id"); // New: Get request_id from query params
     const navigate = useNavigate();
 
     const [applicant, setApplicant] = useState<Applicant | null>(null);
@@ -54,7 +55,7 @@ const ExamApplicant: React.FC = () => {
 
     const [openStatementModal, setOpenStatementModal] = useState<boolean>(false);
     const [openRejectModal, setOpenRejectModal] = useState<boolean>(false);
-    const [openApproveModal, setOpenApproveModal] = useState<boolean>(false); // New state for approve modal
+    const [openApproveModal, setOpenApproveModal] = useState<boolean>(false);
     const [rejectReason, setRejectReason] = useState<string>('');
 
     const [isApproving, setIsApproving] = useState<boolean>(false);
@@ -68,17 +69,33 @@ const ExamApplicant: React.FC = () => {
 
     useEffect(() => {
         const fetchData = async () => {
+            if (!email || !requestId) {
+                setError('Email and request ID are required');
+                setLoading(false);
+                return;
+            }
+    
             try {
-                const response = await axios.get(`${API_URL}?action=get_applicant&email=${email}`);
-                if (response.data.success) {
-                    setApplicant(response.data.applicant);
-                    setPayments(response.data.payments);
-                    setExpenditures(response.data.expenditures);
-                    setTotalPayment(response.data.totalPayment);
-                    setTotalExpenditure(response.data.totalExpenditure);
-                    setBalance(response.data.balance);
+                const response = await axios.get(API_URL, {
+                    params: {
+                        action: 'fetch_single_request',
+                        request_id: requestId,
+                        email: email
+                    }
+                });
+    
+                // Check the nested data object
+                if (response.data.code === 200 && response.data.status === 'success') {
+                    const apiData = response.data.data;
+                    console.log("API", apiData); // Access the nested 'data' object
+                    setApplicant(apiData.applicant);
+                    setPayments(apiData.payments || []); // Fallback to empty array for safety
+                    setExpenditures(apiData.expenditures || []); // Fallback to empty array for safety
+                    setTotalPayment(apiData.totalPayment || 0);
+                    setTotalExpenditure(apiData.totalExpenditure || 0);
+                    setBalance(apiData.balance || 0);
                 } else {
-                    setError(response.data.message);
+                    setError(response.data.message || 'Failed to fetch applicant data');
                 }
             } catch (err) {
                 setError('Error fetching applicant data');
@@ -87,7 +104,7 @@ const ExamApplicant: React.FC = () => {
             }
         };
         fetchData();
-    }, [email]);
+    }, [email, requestId]);
 
     const handleCopy = (text: string) => {
         navigator.clipboard.writeText(text);
@@ -95,10 +112,22 @@ const ExamApplicant: React.FC = () => {
     };
 
     const handleApprove = async () => {
-        setIsApproving(true); // Start loading
+        if (!requestId) {
+            setSnackbar({ open: true, message: 'Request ID is missing', severity: 'error' });
+            return;
+        }
+
+        setIsApproving(true);
         try {
-            const response = await axios.post(API_URL, { action: 'approve_app', email });
-            if (response.data.success) {
+            const response = await axios.get(API_URL, {
+                params: {
+                    action: 'approve_request',
+                    request_id: requestId,
+                    student_email: email
+                }
+            });
+
+            if (response.data.code === 200 && response.data.status === 'success') {
                 setSnackbar({ open: true, message: response.data.message, severity: 'success' });
                 setTimeout(() => navigate('/entrance-exams/applications'), 1500);
             } else {
@@ -117,10 +146,24 @@ const ExamApplicant: React.FC = () => {
             setSnackbar({ open: true, message: 'Please provide a reason', severity: 'warning' });
             return;
         }
-        setIsRejecting(true); // Start loading
+
+        if (!requestId) {
+            setSnackbar({ open: true, message: 'Request ID is missing', severity: 'error' });
+            return;
+        }
+
+        setIsRejecting(true);
         try {
-            const response = await axios.post(API_URL, { action: 'reject_app', email, reason: rejectReason });
-            if (response.data.success) {
+            const response = await axios.get(API_URL, {
+                params: {
+                    action: 'reject_request',
+                    request_id: requestId,
+                    student_email: email,
+                    comment: rejectReason
+                }
+            });
+
+            if (response.data.code === 200 && response.data.status === 'success') {
                 setSnackbar({ open: true, message: response.data.message, severity: 'success' });
                 setOpenRejectModal(false);
                 setTimeout(() => navigate('/entrance-exams/applications'), 1500);
@@ -130,7 +173,7 @@ const ExamApplicant: React.FC = () => {
         } catch (err) {
             setSnackbar({ open: true, message: 'Error rejecting applicant', severity: 'error' });
         } finally {
-            setIsRejecting(false); // Stop loading
+            setIsRejecting(false);
         }
     };
 
@@ -207,7 +250,7 @@ const ExamApplicant: React.FC = () => {
                         variant="outlined"
                         sx={{ textTransform: 'none' }}
                         color="success"
-                        onClick={() => setOpenApproveModal(true)} // Open the confirmation modal
+                        onClick={() => setOpenApproveModal(true)}
                         disabled={applicant?.status === 2 || applicant?.status === 3}
                         className="font-semibold"
                     >
@@ -257,9 +300,7 @@ const ExamApplicant: React.FC = () => {
                             variant="contained"
                             sx={{ textTransform: 'none' }}
                             color="success"
-                            onClick={() => {
-                                handleApprove();
-                            }}
+                            onClick={handleApprove}
                             disabled={isApproving}
                         >
                             {isApproving ? 'Approving...' : 'Yes'}
@@ -284,7 +325,7 @@ const ExamApplicant: React.FC = () => {
                     p: 4,
                     borderRadius: '8px',
                 }}>
-                    <Typography variant="h6" className="font-bold mb-4" style={{ fontFamily: "'Century Gothic', sans-serif" }}>
+                    <Typography variant="h6" className="font-bold mb-4" style={{ marginBottom: "20px" }}>
                         Reject Application
                     </Typography>
                     <TextField
@@ -384,7 +425,7 @@ const ExamApplicant: React.FC = () => {
                         </table>
                         <Divider className="my-4" />
 
-                        {/* Expenditures */}
+                           {/* Expenditures */}
                         <Typography variant="h6" className="font-bold text-center mt-6 mb-4" style={{ fontFamily: "'Century Gothic', sans-serif" }}>
                             Expenditure
                         </Typography>
@@ -452,4 +493,4 @@ const ExamApplicant: React.FC = () => {
     );
 };
 
-export default ExamApplicant
+export default ExamApplicant;
