@@ -36,6 +36,7 @@ import ExamApplicant from "../pages/ExamApplicant";
 import Trainings from "../pages/Trainings";
 import Mocks from "../pages/Mocks";
 import Bookings from "../pages/Bookings";
+import RejectedBookings from "../pages/RejectedExamBookings";
 import BookedExams from "../pages/BookedExams";
 import Results from "../pages/Results";
 import Scores from "../pages/Scores";
@@ -72,6 +73,7 @@ import ConsentForms from "../pages/ConsentForms";
 import Relocated from "../pages/Relocated";
 import AllSchools from "../pages/AllSchools";
 import ViewSchool from "../pages/ViewSchool";
+import AllPrograms from "../pages/AllPrograms";
 
 function Router() {
   return (
@@ -110,12 +112,13 @@ function Router() {
             <Route path="onboarding/onboard/disable-program-email" element={<DisableProgramEmail />} />
             <Route path="onboarding/onboard/update-password" element={<UpdatePassword />} />
             <Route path="entrance-exams" element={<EntranceExamsDashboard />} />
-            <Route path="entrance-exams/applications" element={<ExamApplicants />} />
-            <Route path="entrance-exams/applications/:memberName" element={<ExamApplicant />} />
+            <Route path="entrance-exams/enrollments" element={<ExamApplicants />} />
+            <Route path="entrance-exams/enrollments/:memberName" element={<ExamApplicant />} />
             <Route path="entrance-exams/phases" element={<Trainings />} />
             <Route path="entrance-exams/mocks" element={<Mocks />} />
             <Route path="entrance-exams/bookings" element={<Bookings />} />
             <Route path="entrance-exams/booked-exams" element={<BookedExams />} />
+            <Route path="entrance-exams/rejected-exam-bookings" element={<RejectedBookings />} />
             <Route path="entrance-exams/results" element={<Results />} />
             <Route path="entrance-exams/scores" element={<Scores />} />
             <Route path="entrance-exams/resources" element={<Resources />} />
@@ -175,6 +178,7 @@ function Router() {
             <Route path="school-admission/students-relocated" element={<Relocated />} />
             <Route path="school-admission/all-schools" element={<AllSchools />} />
             <Route path="school-admission/all-schools/:schoolName" element={<ViewSchool />} />
+            <Route path="school-admission/all-programs" element={<AllPrograms />} />
           </Route>
         </Route>
       </Routes>

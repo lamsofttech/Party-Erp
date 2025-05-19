@@ -14,7 +14,6 @@ interface School {
     school_name: string;
     partner: string;
     total_app: number;
-    no_of_students: number;
     status: string;
     web_link?: string;
     founded?: number;
@@ -91,6 +90,7 @@ const AllSchools: React.FC = () => {
     const fetchSchools = async () => {
         try {
             const response = await axios.get(`${API_URL}?action=fetch_schools&status=${statusFilter}`);
+            console.log("API Response", response);
             if (response.data.message === 'success') {
                 setSchools(response.data.data);
                 setFilteredSchools(response.data.data);
@@ -442,7 +442,7 @@ const AllSchools: React.FC = () => {
             renderCell: (params) => (params.value === 'Yes' ? '✅ Yes' : '❌ No'),
         },
         { field: 'total_app', headerName: 'Total App', flex: 1 },
-        { field: 'no_of_students', headerName: 'Number of Students', flex: 1 },
+        // { field: 'no_of_students', headerName: 'Number of Students', flex: 1 },
         {
             field: 'action',
             headerName: 'Action',

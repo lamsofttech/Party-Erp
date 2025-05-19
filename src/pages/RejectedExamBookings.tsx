@@ -3,17 +3,17 @@ import axios from "axios";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { Snackbar, Alert } from "@mui/material";
 
-interface BookedExam {
+interface RejectedBooking {
   id: number;
   fullnames: string;
   email: string;
-  exam_date: string;
+  comment: string;
   test_type: string;
   sn?: number; // Serial number added dynamically
 }
 
-const BookedExams: React.FC = () => {
-  const [bookings, setBookings] = useState<BookedExam[]>([]);
+const RejectedBookings: React.FC = () => {
+  const [bookings, setBookings] = useState<RejectedBooking[]>([]);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -24,7 +24,7 @@ const BookedExams: React.FC = () => {
     severity: "success",
   });
 
-  const API_URL = "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/booked_exams_api.php";
+  const API_URL = "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/gmat/APIs/rejected_bookings_api.php";
 
   useEffect(() => {
     fetchBookedExams();
@@ -38,20 +38,20 @@ const BookedExams: React.FC = () => {
       } else {
         setSnackbar({
           open: true,
-          message: response.data.message || "No booked exams found",
+          message: response.data.message || "No rejected bookings found",
           severity: "warning",
         });
       }
     } catch (error) {
       setSnackbar({
         open: true,
-        message: "Error fetching booked exams",
+        message: "Error fetching rejected bookings",
         severity: "error",
       });
     }
   };
 
-  const columns: GridColDef<BookedExam>[] = [
+  const columns: GridColDef<RejectedBooking>[] = [
     {
       field: "sn",
       headerName: "Id",
@@ -61,7 +61,7 @@ const BookedExams: React.FC = () => {
     { field: "fullnames", headerName: "Name", flex: 2 },
     { field: "email", headerName: "Personal Email", flex: 2 },
     { field: "test_type", headerName: "Test Type", flex: 2 },
-    { field: "exam_date", headerName: "Exam Date", flex: 2 },
+    { field: "comment", headerName: "Rejection Reason", flex: 2 },
   ];
 
   const rows = bookings.map((booking, index) => ({ ...booking, sn: index + 1 }));
@@ -70,7 +70,7 @@ const BookedExams: React.FC = () => {
     <main className="min-h-[80vh] p-4">
       <div className="bg-[linear-gradient(0deg,#2164A6_80.26%,rgba(33,100,166,0)_143.39%)] rounded-xl mb-4">
         <p className="font-bold text-[24px] text-white dark:text-white py-4 text-center">
-          Booked Exams
+          Rejected Bookings
         </p>
       </div>
 
@@ -82,7 +82,7 @@ const BookedExams: React.FC = () => {
           initialState={{ pagination: { paginationModel: { pageSize: 5 } } }}
           getRowId={(row) => row.id}
           disableRowSelectionOnClick
-          localeText={{ noRowsLabel: "No booked exams found!" }}
+          localeText={{ noRowsLabel: "No rejected bookings found!" }}
           className="border-none"
         />
       </div>
@@ -99,4 +99,4 @@ const BookedExams: React.FC = () => {
   );
 };
 
-export default BookedExams;
+export default RejectedBookings;

@@ -129,7 +129,7 @@ const ExamApplicant: React.FC = () => {
 
             if (response.data.code === 200 && response.data.status === 'success') {
                 setSnackbar({ open: true, message: response.data.message, severity: 'success' });
-                setTimeout(() => navigate('/entrance-exams/applications'), 1500);
+                setTimeout(() => navigate('/entrance-exams/enrollments'), 1500);
             } else {
                 setSnackbar({ open: true, message: response.data.message, severity: 'error' });
             }
@@ -166,7 +166,7 @@ const ExamApplicant: React.FC = () => {
             if (response.data.code === 200 && response.data.status === 'success') {
                 setSnackbar({ open: true, message: response.data.message, severity: 'success' });
                 setOpenRejectModal(false);
-                setTimeout(() => navigate('/entrance-exams/applications'), 1500);
+                setTimeout(() => navigate('/entrance-exams/enrollments'), 1500);
             } else {
                 setSnackbar({ open: true, message: response.data.message, severity: 'error' });
             }

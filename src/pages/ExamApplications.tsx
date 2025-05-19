@@ -84,7 +84,7 @@ const ExamApplicants: React.FC = () => {
       filterable: false,
       renderCell: (params) => (
         <Link
-          to={`/entrance-exams/applications/${params.row.full_name}?email=${params.row.email}&request_id=${params.row.id}`}
+          to={`/entrance-exams/enrollments/${params.row.full_name}?email=${params.row.email}&request_id=${params.row.id}`}
         >
           <IconButton>
             <VisibilityIcon className="text-blue-600" />
@@ -98,7 +98,7 @@ const ExamApplicants: React.FC = () => {
     <main className="min-h-[80vh] p-4">
       <div className="bg-[linear-gradient(0deg,#2164A6_80.26%,rgba(33,100,166,0)_143.39%)] rounded-xl mb-4">
         <p className="font-bold text-[24px] text-white dark:text-white py-4 text-center">
-          Applications Table
+          Enrollments Table
         </p>
       </div>
 

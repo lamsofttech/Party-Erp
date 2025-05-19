@@ -15,7 +15,8 @@ import {
   Eye, 
   BookOpen,
   Trophy,
-  ArrowUpRight 
+  ArrowUpRight, 
+  XCircle
 } from "lucide-react";
 
 // Define section interface
@@ -51,12 +52,12 @@ interface LeaderboardEntry {
 // Section definitions with a more cohesive color scheme
 const Sections: Section[] = [
   { 
-    title: "Applications", 
-    path: "/entrance-exams/applications", 
+    title: "Enrollments", 
+    path: "/entrance-exams/enrollments", 
     icon: <UserPlus size={24} />, 
     statKey: "total_applicants", 
     colorClass: "text-[#1a9970] bg-[#1a9970]/10 border-[#1a9970]",
-    description: "Student applications" 
+    description: "Student enrollments" 
   },
   { 
     title: "Phases", 
@@ -91,11 +92,19 @@ const Sections: Section[] = [
     description: "Approved exam bookings" 
   },
   { 
+    title: "Rejected Bookings", 
+    path: "/entrance-exams/rejected-exam-bookings", 
+    icon: <XCircle size={24} /> , 
+    statKey: "total_approved_exams", 
+    colorClass: "text-[#2164a6] bg-[#2164a6]/10 border-[#2164a6]",
+    description: "Rejected exam bookings" 
+  },
+  { 
     title: "Pending Results", 
     path: "/entrance-exams/results", 
     icon: <CheckCircle size={24} />, 
     statKey: "total_pending_results", 
-    colorClass: "text-[#2164a6] bg-[#2164a6]/10 border-[#2164a6]",
+    colorClass: "text-[#1a9970] bg-[#1a9970]/10 border-[#1a9970]",
     description: "Results awaiting approval" 
   },
   { 
@@ -103,7 +112,7 @@ const Sections: Section[] = [
     path: "/entrance-exams/scores", 
     icon: <Eye size={24} />, 
     statKey: "total_approved_scores", 
-    colorClass: "text-[#1a9970] bg-[#1a9970]/10 border-[#1a9970]",
+    colorClass: "text-[#2164a6] bg-[#2164a6]/10 border-[#2164a6]",
     description: "Verified exam scores" 
   },
   { 
@@ -111,7 +120,7 @@ const Sections: Section[] = [
     path: "/entrance-exams/resources", 
     icon: <BookOpen size={24} />, 
     statKey: "total_resources", 
-    colorClass: "text-[#2164a6] bg-[#2164a6]/10 border-[#2164a6]",
+    colorClass: "text-[#1a9970] bg-[#1a9970]/10 border-[#1a9970]",
     description: "Training materials" 
   },
 ];

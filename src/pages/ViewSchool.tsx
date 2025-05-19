@@ -88,7 +88,7 @@ const StatsCard: React.FC<StatsCardProps> = ({ icon, title, value, color = '#4a6
                 </Typography>
                 <Avatar sx={{ bgcolor: `${color}15`, color: color }}>{icon}</Avatar>
             </Box>
-            <Typography variant="h4" sx={{ fontWeight: 600 }}>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
                 {value}
             </Typography>
         </CardContent>
@@ -431,6 +431,23 @@ const ViewSchool = () => {
                         fontWeight: 600,
                         bgcolor: params.value > 0 ? '#e3f2fd' : '#f5f5f5',
                         color: params.value > 0 ? '#1976d2' : '#757575'
+                    }}
+                />
+            )
+        },
+        {
+            field: 'status',
+            headerName: 'Status',
+            flex: 1,
+            renderCell: (params: GridRenderCellParams<Program>) => (
+                <Chip
+                variant="outlined"
+                    label={params.value === 'in' ? 'Phased In' : 'Phased Out'}
+                    size="small"
+                    color={params.value === 'in' ? 'success' : 'error'}
+                    sx={{
+                        fontWeight: 500,
+                        borderRadius: '6px'
                     }}
                 />
             )
