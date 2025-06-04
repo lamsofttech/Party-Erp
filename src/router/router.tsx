@@ -74,6 +74,8 @@ import Relocated from "../pages/Relocated";
 import AllSchools from "../pages/AllSchools";
 import ViewSchool from "../pages/ViewSchool";
 import AllPrograms from "../pages/AllPrograms";
+import CompletedSchoolApplications from "../pages/CompletedSchoolApplications";
+import CompleteStudentApplications from "../pages/CompleteApplicationsPerStudent";
 
 function Router() {
   return (
@@ -179,6 +181,10 @@ function Router() {
             <Route path="school-admission/all-schools" element={<AllSchools />} />
             <Route path="school-admission/all-schools/:schoolName" element={<ViewSchool />} />
             <Route path="school-admission/all-programs" element={<AllPrograms />} />
+            <Route path="school-admission/completed-school-applications" element={<CompletedSchoolApplications />} />
+            <Route path="school-admission/completed-school-applications/:memberName" element={<SchoolApplicationDetails />} />
+            <Route path="school-admission/applications-per-student" element={<CompleteStudentApplications />} />
+            <Route path="school-admission/applications-per-student/:memberName" element={<SchoolApplicationDetails />} />
           </Route>
         </Route>
       </Routes>

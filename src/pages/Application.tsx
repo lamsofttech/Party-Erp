@@ -287,11 +287,12 @@ const SchoolApplicationDetails: React.FC = () => {
 
     const getStatusChip = (status: number) => {
         if (status === 1) return <Chip label="New" color="info" size="small" />;
-        if (status === 2) return <Chip label="Ready" color="success" size="small" />;
+        if (status === 2) return <Chip label="Assigned" color="success" size="small" />;
         if (status === 3) return <Chip label="In Progress" color="warning" size="small" />;
-        if (status === 4) return <Chip label="Completed" color="success" size="small" />;
-        if (status === 5) return <Chip label="Rejected" color="error" size="small" />;
+        if (status === 4) return <Chip label="Pending" color="success" size="small" />;
+        if (status === 5) return <Chip label="Completed" color="success" size="small" />;
         if (status === 8) return <Chip label="Pending INTO" color="warning" size="small" />;
+        if (status === 11) return <Chip label="Rejected" color="error" size="small" />;
         return <Chip label="Unknown" color="default" size="small" />;
     };
 

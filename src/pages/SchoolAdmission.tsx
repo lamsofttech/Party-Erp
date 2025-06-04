@@ -41,8 +41,8 @@ const statsCards = [
     { title: "Total Students Relocated", count: 150, color: {light: "#FF9800", dark: "#FFB74D"}, path: "/school-admission/students-relocated" },
     { title: "All Universities", count: 50, color: {light: "#03A9F4", dark: "#4FC3F7"}, path: "/school-admission/all-schools" },
     { title: "Total Programs", count: 200, color: {light: "#4CAF50", dark: "#81C784"}, path: "/school-admission/all-programs" },
-    { title: "Total School Application", count: 100, color: {light: "#F44336", dark: "#E57373"}, path: "/school-application/complete-school-application" },
-    { title: "School App (Per Student)", count: 75, color: {light: "#2196F3", dark: "#64B5F6"}, path: "/school-application/complete-school-application-student" },
+    { title: "Complete School Applications", count: 100, color: {light: "#F44336", dark: "#E57373"}, path: "/school-admission/completed-school-applications" },
+    { title: "School Applications (Per Student)", count: 75, color: {light: "#2196F3", dark: "#64B5F6"}, path: "/school-admission/applications-per-student" },
 ];
 
 // Data for Line Chart
