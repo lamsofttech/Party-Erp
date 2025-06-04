@@ -76,6 +76,8 @@ import ViewSchool from "../pages/ViewSchool";
 import AllPrograms from "../pages/AllPrograms";
 import CompletedSchoolApplications from "../pages/CompletedSchoolApplications";
 import CompleteStudentApplications from "../pages/CompleteApplicationsPerStudent";
+import VisaProcessingDashboard from "../pages/VisaProcessingDashboard";
+import DS160Requests from "../pages/DS160Requests";
 
 function Router() {
   return (
@@ -185,6 +187,8 @@ function Router() {
             <Route path="school-admission/completed-school-applications/:memberName" element={<SchoolApplicationDetails />} />
             <Route path="school-admission/applications-per-student" element={<CompleteStudentApplications />} />
             <Route path="school-admission/applications-per-student/:memberName" element={<SchoolApplicationDetails />} />
+            <Route path="visa" element={<VisaProcessingDashboard />} />
+            <Route path="visa/ds160-requests" element={<DS160Requests />} />
           </Route>
         </Route>
       </Routes>
