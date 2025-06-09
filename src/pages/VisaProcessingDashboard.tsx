@@ -42,19 +42,19 @@ const actionCards: ActionCard[] = [
     {
         title: "Review DS160",
         icon: <SearchIcon />,
-        path: "/visa-processing/review-ds160",
+        path: "/visa/ds160-review",
         countKey: "review_ds160"
     },
     {
         title: "Visa Interview Training",
         icon: <SchoolIcon />,
-        path: "/visa-processing/visa-training",
+        path: "/visa/visa-interview-requests",
         countKey: "visa_training"
     },
     {
         title: "Mock Visa Meeting Room",
         icon: <VideocamIcon />,
-        path: "/visa-processing/mock-meeting-room",
+        path: "/visa/mock-interview-requests",
         countKey: "meeting_room"
     },
     {
@@ -70,7 +70,7 @@ const actionCards: ActionCard[] = [
         countKey: "history"
     },
     {
-        title: "With Visa",
+        title: "Students With Visa",
         icon: <CheckCircleIcon />,
         path: "/visa-processing/with-visa",
         countKey: "with_visa"

@@ -78,6 +78,9 @@ import CompletedSchoolApplications from "../pages/CompletedSchoolApplications";
 import CompleteStudentApplications from "../pages/CompleteApplicationsPerStudent";
 import VisaProcessingDashboard from "../pages/VisaProcessingDashboard";
 import DS160Requests from "../pages/DS160Requests";
+import VisaInterviewRequests from "../pages/VisaInterviewRequests";
+import MockInterviewRequests from "../pages/MockInterviewRequests";
+import DS160Review from "../pages/DS160Review";
 
 function Router() {
   return (
@@ -189,6 +192,9 @@ function Router() {
             <Route path="school-admission/applications-per-student/:memberName" element={<SchoolApplicationDetails />} />
             <Route path="visa" element={<VisaProcessingDashboard />} />
             <Route path="visa/ds160-requests" element={<DS160Requests />} />
+            <Route path="visa/visa-interview-requests" element={<VisaInterviewRequests />} />
+            <Route path="visa/mock-interview-requests" element={<MockInterviewRequests />} />
+            <Route path="visa/ds160-review" element={<DS160Review />} />
           </Route>
         </Route>
       </Routes>
