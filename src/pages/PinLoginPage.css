@@ -1,0 +1,44 @@
+/* Overall Jubilee background */
+.jubilee-page {
+    /* Jubilee red + soft dark */
+    background: radial-gradient(circle at top left, #e30613 0, transparent 55%),
+        radial-gradient(circle at bottom right, #ffd200 0, transparent 55%),
+        #111827;
+}
+
+/* Keypad card */
+.jubilee-keypad-card {
+    background: linear-gradient(135deg, #7f1d1d, #991b1b, #111827);
+    border-color: #b91c1c;
+}
+
+/* Primary button */
+.jubilee-primary-btn {
+    background-color: #e30613;
+    color: #ffffff;
+}
+
+.jubilee-primary-btn:hover {
+    background-color: #c20510;
+}
+
+.jubilee-primary-btn:disabled {
+    background-color: #9b1c20;
+    opacity: 0.8;
+    cursor: not-allowed;
+}
+
+/* Link under the keypad */
+.jubilee-link {
+    color: #ffd200;
+}
+
+.jubilee-link:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+/* Optional: heading accent */
+.jubilee-heading {
+    text-shadow: 0 0 18px rgba(0, 0, 0, 0.35);
+}

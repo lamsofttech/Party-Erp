@@ -13,7 +13,7 @@ interface Member {
     newPassword: string;
 }
 
-const API_BASE_URL = 'https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/onboarding/APIs';
+const API_BASE_URL = 'https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/Nominations/APIs';
 
 const UpdatePassword: React.FC = () => {
     const [members, setMembers] = useState<Member[]>([]);

@@ -1,81 +1,246 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { TextField, IconButton, Button } from "@mui/material";
-import { Link } from "react-router-dom";
-import VisibilityIcon from "@mui/icons-material/Visibility";
+import {
+  TextField,
+  IconButton,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Snackbar,
+  Alert,
+} from "@mui/material";
 import * as XLSX from "xlsx";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import { useNavigate } from "react-router-dom";
 
-interface Applicant {
+interface President {
   id: number;
-  email: string;
-  full_name: string;
-  package: string;
-  testType: string;
+  name: string;
+  position_id: number;
+  party: string;
+  manifesto_url?: string | null;
+  image_url?: string | null;
 }
 
-const ExamApplicants: React.FC = () => {
-  const [applicants, setApplicants] = useState<Applicant[]>([]);
-  const [filteredApplicants, setFilteredApplicants] = useState<Applicant[]>([]);
+const PresidentAnalysis: React.FC = () => {
+  const [presidents, setPresidents] = useState<President[]>([]);
+  const [filteredPresidents, setFilteredPresidents] = useState<President[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [openDialog, setOpenDialog] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    position_id: "",
+    party: "",
+    id: "",
+  });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success" as "success" | "error",
+  });
+  const [isEditing, setIsEditing] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchApplicants();
+    fetchPresidents();
   }, []);
 
-  const fetchApplicants = async () => {
+  const fetchPresidents = async () => {
     try {
-      const response = await axios.get(
-        "https://finkapinternational.qhtestingserver.com/login/main/APIs/student_management/school-application/entrance_exams/enrollment_requests.php",
-        {
-          params: {
-            action: "fetch_requests",
-            status: 1,
-          },
-        }
-      );
-  
-      if (response.data.code === 200 && response.data.status === "success") {
-        // console.log("API response:", response.data.data);
-        // Map the response data to the Applicant interface
-        const fetchedApplicants: Applicant[] = response.data.data.map(
-          (item: any, index: number) => ({
-            id: item.id || index + 1, // Use API-provided id
-            email: item.email,
-            full_name: item.fullnames || "Unknown", // Map fullnames to full_name
-            package: item.package || "N/A", // Use package field or fallback
-            testType: item.testType,
-          })
+      const response = await axios.get("/API/get_presidents.php");
+      if (response.data.status === "success") {
+        const sortedPresidents = response.data.candidates.sort(
+          (a: President, b: President) => a.id - b.id
         );
-        setApplicants(fetchedApplicants);
-        setFilteredApplicants(fetchedApplicants);
+        setPresidents(sortedPresidents);
+        setFilteredPresidents(sortedPresidents);
       } else {
-        console.error(response.data.message || "Failed to fetch applicants");
+        setSnackbar({
+          open: true,
+          message: response.data.message || "Failed to fetch candidates.",
+          severity: "error",
+        });
       }
     } catch (error) {
-      console.error("Error fetching applicants:", error);
+      console.error("Error fetching candidates:", error);
+      setSnackbar({
+        open: true,
+        message: "Error fetching candidates.",
+        severity: "error",
+      });
     }
   };
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value.toLowerCase();
     setSearchQuery(query);
-    setFilteredApplicants(
-      applicants.filter(
-        (app) =>
-          (app.full_name || "").toLowerCase().includes(query) ||
-          (app.email || "").toLowerCase().includes(query) ||
-          (app.package || "").toLowerCase().includes(query)
+    setFilteredPresidents(
+      presidents.filter(
+        (president) =>
+          president.name.toLowerCase().includes(query) ||
+          president.party.toLowerCase().includes(query)
       )
     );
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleAddOrUpdatePresident = async () => {
+    if (!formData.name || !formData.position_id || !formData.party) {
+      setSnackbar({
+        open: true,
+        message: "All fields are required.",
+        severity: "error",
+      });
+      return;
+    }
+
+    try {
+      const payload = new FormData();
+      payload.append("name", formData.name);
+      payload.append("position_id", formData.position_id);
+      payload.append("party", formData.party);
+
+      if (isEditing) {
+        payload.append("id", formData.id);
+        payload.append("action", "update");
+
+        const response = await axios.post("/API/presidents_manage.php", payload);
+        if (response.data.status === "success") {
+          setSnackbar({
+            open: true,
+            message: "President updated successfully.",
+            severity: "success",
+          });
+          setFormData({ name: "", position_id: "", party: "", id: "" });
+          setOpenDialog(false);
+          setIsEditing(false);
+          fetchPresidents();
+        } else {
+          setSnackbar({
+            open: true,
+            message: response.data.message || "Failed to update candidate.",
+            severity: "error",
+          });
+        }
+      } else {
+        // You are still using the original endpoint for add
+        const response = await axios.post("/API/add_president.php", payload);
+        if (response.data.status === "success") {
+          setSnackbar({
+            open: true,
+            message: "President added successfully.",
+            severity: "success",
+          });
+          setFormData({ name: "", position_id: "", party: "", id: "" });
+          setOpenDialog(false);
+          fetchPresidents();
+        } else {
+          setSnackbar({
+            open: true,
+            message: response.data.message || "Failed to add candidate.",
+            severity: "error",
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      setSnackbar({
+        open: true,
+        message: "Error processing request.",
+        severity: "error",
+      });
+    }
+  };
+
+  const handleEdit = (president: President) => {
+    setFormData({
+      id: president.id.toString(),
+      name: president.name,
+      position_id: president.position_id.toString(),
+      party: president.party,
+    });
+    setIsEditing(true);
+    setOpenDialog(true);
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!window.confirm("Are you sure you want to delete this candidate?")) return;
+    try {
+      const payload = new FormData();
+      payload.append("id", id.toString());
+      payload.append("action", "delete");
+
+      const response = await axios.post("/API/presidents_manage.php", payload);
+      if (response.data.status === "success") {
+        setSnackbar({
+          open: true,
+          message: "Candidate deleted successfully.",
+          severity: "success",
+        });
+        fetchPresidents();
+      } else {
+        setSnackbar({
+          open: true,
+          message: response.data.message || "Failed to delete candidate.",
+          severity: "error",
+        });
+      }
+    } catch (error) {
+      console.error("Error deleting candidate:", error);
+      setSnackbar({
+        open: true,
+        message: "Error deleting candidate.",
+        severity: "error",
+      });
+    }
+  };
+
   const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", flex: 1 },
-    { field: "email", headerName: "Email", flex: 2 },
-    { field: "testType", headerName: "Test Type", flex: 1 },
-    { field: "full_name", headerName: "Name", flex: 1 },
-    { field: "package", headerName: "Package", flex: 1 },
+    { field: "id", headerName: "ID", flex: 0.5 },
+    { field: "name", headerName: "Name", flex: 1 },
+    { field: "party", headerName: "Party", flex: 1 },
+    { field: "position_id", headerName: "Position ID", flex: 0.7 },
+    {
+      field: "manifesto_url",
+      headerName: "Manifesto",
+      flex: 1,
+      renderCell: (params) =>
+        params.value ? (
+          <a
+            href={params.value}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 underline"
+          >
+            View
+          </a>
+        ) : (
+          "N/A"
+        ),
+    },
+    {
+      field: "image_url",
+      headerName: "Image",
+      flex: 0.8,
+      renderCell: (params) =>
+        params.value ? (
+          <img
+            src={params.value}
+            alt="Candidate"
+            className="h-10 w-10 object-cover rounded-full"
+          />
+        ) : (
+          "N/A"
+        ),
+    },
     {
       field: "action",
       headerName: "Action",
@@ -83,28 +248,65 @@ const ExamApplicants: React.FC = () => {
       sortable: false,
       filterable: false,
       renderCell: (params) => (
-        <Link
-          to={`/entrance-exams/enrollments/${params.row.full_name}?email=${params.row.email}&request_id=${params.row.id}`}
-        >
-          <IconButton>
-            <VisibilityIcon className="text-blue-600" />
+        <div className="flex gap-2">
+          <IconButton color="primary" onClick={() => handleEdit(params.row)}>
+            <EditIcon />
           </IconButton>
-        </Link>
+          <IconButton color="error" onClick={() => handleDelete(params.row.id)}>
+            <DeleteIcon />
+          </IconButton>
+        </div>
       ),
     },
   ];
 
   return (
     <main className="min-h-[80vh] p-4">
-      <div className="bg-[linear-gradient(0deg,#2164A6_80.26%,rgba(33,100,166,0)_143.39%)] rounded-xl mb-4">
-        <p className="font-bold text-[24px] text-white dark:text-white py-4 text-center">
-          Enrollments Table
+      <div className="bg-[linear-gradient(0deg,#2164A6_80.26%,rgba(33,100,166,0)_143.39%)] rounded-xl mb-4 flex justify-between items-center px-4">
+        <p className="font-bold text-[24px] text-white py-4 text-center">
+          Presidential Candidates Analysis
         </p>
+        <div className="flex gap-2">
+          <Button
+            onClick={() => navigate("/president-results")}
+            variant="contained"
+            size="medium"
+            sx={{
+              textTransform: "none",
+              fontWeight: "bold",
+              borderRadius: "8px",
+              backgroundColor: "#1976d2",
+              "&:hover": { backgroundColor: "#115293" },
+              boxShadow: "0 3px 5px rgba(0,0,0,0.2)",
+            }}
+          >
+            View Results
+          </Button>
+          <Button
+            onClick={() => {
+              setFormData({ name: "", position_id: "", party: "", id: "" });
+              setIsEditing(false);
+              setOpenDialog(true);
+            }}
+            variant="contained"
+            size="medium"
+            sx={{
+              textTransform: "none",
+              fontWeight: "bold",
+              borderRadius: "8px",
+              backgroundColor: "#FF6B00",
+              "&:hover": { backgroundColor: "#e85c00" },
+              boxShadow: "0 3px 5px rgba(0,0,0,0.2)",
+            }}
+          >
+            Add Candidate
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-row gap-4 mb-4">
         <TextField
-          label="Search..."
+          label="Search by Name, Party..."
           variant="outlined"
           fullWidth
           value={searchQuery}
@@ -117,10 +319,10 @@ const ExamApplicants: React.FC = () => {
           color="primary"
           size="small"
           onClick={() => {
-            const worksheet = XLSX.utils.json_to_sheet(filteredApplicants);
+            const worksheet = XLSX.utils.json_to_sheet(filteredPresidents);
             const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Exam Applicants");
-            XLSX.writeFile(workbook, "exam_applicants.xlsx");
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Presidents");
+            XLSX.writeFile(workbook, "presidents_analysis.xlsx");
           }}
         >
           Export to Excel
@@ -129,18 +331,70 @@ const ExamApplicants: React.FC = () => {
 
       <div className="bg-white rounded-lg shadow-md mt-4">
         <DataGrid
-          rows={filteredApplicants}
+          rows={filteredPresidents}
           columns={columns}
           pageSizeOptions={[5, 10, 25]}
           initialState={{ pagination: { paginationModel: { pageSize: 5 } } }}
           getRowId={(row) => row.id}
           disableRowSelectionOnClick
-          localeText={{ noRowsLabel: "No applicants found!" }}
+          localeText={{ noRowsLabel: "No Presidential Candidates found." }}
           className="border-none"
         />
       </div>
+
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          {isEditing ? "Edit President Candidate" : "Add President Candidate"}
+        </DialogTitle>
+        <DialogContent className="flex flex-col gap-4 mt-2">
+          <TextField
+            label="Name"
+            name="name"
+            value={formData.name}
+            onChange={handleInputChange}
+            fullWidth
+            required
+          />
+          <TextField
+            label="Position ID"
+            name="position_id"
+            value={formData.position_id}
+            onChange={handleInputChange}
+            fullWidth
+            required
+          />
+          <TextField
+            label="Party"
+            name="party"
+            value={formData.party}
+            onChange={handleInputChange}
+            fullWidth
+            required
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleAddOrUpdatePresident}>
+            {isEditing ? "Update" : "Submit"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
+      </Snackbar>
     </main>
   );
 };
 
-export default ExamApplicants;
+export default PresidentAnalysis;

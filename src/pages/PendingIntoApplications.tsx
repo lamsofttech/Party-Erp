@@ -141,7 +141,7 @@ const PendingIntoApplications: React.FC = () => {
                 <Box>
                     <IconButton
                         component={Link}
-                        to={`/school-admission/pending-into-schools/${params.row.full_name}?id=${params.row.id}&sop=${params.row.sop}&action=${params.row.action}&prop_id=${params.row.prop_id}`}
+                        to={`/party-operations/pending-into-schools/${params.row.full_name}?id=${params.row.id}&sop=${params.row.sop}&action=${params.row.action}&prop_id=${params.row.prop_id}`}
                     >
                         <VisibilityIcon color="primary" />
                     </IconButton>
@@ -170,7 +170,7 @@ const PendingIntoApplications: React.FC = () => {
                                                     <Button
                                                         component={Link}
                                                         sx={{ textTransform: "none" }}
-                                                        to="/school-admission/pending-into-schools/new-school-applications"
+                                                        to="/party-operations/pending-into-schools/new-school-applications"
                                                         variant="outlined"
                                                         color="primary"
                                                         className="m-1"
@@ -180,7 +180,7 @@ const PendingIntoApplications: React.FC = () => {
                                                     <Button
                                                         component={Link}
                                                         sx={{ textTransform: "none" }}
-                                                        to="/school-admission/pending-into-schools/rejected-applications"
+                                                        to="/party-operations/pending-into-schools/rejected-applications"
                                                         variant="outlined"
                                                         color="error"
                                                         className="m-1"

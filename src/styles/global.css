@@ -1,0 +1,448 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================================
+   LEGACY / EXISTING STYLES (kept as-is, deduplicated)
+   ========================================================= */
+
+.dashboard-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.card {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 16px 0;
+}
+
+.form-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin: 8px 0;
+}
+
+.form-row label {
+    width: 140px;
+    font-weight: 600;
+}
+
+.job-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 10px;
+}
+
+.job-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border: 1px solid #eee;
+    border-radius: 10px;
+}
+
+.view-button {
+    padding: 8px 12px;
+}
+
+/* Status */
+.status-queued {
+    color: #946200;
+}
+
+.status-running {
+    color: #0057a3;
+}
+
+.status-completed {
+    color: #0a7a0a;
+}
+
+.status-failed {
+    color: #b00020;
+}
+
+/* Tables */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    border-bottom: 1px solid #eee;
+    padding: 8px;
+    text-align: left;
+}
+
+/* Pills */
+.pill {
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+}
+
+.pill-positive {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.pill-neutral {
+    background: #f0f0f0;
+    color: #555;
+}
+
+.pill-negative {
+    background: #ffebee;
+    color: #c62828;
+}
+
+/* Bars */
+.bar-positive {
+    background: #2e7d32;
+}
+
+.bar-neutral {
+    background: #9e9e9e;
+}
+
+.bar-negative {
+    background: #c62828;
+}
+
+/* =========================================================
+   TOASTS
+   ========================================================= */
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.animate-slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+.swirl-toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.swirl-toast {
+    padding: 10px 14px;
+    border-radius: 10px;
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+    font-size: 14px;
+    min-width: 220px;
+    max-width: 320px;
+}
+
+.swirl-toast-success {
+    background: #2e7d32;
+}
+
+.swirl-toast-error {
+    background: #c62828;
+}
+
+.swirl-toast-info {
+    background: #1565c0;
+}
+
+/* =========================================================
+   THEME TOKENS (ERP + Election Accent)  ✅ UPDATED TO RED/PINK
+   ========================================================= */
+
+@layer base {
+    :root {
+        /* Canvas (soft pink like your screenshot) */
+        --background: 0 60% 97%;
+        --foreground: 222 47% 11%;
+
+        /* Cards */
+        --card: 0 0% 100%;
+        --card-foreground: 222 47% 11%;
+
+        /* Muted */
+        --muted: 0 30% 95%;
+        --muted-foreground: 215 16% 47%;
+
+        /* Borders / Inputs */
+        --border: 0 30% 90%;
+        --input: 0 30% 90%;
+
+        /* Primary (Election red) */
+        --primary: 355 83% 55%;
+        --primary-foreground: 0 0% 100%;
+
+        /* Focus ring */
+        --ring: 355 83% 55%;
+
+        /* Radius */
+        --radius: 0.75rem;
+    }
+
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+    }
+}
+
+/* =========================================================
+   FILE INPUT THEME  ✅ FIXES BLACK/DULL "CHOOSE FILE" BUTTON
+   ========================================================= */
+
+input[type="file"] {
+    font-size: 14px;
+    color: #374151;
+}
+
+/* Modern browsers (Chrome/Edge/Firefox) */
+input[type="file"]::file-selector-button {
+    margin-right: 12px;
+    border: 0;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-weight: 700;
+    cursor: pointer;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+}
+
+input[type="file"]::file-selector-button:hover {
+    filter: brightness(0.92);
+}
+
+/* Safari/WebKit fallback */
+input[type="file"]::-webkit-file-upload-button {
+    margin-right: 12px;
+    border: 0;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-weight: 700;
+    cursor: pointer;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+}
+
+input[type="file"]::-webkit-file-upload-button:hover {
+    filter: brightness(0.92);
+}
+
+/* =========================================================
+   ERP LAYOUT PRIMITIVES
+   ========================================================= */
+
+.erp-shell {
+    min-height: 100vh;
+    background: hsl(var(--background));
+}
+
+.erp-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 18px;
+}
+
+.erp-card {
+    background: #fff;
+    border: 1px solid rgba(17, 24, 39, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 8px 18px rgba(17, 24, 39, 0.08);
+}
+
+.erp-title {
+    font-weight: 800;
+    color: #111827;
+}
+
+.erp-muted {
+    color: #6b7280;
+}
+
+.erp-btn {
+    border: 1px solid rgba(17, 24, 39, 0.1);
+    background: #fff;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.erp-btn:hover {
+    background: rgba(17, 24, 39, 0.04);
+}
+
+/* Optional primary button helper (use with className="erp-btn erp-btn-primary") */
+.erp-btn-primary {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border: 0;
+}
+
+.erp-btn-primary:hover {
+    filter: brightness(0.92);
+}
+
+.erp-chip {
+    border: 1px solid rgba(17, 24, 39, 0.1);
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 12px;
+    background: #fff;
+}
+
+/* =========================================================
+   ERP FORM SYSTEM (THIS FIXES YOUR "WEIRD" LOOK)
+   ========================================================= */
+
+.erp-section {
+    border: 1px solid rgba(17, 24, 39, 0.1);
+    border-radius: 18px;
+    background: #fff;
+}
+
+.erp-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #f9fafb;
+    border-bottom: 1px solid rgba(17, 24, 39, 0.1);
+}
+
+.erp-section-title {
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.erp-section-toggle {
+    font-size: 12px;
+    font-weight: 700;
+    color: hsl(var(--primary));
+}
+
+.erp-section-body {
+    padding: 16px;
+}
+
+.erp-form-grid {
+    display: grid;
+    gap: 16px;
+}
+
+@media (min-width: 768px) {
+    .erp-form-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.erp-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.erp-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.erp-helper {
+    font-size: 11px;
+    color: #6b7280;
+}
+
+.erp-select-wrap {
+    position: relative;
+}
+
+.erp-select {
+    width: 100%;
+    background: #fff;
+    border: 1px solid rgba(17, 24, 39, 0.12);
+    border-radius: 12px;
+    padding: 10px 40px 10px 12px;
+    font-size: 14px;
+    outline: none;
+    appearance: none;
+}
+
+.erp-select:focus {
+    border-color: hsla(var(--primary) / 0.35);
+    box-shadow: 0 0 0 4px hsla(var(--primary) / 0.12);
+}
+
+.erp-select:disabled {
+    background: #f9fafb;
+    color: #9ca3af;
+}
+
+.erp-select-wrap::after {
+    content: "";
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    transform: translateY(-50%);
+    pointer-events: none;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M7 10l5 5 5-5' stroke='rgba(17,24,39,.55)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+}
+
+/* =========================================================
+   GLOBAL FULL-WIDTH FIX (removes left/right white space)
+   ========================================================= */
+
+/* Prevent accidental horizontal scroll from 100vw elements */
+html,
+body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* If any page uses these wrappers, make them responsive/full-width */
+.dashboard-container,
+.erp-wrap {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* Optional: keep padding on large screens only */
+@media (min-width: 1024px) {
+
+    .dashboard-container,
+    .erp-wrap {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+}

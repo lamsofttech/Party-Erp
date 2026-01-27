@@ -1,15 +1,80 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="./src/assets/icon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FinsapSuite</title>
-    <link href="https://calendly.com/assets/external/widget.css" rel="stylesheet" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-    <script src="https://calendly.com/assets/external/widget.js" type="text/javascript"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="en" class="h-full antialiased">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+  <title>SkizaGroundSuite</title>
+
+  <!-- ======================================================
+       BRAND IDENTITY / THEME
+       Replace #B71C1C with your strongest brand red if needed
+    ====================================================== -->
+  <meta name="theme-color" content="#B71C1C" />
+
+  <!-- ======================================================
+       FAVICON + TOUCH ICON
+    ====================================================== -->
+  <link rel="icon" type="image/png"
+    href="https://global-uploads.webflow.com/61fa0db307d4e6dbea95b2ec/6201544b156b6859a03f7398_jp-bird.svg" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+  <!-- ======================================================
+       MODERN ENTERPRISE FONTS (Inter + System UI)
+    ====================================================== -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --brand-red: #B71C1C;
+      /* Jubilee Party inspired deep red */
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f9fafb;
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro",
+        "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",
+        sans-serif;
+      color-scheme: light dark;
+    }
+
+    body {
+      min-height: 100vh;
+      background-color: #f9fafb;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+  </style>
+
+  <!-- ======================================================
+       PWA SUPPORT
+    ====================================================== -->
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <!-- ======================================================
+       SEO / SOCIAL META
+    ====================================================== -->
+  <meta name="description" content="SkizaGroundSuite Admin Portal" />
+  <meta name="keywords" content="SkizaGroundSuite, Admin, Portal, ERP, Dashboard" />
+  <meta property="og:title" content="SkizaGroundSuite Admin Portal" />
+  <meta property="og:description" content="Secure ERP & Admin System" />
+  <meta property="og:type" content="website" />
+</head>
+
+<body class="h-full bg-slate-50">
+  <noscript>This app requires JavaScript enabled.</noscript>
+
+  <div id="root"></div>
+
+  <!-- Vite Dev/Build entry -->
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>

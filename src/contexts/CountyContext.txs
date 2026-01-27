@@ -1,0 +1,83 @@
+// src/contexts/CountyContext.tsx
+import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
+import axios from 'axios'; // Or your preferred HTTP client like fetch
+
+import { County, CountyContextType, CountyModulesApiResponse } from '../types'; // Import your interfaces
+
+// 1. Create the Context with its defined type
+export const CountyContext = createContext<CountyContextType | undefined>(undefined);
+
+// 2. Create a Provider Component
+interface CountyProviderProps {
+    children: ReactNode;
+}
+
+export const CountyProvider: React.FC<CountyProviderProps> = ({ children }) => {
+    const [currentCounty, setCurrentCounty] = useState<County | null>(null);
+    const [countyModules, setCountyModules] = useState<string[]>([]);
+    const [loadingCountyData, setLoadingCountyData] = useState<boolean>(true);
+    const [errorCountyData, setErrorCountyData] = useState<string | null>(null);
+
+    // Function to fetch county data and modules
+    const fetchCountyData = async (countyCode: string): Promise<void> => {
+        setLoadingCountyData(true);
+        setErrorCountyData(null);
+        try {
+            // Replace with your actual API endpoint
+            // This API should return the county details and its configured modules
+            const response = await axios.get<CountyModulesApiResponse>(`/api/county/${countyCode}/modules`);
+            const { county, modules } = response.data;
+
+            setCurrentCounty(county);
+            setCountyModules(modules);
+            setLoadingCountyData(false);
+        } catch (error) {
+            console.error("Error fetching county data:", error);
+            setErrorCountyData("Failed to load county data. Please try again.");
+            setLoadingCountyData(false);
+        }
+    };
+
+    // Initial load for county data (e.g., from user session or a default)
+    useEffect(() => {
+        // In a real app, you'd get the user's assigned county ID/Code from authentication
+        // or allow them to select it.
+        const defaultCountyCode = localStorage.getItem('user_county_code') || 'KE001'; // Example default: Mombasa County
+        if (defaultCountyCode) {
+            fetchCountyData(defaultCountyCode);
+        } else {
+            setLoadingCountyData(false);
+            setErrorCountyData("No county selected or assigned.");
+        }
+    }, []); // Run once on mount
+
+    // Helper function to check if a module is enabled
+    const isModuleEnabled = (moduleKey: string): boolean => {
+        return countyModules.includes(moduleKey);
+    };
+
+    // Provide these values to any component that consumes this context
+    const contextValue: CountyContextType = {
+        currentCounty,
+        countyModules,
+        loadingCountyData,
+        errorCountyData,
+        fetchCountyData,
+        isModuleEnabled
+    };
+
+    return (
+        <CountyContext.Provider value={contextValue}>
+            {children}
+        </CountyContext.Provider>
+    );
+};
+
+// Optional: Custom hook for easier context consumption and type assertion
+export const useCounty = () => {
+    const context = useContext(CountyContext);
+    if (context === undefined) {
+        throw new Error('useCounty must be used within a CountyProvider');
+    }
+    return context;
+};

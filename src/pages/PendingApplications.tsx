@@ -41,7 +41,7 @@ const PendingApplications: React.FC = () => {
         const fetchApplications = async () => {
             try {
                 const response = await axios.get(
-                    'https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/onboarding/APIs/get_pending_applications.php' // Adjust to your API URL
+                    'https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/Nominations/APIs/get_pending_applications.php' // Adjust to your API URL
                 );
                 setApplicants(response.data);
                 setFilteredApplicants(response.data);
@@ -140,7 +140,7 @@ const PendingApplications: React.FC = () => {
                 const id = encodeURIComponent(params.row.id);
                 return (
                     <Link
-                        to={`/onboarding/${onboardingType}/${fullName}?id=${id}`}
+                        to={`/Nominations/${onboardingType}/${fullName}?id=${id}`}
                         state={{ from: onboardingType }} // Pass onboardingType as state
                     >
                         <IconButton>

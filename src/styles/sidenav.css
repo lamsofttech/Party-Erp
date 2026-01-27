@@ -1,9 +1,57 @@
+/* src/styles/sidenav.css */
+
+/* =========================================================
+   CUSTOM SCROLLBAR (clean + modern + consistent)
+   ========================================================= */
+
 .custom-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: transparent transparent;
+    /* Firefox */
+    scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
 }
-.custom-scrollbar:hover {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
-    transition: scrollbar-color 0.3s ease-in-out;
+
+/* Webkit (Chrome/Edge/Safari) */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.22);
+    border-radius: 999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+/* =========================================================
+   ICON TRANSITIONS (Material UI icons smooth resizing)
+   ========================================================= */
+
+.icon-transition .MuiSvgIcon-root {
+    transition: font-size 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+/* =========================================================
+   TOOLTIP / HOVER HELPERS (for collapsed sidebar)
+   ========================================================= */
+
+.group:hover>span.absolute {
+    opacity: 1;
+}
+
+/* =========================================================
+   OPTIONAL THEME VARIABLE HOOK (safe + minimal)
+   ========================================================= */
+
+/* If you pass CSS vars via inline styles, this keeps it safe */
+:root {
+    --accent-color: #f1f1f1;
+    --primary-color: #888;
+    --primary-color-light: #b0b0b0;
 }

@@ -1,17 +1,29 @@
-@import "tailwindcss/base";
+/* ✅ Use ONE Tailwind setup (recommended) */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@import "tailwindcss/components";
-
-@import "tailwindcss/utilities";
-
+/* Global font */
 body * {
-  font-family: 'Century Gothic', sans-serif;
+  font-family: "Century Gothic", sans-serif;
 }
 
+/* Smooth theme transitions */
 .theme-transition {
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
 html {
   transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* ✅ GLOBAL FIX: prevent sideways overflow + fix "leaning" layout */
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }

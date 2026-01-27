@@ -35,7 +35,7 @@ const NewApplications: React.FC = () => {
 
     const fetchApplications = async () => {
         try {
-            const response = await axios.get("https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/onboarding/APIs/get_new_applications.php"); // Change to your API URL
+            const response = await axios.get("https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/Nominations/APIs/get_new_applications.php"); // Change to your API URL
             setApplications(response.data.applications);
             setFilteredApplications(response.data.applications);
         } catch (error) {
@@ -83,7 +83,7 @@ const NewApplications: React.FC = () => {
 
                 return (
                     <Link
-                        to={`/onboarding/${onboardingType}/${fullName}?id=${id}`}
+                        to={`/Nominations/${onboardingType}/${fullName}?id=${id}`}
                         state={{ from: onboardingType }} // Pass onboardingType as state
                     >
                         <IconButton>

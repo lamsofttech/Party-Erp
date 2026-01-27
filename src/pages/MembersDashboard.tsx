@@ -1,351 +1,391 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+// src/pages/MembersDashboard.tsx
 import { Link } from "react-router-dom";
 import {
-  ChartContainer,
-  BarPlot,
-  ChartsYAxis,
-  ChartsXAxis,
-  ChartsTooltip,
-  ChartsLegend
-} from "@mui/x-charts";
-import { 
-  Users, 
-  UserCheck, 
-  UserCog, 
-  UserX, 
-  KeyRound, 
+  Users,
+  UserCheck,
+  UserCog,
+  UserX,
+  KeyRound,
   FileSignature,
-  ArrowUpRight
+  ArrowUpRight,
 } from "lucide-react";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  CartesianGrid,
+} from "recharts";
+import { RequirePermission } from "../components/RequirePermission";
 
-export interface MembersCountResponse {
-  status: string;
-  message: string;
-  total_members: number;
-  total_pending_members: number;
-  total_pending_applicants: number;
-  paid_program_contribution_members: number;
-  total_withdrawn_members: number;
-  total_access_requests: number;
-  total_unsigned_contracts: number;
-  members_by_country: {
-    Kenya: number;
-    Zimbabwe: number;
-    Uganda: number;
-    "Other Countries": number;
-  };
-  pending_members_by_country: {
-    Kenya: number;
-    Zimbabwe: number;
-    Uganda: number;
-    "Other Countries": number;
-  };
-  pending_applicants_by_country: {
-    Kenya: number;
-    Zimbabwe: number;
-    Uganda: number;
-    "Other Countries": number;
-  };
-  withdrawn_members_by_country: {
-    Kenya: number;
-    Zimbabwe: number;
-    Uganda: number;
-    "Other Countries": number;
-  };
-  access_requests_by_country: {
-    Kenya: number;
-    Zimbabwe: number;
-    Uganda: number;
-    "Other Countries": number;
-  };
-  unsigned_contracts_by_country: {
-    Kenya: number;
-    Zimbabwe: number;
-    Uganda: number;
-    "Other Countries": number;
-  };
-}
+// 🔒 Permission required to view this page
+const REQUIRED_PERMISSION = "members.dashboard.view";
 
-// Card type definition
-interface CardProps {
-  title: string;
-  count: number | undefined;
-  icon: React.ReactNode;
-  link: string;
-  color: string;
-}
+type TooltipPayloadItem = {
+  name?: string | number;
+  value?: string | number;
+  color?: string;
+  fill?: string;
+};
 
-// Stat Card Component
-const StatCard = ({ title, count, icon, link, color }: CardProps) => (
-  <Link to={link} className="group">
-    <div className={`bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl relative overflow-hidden hover:translate-y-1 border-l-4 ${color}`}>
-      <div className="flex items-center justify-between">
-        <div className="flex flex-col">
-          <span className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{title}</span>
-          <span className="text-3xl font-bold text-gray-800 dark:text-white">{count}</span>
-        </div>
-        <div className={`p-3 rounded-lg bg-opacity-10 ${color.replace('border-', 'bg-')}`}>
-          {icon}
-        </div>
-      </div>
-      <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-        <ArrowUpRight size={16} className="text-gray-500" />
-      </div>
+type CustomTooltipProps = {
+  active?: boolean;
+  payload?: TooltipPayloadItem[];
+  label?: string | number;
+};
+
+/**
+ * ---- Custom Tooltip (Jubilee theme) ----
+ * Works across Recharts versions without relying on TooltipProps typings.
+ */
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+  if (!active || !payload || payload.length === 0) return null;
+
+  return (
+    <div className="bg-[#7C1C24] border border-[#FFD700]/70 p-4 rounded-xl shadow-xl">
+      <p className="text-lg font-semibold text-[#FFD700] mb-2">
+        {String(label ?? "")}
+      </p>
+
+      {payload.map((entry, index) => {
+        const name = String(entry?.name ?? "");
+        const value = String(entry?.value ?? "");
+        const color = entry?.color || entry?.fill || "#FFE4E6";
+
+        return (
+          <p
+            key={`item-${index}`}
+            className="text-sm text-rose-50 flex justify-between"
+          >
+            <span className="font-medium mr-2" style={{ color }}>
+              {name}:
+            </span>
+            <span className="font-bold">{value}</span>
+          </p>
+        );
+      })}
     </div>
-  </Link>
-);
+  );
+};
 
-function MembersDashboard() {
-  const [data, setData] = useState<MembersCountResponse | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>("");
-
-  // Chart data preparation
-  const prepareChartData = () => {
-    if (!data) return [];
-    
-    return [
-      { country: "Kenya", FM: data.members_by_country.Kenya, PM: data.pending_members_by_country.Kenya, PA: data.pending_applicants_by_country.Kenya, W: data.withdrawn_members_by_country.Kenya, AR: data.access_requests_by_country.Kenya, UC: data.unsigned_contracts_by_country.Kenya },
-      { country: "Zimbabwe", FM: data.members_by_country.Zimbabwe, PM: data.pending_members_by_country.Zimbabwe, PA: data.pending_applicants_by_country.Zimbabwe, W: data.withdrawn_members_by_country.Zimbabwe, AR: data.access_requests_by_country.Zimbabwe, UC: data.unsigned_contracts_by_country.Zimbabwe },
-      { country: "Uganda", FM: data.members_by_country.Uganda, PM: data.pending_members_by_country.Uganda, PA: data.pending_applicants_by_country.Uganda, W: data.withdrawn_members_by_country.Uganda, AR: data.access_requests_by_country.Uganda, UC: data.unsigned_contracts_by_country.Uganda },
-      { country: "Others", FM: data.members_by_country["Other Countries"], PM: data.pending_members_by_country["Other Countries"], PA: data.pending_applicants_by_country["Other Countries"], W: data.withdrawn_members_by_country["Other Countries"], AR: data.access_requests_by_country["Other Countries"], UC: data.unsigned_contracts_by_country["Other Countries"] },
-    ];
+export default function MembersDashboard() {
+  const data = {
+    total_members: 3200,
+    total_pending_members: 450,
+    total_pending_applicants: 180,
+    total_withdrawn_members: 95,
+    total_access_requests: 140,
+    total_unsigned_contracts: 65,
   };
 
-  // Card data
-  const cardData: CardProps[] = [
+  const chartData = [
     {
-      title: "Full Members",
-      count: data?.total_members,
-      icon: <Users size={24} className="text-emerald-600" />,
+      county: "Nairobi",
+      "Full Members": 1500,
+      "Pending Members": 200,
+      "New Applicants": 80,
+      Withdrawals: 40,
+    },
+    {
+      county: "Mombasa",
+      "Full Members": 800,
+      "Pending Members": 120,
+      "New Applicants": 50,
+      Withdrawals: 25,
+    },
+    {
+      county: "Kisumu",
+      "Full Members": 600,
+      "Pending Members": 80,
+      "New Applicants": 30,
+      Withdrawals: 20,
+    },
+    {
+      county: "Nakuru",
+      "Full Members": 300,
+      "Pending Members": 50,
+      "New Applicants": 20,
+      Withdrawals: 10,
+    },
+    {
+      county: "Eldoret",
+      "Full Members": 250,
+      "Pending Members": 40,
+      "New Applicants": 15,
+      Withdrawals: 5,
+    },
+    {
+      county: "Kakamega",
+      "Full Members": 200,
+      "Pending Members": 30,
+      "New Applicants": 10,
+      Withdrawals: 8,
+    },
+  ];
+
+  const cardData = [
+    {
+      title: "Approved Members",
+      count: data.total_members,
+      icon: <Users size={32} className="text-[#F5333F]" />,
       link: "/members/full-members",
-      color: "border-emerald-500"
+      bg: "bg-white",
+      border: "border-[#F5333F]/40",
+      accent: "text-[#F5333F]",
+      description: "Overall active Jubilee Party members.",
     },
     {
-      title: "Pending Members",
-      count: data?.total_pending_members,
-      icon: <UserCheck size={24} className="text-blue-600" />,
+      title: "Pending Approvals",
+      count: data.total_pending_members,
+      icon: <UserCheck size={32} className="text-[#B91C1C]" />,
       link: "/members/pending-members",
-      color: "border-blue-500"
+      bg: "bg-white",
+      border: "border-rose-300/70",
+      accent: "text-[#B91C1C]",
+      description: "Members awaiting verification and onboarding.",
     },
     {
-      title: "Pending Applicants",
-      count: data?.total_pending_applicants,
-      icon: <UserCog size={24} className="text-amber-600" />,
-      link: "/members/pending-applicants",
-      color: "border-amber-500"
+      title: "New Applicants",
+      count: data.total_pending_applicants,
+      icon: <UserCog size={32} className="text-[#F97316]" />,
+      link: "/members/new-members",
+      bg: "bg-white",
+      border: "border-amber-300/70",
+      accent: "text-[#C05621]",
+      description: "Fresh applications coming into the party.",
     },
     {
-      title: "Withdrawn Members",
-      count: data?.total_withdrawn_members,
-      icon: <UserX size={24} className="text-gray-600" />,
+      title: "Member Withdrawals",
+      count: data.total_withdrawn_members,
+      icon: <UserX size={32} className="text-[#DC2626]" />,
       link: "/members/withdrawn-members",
-      color: "border-gray-500"
+      bg: "bg-white",
+      border: "border-red-300/80",
+      accent: "text-[#DC2626]",
+      description: "Records of members who have exited.",
     },
     {
       title: "Access Requests",
-      count: data?.total_access_requests,
-      icon: <KeyRound size={24} className="text-violet-600" />,
+      count: data.total_access_requests,
+      icon: <KeyRound size={32} className="text-[#FACC15]" />,
       link: "/members/access-requests",
-      color: "border-violet-500"
+      bg: "bg-white",
+      border: "border-yellow-300/80",
+      accent: "text-[#CA8A04]",
+      description: "Pending requests for system access and roles.",
     },
     {
       title: "Unsigned Contracts",
-      count: data?.total_unsigned_contracts,
-      icon: <FileSignature size={24} className="text-rose-600" />,
-      link: "/members/unsigned-contracts",
-      color: "border-rose-500"
-    }
+      count: data.total_unsigned_contracts,
+      icon: <FileSignature size={32} className="text-[#DB2777]" />,
+      link: "/members/approved-members",
+      bg: "bg-white",
+      border: "border-pink-300/80",
+      accent: "text-[#BE185D]",
+      description: "Members whose contracts are pending signature.",
+    },
   ];
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get<MembersCountResponse>(
-          "https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/members/APIs/stats.php"
-        );
-        setData(response.data);
-      } catch (err) {
-        setError("Failed to fetch data. Please refresh page and contact the tech team if the issue persists.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center">
-          <div className="w-12 h-12 border-4 border-t-4 border-gray-200 border-t-primary rounded-full animate-spin"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading data...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 my-6">
-        <p className="text-red-600 dark:text-red-400 text-center">{error}</p>
-      </div>
-    );
-  }
-
-  const chartData = prepareChartData();
-  
   return (
-    <main className="container mx-auto px-4 pb-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-4">
-          <div className="w-1 h-8 bg-gradient-to-b from-[#1a9970] to-[#2164a6] rounded"></div>
-          Members Dashboard
-        </h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-2">
-          Overview of all member categories and their distribution by country
-        </p>
-      </div>
+    <RequirePermission permission={REQUIRED_PERMISSION}>
+      <div className="min-h-screen bg-[#F5333F] text-white p-4 sm:p-6 font-sans antialiased">
+        <div className="container mx-auto max-w-6xl space-y-10 sm:space-y-12">
+          {/* Header */}
+          <header className="text-center pt-6 sm:pt-8 pb-2 sm:pb-4">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight">
+              Jubilee Party Membership Dashboard
+            </h1>
+            <p className="text-sm sm:text-base text-red-50/90 mt-3 max-w-2xl mx-auto">
+              A real-time overview of Jubilee Party membership, applications and
+              grassroots operations across the country.
+            </p>
+          </header>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-        {/* Statistics Cards Section */}
-        <div className="xl:col-span-2">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {cardData.map((card, index) => (
-              <StatCard
-                key={index}
-                title={card.title}
-                count={card.count}
-                icon={card.icon}
-                link={card.link}
-                color={card.color}
-              />
+          {/* Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-7">
+            {cardData.map((card, idx) => (
+              <Link
+                key={idx}
+                to={card.link}
+                className={`relative p-5 sm:p-6 rounded-2xl ${card.bg} ${card.border} text-gray-900 shadow-lg 
+              hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 group`}
+              >
+                <div className="absolute inset-0 rounded-2xl opacity-10 pointer-events-none bg-gradient-to-br from-[#F5333F] via-transparent to-[#FBBF24]" />
+                <div className="relative z-10 flex flex-col h-full justify-between">
+                  <div className="flex justify-between items-start mb-3 sm:mb-4">
+                    <div>
+                      <h2
+                        className={`text-base sm:text-lg font-semibold mb-1 ${card.accent}`}
+                      >
+                        {card.title}
+                      </h2>
+                      <p className="text-3xl sm:text-4xl font-extrabold leading-none text-gray-900">
+                        {card.count}
+                      </p>
+                    </div>
+                    <div className="p-3 sm:p-4 rounded-full bg-red-50 shadow-inner border border-red-100">
+                      {card.icon}
+                    </div>
+                  </div>
+                  <p className="text-xs sm:text-sm text-gray-700 flex items-center">
+                    {card.description}
+                    <ArrowUpRight
+                      size={16}
+                      className="ml-2 text-[#F5333F] opacity-0 group-hover:opacity-100 transition-opacity"
+                    />
+                  </p>
+                </div>
+              </Link>
             ))}
           </div>
-        </div>
 
-        {/* Summary Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">Member Distribution</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Kenya</span>
-              <span className="text-sm font-medium text-gray-800 dark:text-white">{data?.members_by_country.Kenya || 0}</span>
+          {/* Chart */}
+          <section className="bg-white/95 rounded-3xl shadow-xl p-5 sm:p-7 border border-red-100">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-[#B91C1C] text-center">
+              Membership Distribution by County
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-600 text-center mb-6 sm:mb-8 max-w-2xl mx-auto">
+              Track full members, pending approvals, new applicants and
+              withdrawals across key Jubilee strongholds.
+            </p>
+
+            <div className="h-[360px] sm:h-[420px] lg:h-[480px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={chartData}
+                  margin={{ top: 20, right: 30, left: 10, bottom: 5 }}
+                  barCategoryGap="18%"
+                >
+                  <CartesianGrid strokeDasharray="4 4" stroke="#E5E7EB" />
+                  <XAxis
+                    dataKey="county"
+                    tick={{ fill: "#4B5563", fontSize: 12 }}
+                    axisLine={{ stroke: "#D1D5DB" }}
+                    tickLine={{ stroke: "#D1D5DB" }}
+                  />
+                  <YAxis
+                    tick={{ fill: "#4B5563", fontSize: 12 }}
+                    axisLine={{ stroke: "#D1D5DB" }}
+                    tickLine={{ stroke: "#D1D5DB" }}
+                    domain={[0, "auto"]}
+                  />
+                  <Tooltip
+                    cursor={{ fill: "rgba(245, 51, 63, 0.06)" }}
+                    // Cast avoids Recharts typing differences between versions
+                    content={(props) => (
+                      <CustomTooltip {...(props as unknown as CustomTooltipProps)} />
+                    )}
+                  />
+                  <Legend
+                    wrapperStyle={{ color: "#374151", paddingTop: 12 }}
+                    iconType="circle"
+                    formatter={(value) => (
+                      <span className="text-gray-700 text-xs sm:text-sm">
+                        {value}
+                      </span>
+                    )}
+                  />
+                  <Bar
+                    dataKey="Full Members"
+                    fill="#F5333F"
+                    radius={[6, 6, 0, 0]}
+                    animationDuration={800}
+                  />
+                  <Bar
+                    dataKey="Pending Members"
+                    fill="#F97316"
+                    radius={[6, 6, 0, 0]}
+                    animationDuration={800}
+                  />
+                  <Bar
+                    dataKey="New Applicants"
+                    fill="#FACC15"
+                    radius={[6, 6, 0, 0]}
+                    animationDuration={800}
+                  />
+                  <Bar
+                    dataKey="Withdrawals"
+                    fill="#B91C1C"
+                    radius={[6, 6, 0, 0]}
+                    animationDuration={800}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div 
-                className="bg-gradient-to-r from-[#1a9970] to-[#2164a6] h-2 rounded-full" 
-                style={{ width: `${data ? (data.members_by_country.Kenya / data.total_members) * 100 : 0}%` }}
-              ></div>
+          </section>
+
+          {/* Quick Actions + Activity */}
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 pb-6">
+            <div className="bg-white/95 rounded-3xl shadow-xl p-6 sm:p-7 border border-red-100">
+              <h3 className="text-xl sm:text-2xl font-bold mb-4 text-[#B91C1C]">
+                Quick Actions
+              </h3>
+              <ul className="space-y-3 text-sm">
+                <li>
+                  <Link
+                    to="/members/add-new"
+                    className="flex items-center text-gray-700 hover:text-[#F5333F] transition-colors"
+                  >
+                    <Users size={20} className="mr-3 text-[#F5333F]" /> Register
+                    New Member
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/reports"
+                    className="flex items-center text-gray-700 hover:text-[#F5333F] transition-colors"
+                  >
+                    <FileSignature size={20} className="mr-3 text-[#B91C1C]" />{" "}
+                    Generate Membership Reports
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/settings/members"
+                    className="flex items-center text-gray-700 hover:text-[#F5333F] transition-colors"
+                  >
+                    <UserCog size={20} className="mr-3 text-[#C05621]" /> Manage
+                    Member Settings
+                  </Link>
+                </li>
+              </ul>
             </div>
-            
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Zimbabwe</span>
-              <span className="text-sm font-medium text-gray-800 dark:text-white">{data?.members_by_country.Zimbabwe || 0}</span>
+
+            <div className="bg-white/95 rounded-3xl shadow-xl p-6 sm:p-7 border border-red-100">
+              <h3 className="text-xl sm:text-2xl font-bold mb-4 text-[#B91C1C]">
+                Recent Activity
+              </h3>
+              <ul className="space-y-3 text-xs sm:text-sm text-gray-700">
+                <li>
+                  <span className="font-semibold text-gray-900">John Doe</span>{" "}
+                  submitted a new application (Nairobi)
+                  <span className="text-xs text-gray-500 ml-2">5 mins ago</span>
+                </li>
+                <li>
+                  <span className="font-semibold text-gray-900">Jane Smith</span>
+                  ’s membership approved (Mombasa)
+                  <span className="text-xs text-gray-500 ml-2">1 hour ago</span>
+                </li>
+                <li>
+                  <span className="font-semibold text-gray-900">
+                    System Alert:
+                  </span>{" "}
+                  3 new access requests
+                  <span className="text-xs text-gray-500 ml-2">Yesterday</span>
+                </li>
+                <li>
+                  <span className="font-semibold text-gray-900">Admin</span>{" "}
+                  updated membership policy
+                  <span className="text-xs text-gray-500 ml-2">2 days ago</span>
+                </li>
+              </ul>
             </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div 
-                className="bg-gradient-to-r from-[#1a9970] to-[#2164a6] h-2 rounded-full" 
-                style={{ width: `${data ? (data.members_by_country.Zimbabwe / data.total_members) * 100 : 0}%` }}
-              ></div>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Uganda</span>
-              <span className="text-sm font-medium text-gray-800 dark:text-white">{data?.members_by_country.Uganda || 0}</span>
-            </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div 
-                className="bg-gradient-to-r from-[#1a9970] to-[#2164a6] h-2 rounded-full" 
-                style={{ width: `${data ? (data.members_by_country.Uganda / data.total_members) * 100 : 0}%` }}
-              ></div>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Other Countries</span>
-              <span className="text-sm font-medium text-gray-800 dark:text-white">{data?.members_by_country["Other Countries"] || 0}</span>
-            </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div 
-                className="bg-gradient-to-r from-[#1a9970] to-[#2164a6] h-2 rounded-full" 
-                style={{ width: `${data ? (data.members_by_country["Other Countries"] / data.total_members) * 100 : 0}%` }}
-              ></div>
-            </div>
-          </div>
+          </section>
         </div>
       </div>
-
-      {/* Chart Section */}
-      <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-6">Country Distribution by Member Type</h3>
-        <div className="h-96">
-          <ChartContainer
-            width={1000}
-            height={400}
-            series={[
-              {
-                type: 'bar',
-                data: chartData.map(item => item.FM || 0),
-                label: 'Full Members',
-                color: '#1a9970',
-                valueFormatter: (value) => `${value} members`,
-              },
-              {
-                type: 'bar',
-                data: chartData.map(item => item.PM || 0),
-                label: 'Pending Members',
-                color: '#2164a6',
-                valueFormatter: (value) => `${value} members`,
-              },
-              {
-                type: 'bar',
-                data: chartData.map(item => item.PA || 0),
-                label: 'Pending Applicants',
-                color: '#f59e0b',
-                valueFormatter: (value) => `${value} applicants`,
-              },
-              {
-                type: 'bar',
-                data: chartData.map(item => item.W || 0),
-                label: 'Withdrawals',
-                color: '#6b7280',
-                valueFormatter: (value) => `${value} members`,
-              },
-              {
-                type: 'bar',
-                data: chartData.map(item => item.AR || 0),
-                label: 'Access Requests',
-                color: '#8b5cf6',
-                valueFormatter: (value) => `${value} requests`,
-              },
-              {
-                type: 'bar',
-                data: chartData.map(item => item.UC || 0),
-                label: 'Unsigned Contracts',
-                color: '#ef4444',
-                valueFormatter: (value) => `${value} contracts`,
-              },
-            ]}
-            xAxis={[
-              {
-                data: chartData.map(item => item.country),
-                scaleType: 'band',
-                id: 'x-axis-id',
-              },
-            ]}
-          >
-            <BarPlot />
-            <ChartsXAxis label="Countries" position="bottom" axisId="x-axis-id" />
-            <ChartsYAxis label="Number of Members" position="left" />
-            <ChartsTooltip trigger="item" />
-            <ChartsLegend />
-          </ChartContainer>
-        </div>
-      </div>
-    </main>
+    </RequirePermission>
   );
 }
-
-export default MembersDashboard;

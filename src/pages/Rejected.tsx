@@ -134,7 +134,7 @@ const RejectedSchoolApplications: React.FC = () => {
                     <Box>
                         <IconButton
                             component={Link}
-                            to={`/school-admission/new-school-applications/rejected-applications/${params.row.full_name}?id=${params.row.id}&sop=${params.row.sop}&action=rejected&prop_id=${params.row.prop_id}`}
+                            to={`/party-operations/new-school-applications/rejected-applications/${params.row.full_name}?id=${params.row.id}&sop=${params.row.sop}&action=rejected&prop_id=${params.row.prop_id}`}
                         >
                             <VisibilityIcon color="primary" />
                         </IconButton>

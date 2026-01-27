@@ -10,20 +10,63 @@ export const ThemeContext = createContext<ThemeContextType | undefined>(
   undefined
 );
 
+// Central Jubilee colors
+const JUBILEE_RED = "#ED1C24";
+const JUBILEE_LIGHT_BG = "#FFF5F5";
+const JUBILEE_TEXT_DARK = "#111111";
+
 export const ThemeProviderWrapper = ({ children }: { children: ReactNode }) => {
   const storedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
   const [theme, setTheme] = useState<"light" | "dark">(storedTheme || "light");
 
+  // 👉 Jubilee-optimised MUI theme (light + dark)
   const muiTheme = createTheme({
     palette: {
       mode: theme,
-      primary: { main: theme === "dark" ? "#90caf9" : "#1976d2" },
+      primary: {
+        main: JUBILEE_RED,
+        contrastText: "#FFFFFF",
+      },
       background: {
-        default: theme === "dark" ? "#121212" : "#ffffff",
-        paper: theme === "dark" ? "#1e1e1e" : "#f5f5f5",
+        // Light: Jubilee-tinted background; Dark: standard dark
+        default: theme === "dark" ? "#121212" : JUBILEE_LIGHT_BG,
+        paper: theme === "dark" ? "#1e1e1e" : "#FFFFFF",
       },
       text: {
-        primary: theme === "dark" ? "#ffffff" : "#000000",
+        primary: theme === "dark" ? "#FFFFFF" : JUBILEE_TEXT_DARK,
+        secondary: theme === "dark" ? "#B3B3B3" : "#555555",
+      },
+      divider: theme === "dark" ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.12)",
+    },
+    typography: {
+      fontFamily: `'Inter', 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, sans-serif`,
+      fontWeightBold: 700,
+    },
+    components: {
+      // Optional: slightly rounder look for a more modern UI
+      MuiPaper: {
+        styleOverrides: {
+          root: {
+            borderRadius: 12,
+          },
+        },
+      },
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            borderRadius: 999,
+            textTransform: "none",
+            fontWeight: 600,
+          },
+        },
+      },
+      MuiChip: {
+        styleOverrides: {
+          root: {
+            borderRadius: 999,
+            fontWeight: 600,
+          },
+        },
       },
     },
   });

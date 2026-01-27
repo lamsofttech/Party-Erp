@@ -13,9 +13,9 @@ interface Student {
     suggestedPassword: string;
 }
 
-const API_BASE_URL = 'https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/onboarding/APIs'; // Replace with actual API URL
+const API_BASE_URL = 'https://finkapinternational.qhtestingserver.com/login/main/ken/student-management/Nominations/APIs'; // Replace with actual API URL
 
-const Onboarding: React.FC = () => {
+const Nominations: React.FC = () => {
     const [students, setStudents] = useState<Student[]>([]);
     const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>('');
@@ -83,7 +83,7 @@ const Onboarding: React.FC = () => {
         setSelectedStudent(null);
     };
 
-    // Confirm onboarding
+    // Confirm Nominations
     const handleConfirmOnboard = async () => {
         if (!selectedStudent) return;
 
@@ -99,10 +99,10 @@ const Onboarding: React.FC = () => {
                 setStudents(students.filter((student) => student.id !== selectedStudent.id));
                 setFilteredStudents(filteredStudents.filter((student) => student.id !== selectedStudent.id));
             } else {
-                setSnackbar({ open: true, message: response.data.error || 'Failed to confirm onboarding!', severity: 'error' });
+                setSnackbar({ open: true, message: response.data.error || 'Failed to confirm Nominations!', severity: 'error' });
             }
         } catch (error) {
-            setSnackbar({ open: true, message: 'Error confirming onboarding!', severity: 'error' });
+            setSnackbar({ open: true, message: 'Error confirming Nominations!', severity: 'error' });
             console.error('Error:', error);
         } finally {
             setConfirming(false);
@@ -173,10 +173,10 @@ const Onboarding: React.FC = () => {
             </div>
 
             <div className='flex items-center justify-start gap-4 py-2'>
-                <Link to='/onboarding/onboard/disable-program-email'>
+                <Link to='/Nominations/onboard/disable-program-email'>
                     <Button sx={{ textTransform: 'none' }} variant='outlined' color='error'>Disable Program Email</Button>
                 </Link>
-                <Link to='/onboarding/onboard/update-password'>
+                <Link to='/Nominations/onboard/update-password'>
                     <Button sx={{ textTransform: 'none' }} variant='outlined' color='success'>Update Password</Button>
                 </Link>
             </div>
@@ -195,7 +195,7 @@ const Onboarding: React.FC = () => {
             </div>
 
             <Dialog open={openConfirmDialog} onClose={handleCloseConfirmDialog}>
-                <DialogTitle>Confirm Onboarding</DialogTitle>
+                <DialogTitle>Confirm Nominations</DialogTitle>
                 <DialogContent>
                     Are you sure you want to confirm the email created for <b>{selectedStudent?.fullnames}?</b>
                 </DialogContent>
@@ -219,4 +219,4 @@ const Onboarding: React.FC = () => {
     );
 };
 
-export default Onboarding;
+export default Nominations;
