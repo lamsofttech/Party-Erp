@@ -1,5 +1,5 @@
 // src/components/roles/AddUserModal.tsx
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     ModalShell,
     ModalHeader,
@@ -18,7 +18,7 @@ export interface PoliticalPositionOption {
     seniority_rank?: number | null;
 }
 
-type AddUserFormData = {
+export type AddUserFormData = {
     email: string;
     name: string;
     role: string;
@@ -33,7 +33,7 @@ type AddUserFormData = {
     can_transmit: boolean;
 };
 
-/** ✅ Must match AddUserModalSections.tsx */
+/** Must match AddUserModalSections.tsx */
 export type AddUserField =
     | "name"
     | "role"
@@ -52,7 +52,7 @@ interface Props {
     isOpen: boolean;
     onClose: () => void;
 
-    onSubmit: (e: React.FormEvent) => void;
+    onSubmit: (form: AddUserFormData, region: UserRegionType) => Promise<void> | void;
 
     creatingUser: boolean;
     canCreateUsers: boolean;
@@ -110,14 +110,14 @@ interface DiasporaCountry {
 const API_BASE = "https://skizagroundsuite.com/API/api";
 const POSITIONS_ENDPOINT = `${API_BASE}/political_positions.php`;
 
+const DIASPORA_ROLES = ["DIASPORA_OFFICER", "DIASPORA_AGENT"] as const;
+
 function getToken(): string | null {
     if (typeof window === "undefined") return null;
     return localStorage.getItem("token");
 }
 
-async function readJsonOrText(
-    res: Response
-): Promise<{ json: any | null; text: string }> {
+async function readJsonOrText(res: Response): Promise<{ json: any | null; text: string }> {
     const text = await res.text();
     try {
         const json = text ? JSON.parse(text) : null;
@@ -166,40 +166,30 @@ const AddUserModal: React.FC<Props> = (props) => {
         showToast,
     } = props;
 
-    if (!isOpen) return null;
-
-    // Wizard state
+    // Hooks must run on every render (no early return before hooks)
     const [step, setStep] = useState(1);
     const [positionQuery, setPositionQuery] = useState("");
 
-    // Diaspora
-    const [diasporaCountries, setDiasporaCountries] = useState<DiasporaCountry[]>(
-        []
-    );
+    const [diasporaCountries, setDiasporaCountries] = useState<DiasporaCountry[]>([]);
     const [loadingDiaspora, setLoadingDiaspora] = useState(false);
     const [diasporaError, setDiasporaError] = useState<string | null>(null);
 
-    // Region
     const [userRegionType, setUserRegionType] = useState<UserRegionType>("");
 
-    // Positions
-    const [availablePositions, setAvailablePositions] = useState<
-        PoliticalPositionOption[]
-    >([]);
+    const [availablePositions, setAvailablePositions] = useState<PoliticalPositionOption[]>([]);
     const [loadingPositions, setLoadingPositions] = useState(false);
     const [errPositions, setErrPositions] = useState<string | null>(null);
 
-    const selectedRoleUpper = (formData.role || "").toUpperCase();
-    const diasporaRoleList = ["DIASPORA_OFFICER", "DIASPORA_AGENT"] as const;
-    const isDiasporaRole =
-        selectedRoleUpper === "DIASPORA_OFFICER" ||
-        selectedRoleUpper === "DIASPORA_AGENT";
-    const isSuperAdmin = currentUserRole.toUpperCase() === "SUPER_ADMIN";
+    const isSuperAdmin = (currentUserRole || "").toUpperCase() === "SUPER_ADMIN";
+    const roleUpper = (formData.role || "").toUpperCase();
 
-    /** ✅ Fix: make handleChange match the exact union type expected by sections */
-    const handleChange: HandleChange = (field, value) => {
-        setFormData((prev) => ({ ...prev, [field]: value }));
-    };
+    // Avoid re-creating handlers (stability helps with Suspense + strict mode)
+    const handleChange: HandleChange = useCallback(
+        (field, value) => {
+            setFormData((prev) => ({ ...prev, [field]: value }));
+        },
+        [setFormData]
+    );
 
     const sortedPositions = useMemo(() => {
         const copy = [...(availablePositions || [])];
@@ -212,22 +202,25 @@ const AddUserModal: React.FC<Props> = (props) => {
         return copy;
     }, [availablePositions]);
 
-    // Infer region from existing formData when modal opens
+    // Reset wizard state on open
+    useEffect(() => {
+        if (!isOpen) return;
+        setStep(1);
+        setPositionQuery("");
+    }, [isOpen]);
+
+    // Infer region on open (or when relevant form fields change while open)
     useEffect(() => {
         if (!isOpen) return;
 
-        if (formData.country_id && formData.country_id !== "") {
-            setUserRegionType("DIASPORA");
-        } else if (
-            formData.county_id ||
-            formData.constituency_id ||
-            formData.ward_id ||
-            formData.polling_station_id
-        ) {
-            setUserRegionType("KENYA");
-        } else {
-            setUserRegionType("");
-        }
+        const next: UserRegionType =
+            formData.country_id && formData.country_id !== ""
+                ? "DIASPORA"
+                : formData.county_id || formData.constituency_id || formData.ward_id || formData.polling_station_id
+                    ? "KENYA"
+                    : "";
+
+        setUserRegionType(next);
     }, [
         isOpen,
         formData.country_id,
@@ -237,83 +230,104 @@ const AddUserModal: React.FC<Props> = (props) => {
         formData.polling_station_id,
     ]);
 
-    // Reset wizard when opened
+    // Kenya <-> Diaspora switch cleanup (idempotent; no thrash)
     useEffect(() => {
         if (!isOpen) return;
-        setStep(1);
-        setPositionQuery("");
-    }, [isOpen]);
-
-    // Switch between Kenya vs Diaspora flows (preserves your original logic)
-    useEffect(() => {
         if (!userRegionType) return;
 
-        const roleUpper = (formData.role || "").toUpperCase();
-
         if (userRegionType === "DIASPORA") {
+            // clear kenya selections
             onCountySelectChange("");
             onConstituencySelectChange("");
             onWardSelectChange("");
             onPollingStationSelectChange("");
 
-            setFormData((prev) => ({
-                ...prev,
-                county_id: "",
-                constituency_id: "",
-                ward_id: "",
-                polling_station_id: "",
-                role: diasporaRoleList.includes(roleUpper as any) ? prev.role : "",
-            }));
+            setFormData((prev) => {
+                const prevRoleUpper = (prev.role || "").toUpperCase();
+                const keepRole = DIASPORA_ROLES.includes(prevRoleUpper as any);
+
+                // if already clean, return prev (prevents unnecessary rerenders)
+                const next = {
+                    ...prev,
+                    county_id: "",
+                    constituency_id: "",
+                    ward_id: "",
+                    polling_station_id: "",
+                    role: keepRole ? prev.role : "",
+                };
+
+                const unchanged =
+                    next.county_id === prev.county_id &&
+                    next.constituency_id === prev.constituency_id &&
+                    next.ward_id === prev.ward_id &&
+                    next.polling_station_id === prev.polling_station_id &&
+                    next.role === prev.role;
+
+                return unchanged ? prev : next;
+            });
         }
 
         if (userRegionType === "KENYA") {
-            setFormData((prev) => ({
-                ...prev,
-                country_id: "",
-                role: diasporaRoleList.includes(roleUpper as any) ? "" : prev.role,
-            }));
+            setFormData((prev) => {
+                const prevRoleUpper = (prev.role || "").toUpperCase();
+                const isDiasporaRole = DIASPORA_ROLES.includes(prevRoleUpper as any);
+
+                const next = {
+                    ...prev,
+                    country_id: "",
+                    role: isDiasporaRole ? "" : prev.role,
+                };
+
+                const unchanged = next.country_id === prev.country_id && next.role === prev.role;
+                return unchanged ? prev : next;
+            });
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [userRegionType]);
+    }, [
+        isOpen,
+        userRegionType,
+        onCountySelectChange,
+        onConstituencySelectChange,
+        onWardSelectChange,
+        onPollingStationSelectChange,
+        setFormData,
+    ]);
 
-    useEffect(() => {
-        const roleUpper = (formData.role || "").toUpperCase();
-
-        if (userRegionType === "DIASPORA") {
-            if (!diasporaRoleList.includes(roleUpper as any))
-                setFormData((prev) => ({ ...prev, role: "" }));
-        } else if (userRegionType === "KENYA") {
-            if (diasporaRoleList.includes(roleUpper as any))
-                setFormData((prev) => ({ ...prev, role: "" }));
-        }
-    }, [userRegionType, formData.role, setFormData]);
-
-    // Diaspora loader
+    // Diaspora loader (cancellable)
     useEffect(() => {
         if (!isOpen || userRegionType !== "DIASPORA") return;
 
+        let cancelled = false;
+
+        // ensure controlled field
         setFormData((prev) => ({ ...prev, country_id: prev.country_id || "" }));
+
         if (diasporaCountries.length > 0) return;
 
         const loadCountries = async () => {
             try {
                 setLoadingDiaspora(true);
+                setDiasporaError(null);
+
                 const res = await fetch("/API/get_diaspora_countries.php");
                 const data = await res.json();
 
-                if (!res.ok || data.success !== true)
+                if (!res.ok || data.success !== true) {
                     throw new Error(data.message || "Failed to load countries");
+                }
+
+                if (cancelled) return;
 
                 setDiasporaCountries(
-                    data.data.map((c: any) => ({
+                    (data.data || []).map((c: any) => ({
                         id: Number(c.id),
                         name: String(c.name),
                         iso_code: c.code ?? null,
                     }))
                 );
-                setDiasporaError(null);
             } catch (err) {
                 console.error("Failed to load diaspora countries", err);
+                if (cancelled) return;
+
                 setDiasporaError("Could not load diaspora countries");
                 showToast({
                     title: "Could not load diaspora countries",
@@ -321,17 +335,32 @@ const AddUserModal: React.FC<Props> = (props) => {
                     intent: "warning",
                 });
             } finally {
-                setLoadingDiaspora(false);
+                if (!cancelled) setLoadingDiaspora(false);
             }
         };
 
         loadCountries();
+
+        return () => {
+            cancelled = true;
+        };
     }, [isOpen, userRegionType, diasporaCountries.length, setFormData, showToast]);
 
-    // Load political positions
+    // Load positions (cancellable, and only once per open session)
+    const positionsLoadedRef = useRef(false);
+
     useEffect(() => {
-        if (!isOpen) return;
-        if (availablePositions.length > 0) return;
+        if (!isOpen) {
+            positionsLoadedRef.current = false;
+            return;
+        }
+        if (positionsLoadedRef.current) return;
+        if (availablePositions.length > 0) {
+            positionsLoadedRef.current = true;
+            return;
+        }
+
+        let cancelled = false;
 
         const loadPositions = async () => {
             setLoadingPositions(true);
@@ -341,33 +370,20 @@ const AddUserModal: React.FC<Props> = (props) => {
                 const token = getToken();
                 const res = await fetch(POSITIONS_ENDPOINT, {
                     method: "GET",
-                    headers: {
-                        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-                    },
+                    headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
                 });
 
                 const { json, text } = await readJsonOrText(res);
 
                 if (!json) {
                     console.error("Positions endpoint returned non-JSON response:", text);
-                    setErrPositions(
-                        "Positions endpoint returned non-JSON response (check server output)."
-                    );
-                    showToast({
-                        title: "Failed to load positions",
-                        description:
-                            "Server returned non-JSON. Check API response in Network tab.",
-                        intent: "warning",
-                    });
+                    if (!cancelled) setErrPositions("Positions endpoint returned non-JSON response.");
                     return;
                 }
 
                 if (!res.ok || json.status !== "success" || !Array.isArray(json.data)) {
-                    console.error("Positions endpoint returned error:", {
-                        http: res.status,
-                        json,
-                    });
-                    setErrPositions(json.message || `Failed to load positions (HTTP ${res.status})`);
+                    console.error("Positions endpoint returned error:", { http: res.status, json });
+                    if (!cancelled) setErrPositions(json.message || `Failed to load positions (HTTP ${res.status})`);
                     return;
                 }
 
@@ -375,69 +391,141 @@ const AddUserModal: React.FC<Props> = (props) => {
                     position_id: Number(r.position_id),
                     position_name: String(r.position_name),
                     position_level: r.position_level ?? null,
-                    seniority_rank:
-                        r.seniority_rank !== undefined ? Number(r.seniority_rank) : null,
+                    seniority_rank: r.seniority_rank !== undefined ? Number(r.seniority_rank) : null,
                 }));
 
+                if (cancelled) return;
+
                 setAvailablePositions(mapped);
+                positionsLoadedRef.current = true;
             } catch (e) {
                 console.error("Failed to load positions", e);
-                setErrPositions("Could not load positions. Check API endpoint and token.");
+                if (!cancelled) setErrPositions("Could not load positions. Check API endpoint and token.");
             } finally {
-                setLoadingPositions(false);
+                if (!cancelled) setLoadingPositions(false);
             }
         };
 
         loadPositions();
-    }, [isOpen, availablePositions.length, showToast]);
 
-    // Role options based on region + permissions (unchanged)
-    const filteredRoles = creatableRoles.filter((role) => {
-        const rUpper = role.toUpperCase();
+        return () => {
+            cancelled = true;
+        };
+    }, [isOpen, availablePositions.length]);
 
-        if (userRegionType === "DIASPORA") {
-            if (!isSuperAdmin) return false;
-            return rUpper === "DIASPORA_OFFICER" || rUpper === "DIASPORA_AGENT";
-        }
+    // Role options
+    const filteredRoles = useMemo(() => {
+        return creatableRoles.filter((role) => {
+            const rUpper = role.toUpperCase();
 
-        if (rUpper === "DIASPORA_OFFICER" || rUpper === "DIASPORA_AGENT") return false;
-        return true;
-    });
+            if (userRegionType === "DIASPORA") {
+                if (!isSuperAdmin) return false;
+                return rUpper === "DIASPORA_OFFICER" || rUpper === "DIASPORA_AGENT";
+            }
 
-    // Positions selection helpers
-    const togglePosition = (positionId: number) => {
-        const exists = (formData.positions || []).includes(positionId);
-        const next = exists
-            ? (formData.positions || []).filter((id) => id !== positionId)
-            : [...(formData.positions || []), positionId];
+            if (rUpper === "DIASPORA_OFFICER" || rUpper === "DIASPORA_AGENT") return false;
+            return true;
+        });
+    }, [creatableRoles, userRegionType, isSuperAdmin]);
 
-        handleChange("positions", next);
-    };
+    // Position helpers
+    const togglePosition = useCallback(
+        (positionId: number) => {
+            const exists = (formData.positions || []).includes(positionId);
+            const next = exists
+                ? (formData.positions || []).filter((id) => id !== positionId)
+                : [...(formData.positions || []), positionId];
 
-    const selectAllPositions = () => {
+            handleChange("positions", next);
+        },
+        [formData.positions, handleChange]
+    );
+
+    const selectAllPositions = useCallback(() => {
         handleChange(
             "positions",
             sortedPositions.map((p) => p.position_id)
         );
-    };
+    }, [handleChange, sortedPositions]);
 
-    const clearAllPositions = () => handleChange("positions", []);
+    const clearAllPositions = useCallback(() => handleChange("positions", []), [handleChange]);
 
-    // Wizard "Next" validation (simple + industry)
+    const kenyaStep2Ok =
+        (!roleNeedsCounty || !!formData.county_id) &&
+        (!roleNeedsConstituency || !!formData.constituency_id) &&
+        (!roleNeedsWard || !!formData.ward_id) &&
+        (!roleNeedsPollingStation || !!formData.polling_station_id);
+
     const canNext =
         step === 1
             ? !!formData.email && !!formData.name && !!formData.role && userRegionType !== ""
             : step === 2
                 ? userRegionType === "DIASPORA"
                     ? !!formData.country_id
-                    : true
+                    : kenyaStep2Ok
                 : true;
+
+    const handleSubmit = useCallback(
+        async (e: React.FormEvent) => {
+            e.preventDefault();
+
+            if (!canCreateUsers) {
+                showToast({ title: "You do not have permission to create users.", intent: "warning" });
+                return;
+            }
+
+            if (!userRegionType) {
+                showToast({ title: "Select user location (Kenya or Diaspora).", intent: "warning" });
+                return;
+            }
+
+            if (userRegionType === "DIASPORA" && !isSuperAdmin) {
+                showToast({ title: "Only SUPER_ADMIN can create diaspora users.", intent: "warning" });
+                return;
+            }
+
+            if (step !== 3) {
+                setStep(3);
+                return;
+            }
+
+            if (!formData.email || !formData.name || !formData.role) {
+                showToast({ title: "Fill Email, Name and Role.", intent: "warning" });
+                return;
+            }
+
+            if (userRegionType === "DIASPORA" && !formData.country_id) {
+                showToast({ title: "Select diaspora country.", intent: "warning" });
+                return;
+            }
+
+            if (userRegionType === "KENYA" && !kenyaStep2Ok) {
+                showToast({ title: "Complete the required jurisdiction fields.", intent: "warning" });
+                return;
+            }
+
+            try {
+                await Promise.resolve(onSubmit(formData, userRegionType));
+            } catch (err: any) {
+                console.error("Add user submit failed:", err);
+                showToast({
+                    title: "Failed to create user",
+                    description: err?.message ? String(err.message) : "Please try again.",
+                    intent: "critical",
+                });
+            }
+        },
+        [canCreateUsers, formData, isSuperAdmin, kenyaStep2Ok, onSubmit, showToast, step, userRegionType]
+    );
+
+    // Return null only AFTER hooks
+    if (!isOpen) return null;
 
     return (
         <ModalShell>
             <ModalHeader currentUserRole={currentUserRole} onClose={onClose} step={step} />
 
-            <form onSubmit={onSubmit} className="flex-1 overflow-y-auto px-4 py-4">
+            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-4 py-4">
                 {step === 1 && (
                     <StepUserAndRole
                         userRegionType={userRegionType}

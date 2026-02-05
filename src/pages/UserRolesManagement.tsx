@@ -1,11 +1,11 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 
 import { useUser } from "../contexts/UserContext";
 import { getCreatableRoles, getAssignableRolesForUser } from "../utils/roleRules";
 
-import type { AddUserFormData } from "../types/roles"; // keep only form type from roles
-import type { User as AppUser } from "../types/users"; // ✅ use ONE User type across this page
+import type { AddUserFormData } from "../types/roles";
+import type { User as AppUser } from "../types/users";
 
 import { useUsers } from "../hooks/useUsers";
 import { useGeoHierarchy } from "../hooks/useGeoHierarchy";
@@ -40,16 +40,17 @@ const formatRoleLabel = (role: string) =>
 
 const UserRolesManagement: React.FC = () => {
     const { user: currentUser, token, logout } = useUser();
-    const currentUserRole = (currentUser?.role || "AGENT").toUpperCase();
+    const currentUserRole = String(currentUser?.role || "AGENT").toUpperCase();
 
-    const creatableRoles = useMemo(() => getCreatableRoles(currentUserRole), [currentUserRole]);
+    const creatableRoles = useMemo(
+        () => getCreatableRoles(currentUserRole),
+        [currentUserRole]
+    );
     const canCreateUsers = creatableRoles.length > 0;
 
-    // ✅ IMPORTANT: don’t call hooks with null token
-    // we still call the hook, but we give it a safe string and gate UI with early return below.
+    // Always pass a string to hooks (some hooks don’t like null/undefined)
     const safeToken = token ?? "";
 
-    // ✅ useUsers expects token string (not null)
     const {
         users,
         loadingUsers,
@@ -60,21 +61,22 @@ const UserRolesManagement: React.FC = () => {
         refetchUsers,
     } = useUsers(safeToken);
 
-    // ✅ useRoleModules expects (token, logout)
-    const { loadingRoleModules, roleModules, roleModulesError, fetchRoleModules } =
-        useRoleModules(safeToken, logout);
+    const {
+        loadingRoleModules,
+        roleModules,
+        roleModulesError,
+        fetchRoleModules,
+    } = useRoleModules(safeToken, logout);
 
     const geo = useGeoHierarchy(true);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState<AddUserFormData>(initialForm);
 
-    // ✅ delete target uses the same User type as users list/components
     const [deleteTarget, setDeleteTarget] = useState<AppUser | null>(null);
-
     const [viewingRole, setViewingRole] = useState<{ role: string; userName: string } | null>(null);
 
-    // ✅ UI guard: if not logged in, don’t render management page
+    // If not logged in, don’t render the page
     if (!token) {
         return (
             <div className="max-w-6xl mx-auto px-4 py-6">
@@ -83,30 +85,49 @@ const UserRolesManagement: React.FC = () => {
         );
     }
 
-    const openModal = () => {
+    const openModal = useCallback(() => {
         if (!canCreateUsers) return;
         setFormData(initialForm);
         geo.resetGeo();
         setIsModalOpen(true);
-    };
+    }, [canCreateUsers, geo]);
 
-    const openViewRolesModal = async (user: AppUser) => {
-        const role = String(user.role).toUpperCase();
-        setViewingRole({ role, userName: user.name || user.username });
-        await fetchRoleModules(role);
-    };
+    /**
+     * ✅ IMPORTANT FIX:
+     * - Do NOT await fetchRoleModules() inside click handler.
+     * - Open modal immediately, then fetch in background.
+     * - Add try/catch so failures don’t freeze the UI.
+     */
+    const openViewRolesModal = useCallback(
+        (user: AppUser) => {
+            const role = String(user.role || "").toUpperCase();
+            const userName = user.name || (user as any).username || "User";
 
-    // ✅ simple jurisdiction formatter (since geo.formatJurisdiction does not exist)
-    const formatJurisdiction = (user: AppUser) => {
-        // If your user object has these ids, show the most specific one available.
-        // Adjust field names if yours differ.
-        const ps = (user as any).polling_station_id || (user as any).pollingStationId;
-        const ward = (user as any).ward_id || (user as any).wardId;
-        const cons = (user as any).constituency_id || (user as any).constituencyId;
-        const county = (user as any).county_id || (user as any).countyId;
+            setViewingRole({ role, userName });
 
-        return ps || ward || cons || county || "—";
-    };
+            // Fire-and-forget fetch (no await => no UI hang)
+            Promise.resolve(fetchRoleModules(role)).catch((e) => {
+                console.error("fetchRoleModules failed:", e);
+            });
+        },
+        [fetchRoleModules]
+    );
+
+    // Simple jurisdiction formatter (safe)
+    const formatJurisdiction = useCallback((user: AppUser) => {
+        const u: any = user;
+        return (
+            u.polling_station_id ||
+            u.pollingStationId ||
+            u.ward_id ||
+            u.wardId ||
+            u.constituency_id ||
+            u.constituencyId ||
+            u.county_id ||
+            u.countyId ||
+            "—"
+        );
+    }, []);
 
     return (
         <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
@@ -238,7 +259,7 @@ const UserRolesManagement: React.FC = () => {
                 deleteTarget={deleteTarget as any}
                 deletingId={deletingId as any}
                 onCancel={() => setDeleteTarget(null)}
-                onConfirm={deleteTarget ? () => deleteUser(String(deleteTarget.id)) : undefined}
+                onConfirm={deleteTarget ? () => deleteUser(String((deleteTarget as any).id)) : undefined}
             />
         </div>
     );

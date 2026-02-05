@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { USERS_BASE, safeJson } from "../lib/api";
 import { toast } from "../components/swirl-toast";
 import type { User } from "../types/users";
+import type { AddUserFormData } from "../types/roles";
 
 interface Args {
     token: string | null;
@@ -19,6 +20,7 @@ export const useUsers = ({ token, logout }: Args) => {
     const [users, setUsers] = useState<User[]>([]);
     const [loadingUsers, setLoadingUsers] = useState(false);
 
+    const [creatingUser, setCreatingUser] = useState(false);
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [updatingRoleId, setUpdatingRoleId] = useState<string | null>(null);
 
@@ -68,7 +70,6 @@ export const useUsers = ({ token, logout }: Args) => {
         aliveRef.current = true;
         const controller = new AbortController();
 
-        // keep your initial load behavior
         if (token) {
             (async () => {
                 setLoadingUsers(true);
@@ -106,6 +107,72 @@ export const useUsers = ({ token, logout }: Args) => {
             controller.abort();
         };
     }, [token, logout]);
+
+    /**
+     * ✅ NEW: CREATE USER
+     * Expects backend: POST `${USERS_BASE}/users.php` with JSON body
+     * Adjust field names here if your backend expects different keys.
+     */
+    const createUser = useCallback(
+        async (payload: AddUserFormData) => {
+            if (!token) {
+                toast.error("Missing auth token. Please log in again.");
+                logout();
+                return null;
+            }
+
+            // Basic frontend validation
+            if (!payload?.email || !payload?.name || !payload?.role) {
+                toast.error("Email, Name and Role are required.");
+                return null;
+            }
+
+            setCreatingUser(true);
+            try {
+                const res = await fetch(`${USERS_BASE}/users.php`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                const data = await safeJson(res);
+                if (!aliveRef.current) return null;
+
+                if (res.ok && data?.status === "success") {
+                    toast.success("User created successfully.");
+
+                    // If API returns created user, add optimistically
+                    // else refetch list.
+                    if (data?.data) {
+                        setUsers((prev) => [data.data, ...prev]);
+                    } else {
+                        await refetchUsers({ silent: true });
+                    }
+
+                    return data;
+                }
+
+                if (isAuthExpired(res, data)) {
+                    toast.error("Session expired. Please log in again.");
+                    logout();
+                    return null;
+                }
+
+                toast.error(data?.message || "Failed to create user.");
+                return null;
+            } catch (e) {
+                if (!aliveRef.current) return null;
+                toast.error("Failed to create user.");
+                return null;
+            } finally {
+                if (aliveRef.current) setCreatingUser(false);
+            }
+        },
+        [token, logout, refetchUsers]
+    );
 
     const deleteUser = useCallback(
         async (id: string) => {
@@ -205,17 +272,19 @@ export const useUsers = ({ token, logout }: Args) => {
                 if (aliveRef.current) setUpdatingRoleId(null);
             }
         },
-        // NOTE: users in deps because of optimistic rollback
         [token, logout, users]
     );
 
     return {
-        // keep existing API
         users,
         setUsers,
         loadingUsers,
 
-        // new capabilities
+        // ✅ new for add-user flow
+        creatingUser,
+        createUser,
+
+        // existing
         refetchUsers,
         deleteUser,
         updateUserRole,

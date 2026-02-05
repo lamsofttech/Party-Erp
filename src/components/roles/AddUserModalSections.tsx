@@ -3,16 +3,6 @@ import React from "react";
 import { FaTimes } from "react-icons/fa";
 import type { PoliticalPositionOption } from "./AddUserModal";
 
-/**
- * ✅ Fix for TS2322:
- * This file previously typed handleChange as (field: keyof any, value: any) => void
- * which becomes (field: string | number | symbol, value: any) => void and conflicts
- * with the narrower union type from AddUserModal.tsx.
- *
- * We define a shared union of allowed fields here and use it consistently across
- * all section props in this file.
- */
-
 type UserRegionType = "KENYA" | "DIASPORA" | "";
 
 interface DiasporaCountry {
@@ -107,8 +97,7 @@ export function ModalHeader({
                 <div>
                     <h2 className="text-base font-semibold text-slate-900">Add New User</h2>
                     <p className="text-xs text-slate-500 mt-0.5">
-                        Logged in as{" "}
-                        <strong className="text-slate-700">{currentUserRole}</strong>
+                        Logged in as <strong className="text-slate-700">{currentUserRole}</strong>
                     </p>
                 </div>
 
@@ -127,7 +116,7 @@ export function ModalHeader({
     );
 }
 
-/** Step 1: Location + Basic details (improved focus & clarity) */
+/** Step 1: Location + Basic details */
 export function StepUserAndRole({
     userRegionType,
     setUserRegionType,
@@ -150,9 +139,7 @@ export function StepUserAndRole({
         [
             "relative w-full rounded-2xl border px-4 py-4 text-left transition-all",
             disabled ? "opacity-60 cursor-not-allowed" : "hover:shadow-sm",
-            active
-                ? "border-red-300 bg-red-50 ring-2 ring-red-200"
-                : "border-slate-200 bg-white",
+            active ? "border-red-300 bg-red-50 ring-2 ring-red-200" : "border-slate-200 bg-white",
         ].join(" ");
 
     return (
@@ -163,8 +150,7 @@ export function StepUserAndRole({
                     <div>
                         <p className="text-sm font-semibold text-slate-900">User location</p>
                         <p className="text-xs text-slate-500 mt-0.5">
-                            Select where the user operates. This controls roles and
-                            jurisdiction fields.
+                            Select where the user operates. This controls roles and jurisdiction fields.
                         </p>
                     </div>
 
@@ -208,9 +194,7 @@ export function StepUserAndRole({
                         <div className="flex items-start justify-between gap-3">
                             <div>
                                 <p className="text-sm font-semibold text-slate-900">Diaspora</p>
-                                <p className="text-xs text-slate-600 mt-1">
-                                    Assign a country of operation.
-                                </p>
+                                <p className="text-xs text-slate-600 mt-1">Assign a country of operation.</p>
                             </div>
 
                             {userRegionType === "DIASPORA" && (
@@ -224,23 +208,18 @@ export function StepUserAndRole({
 
                 {userRegionType === "" && (
                     <p className="mt-3 text-xs text-slate-500">
-                        Nothing selected yet — choose <strong>Kenya</strong> or{" "}
-                        <strong>Diaspora</strong>.
+                        Nothing selected yet — choose <strong>Kenya</strong> or <strong>Diaspora</strong>.
                     </p>
                 )}
             </div>
 
             {/* Basic details */}
             <div className="rounded-2xl border border-slate-200 p-4">
-                <p className="text-sm font-semibold text-slate-900 mb-3">
-                    Basic details
-                </p>
+                <p className="text-sm font-semibold text-slate-900 mb-3">Basic details</p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-xs font-medium text-slate-700 mb-1">
-                            Email
-                        </label>
+                        <label className="block text-xs font-medium text-slate-700 mb-1">Email</label>
                         <input
                             type="email"
                             value={formData.email}
@@ -252,9 +231,7 @@ export function StepUserAndRole({
                     </div>
 
                     <div>
-                        <label className="block text-xs font-medium text-slate-700 mb-1">
-                            Full name
-                        </label>
+                        <label className="block text-xs font-medium text-slate-700 mb-1">Full name</label>
                         <input
                             type="text"
                             value={formData.name}
@@ -266,9 +243,7 @@ export function StepUserAndRole({
                     </div>
 
                     <div className="sm:col-span-2">
-                        <label className="block text-xs font-medium text-slate-700 mb-1">
-                            Role
-                        </label>
+                        <label className="block text-xs font-medium text-slate-700 mb-1">Role</label>
                         <select
                             value={formData.role}
                             onChange={(e) => handleChange("role", e.target.value)}
@@ -284,9 +259,7 @@ export function StepUserAndRole({
                         </select>
 
                         {userRegionType === "DIASPORA" && !isSuperAdmin && (
-                            <p className="mt-2 text-xs text-red-600">
-                                Only SUPER_ADMIN can assign Diaspora roles.
-                            </p>
+                            <p className="mt-2 text-xs text-red-600">Only SUPER_ADMIN can assign Diaspora roles.</p>
                         )}
                     </div>
                 </div>
@@ -388,9 +361,7 @@ export function StepJurisdiction({
             <div className="flex items-start justify-between gap-4 mb-3">
                 <div>
                     <p className="text-sm font-semibold text-slate-900">Jurisdiction</p>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                        Set where this user is allowed to operate.
-                    </p>
+                    <p className="text-xs text-slate-500 mt-0.5">Set where this user is allowed to operate.</p>
                 </div>
 
                 {(roleNeedsCounty ||
@@ -412,27 +383,21 @@ export function StepJurisdiction({
 
             {userRegionType === "DIASPORA" && (
                 <div>
-                    <label className="block text-xs font-medium text-slate-700 mb-1">
-                        Diaspora Country
-                    </label>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Diaspora Country</label>
                     <select
                         value={formData.country_id || ""}
                         onChange={(e) => handleChange("country_id", e.target.value)}
                         className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-200 bg-white"
                         required
                     >
-                        <option value="">
-                            {loadingDiaspora ? "Loading…" : "Select Country"}
-                        </option>
+                        <option value="">{loadingDiaspora ? "Loading…" : "Select Country"}</option>
                         {diasporaCountries.map((c) => (
                             <option key={c.id} value={c.id}>
                                 {c.name}
                             </option>
                         ))}
                     </select>
-                    {diasporaError && (
-                        <p className="mt-2 text-xs text-red-600">{diasporaError}</p>
-                    )}
+                    {diasporaError && <p className="mt-2 text-xs text-red-600">{diasporaError}</p>}
                 </div>
             )}
 
@@ -440,9 +405,7 @@ export function StepJurisdiction({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {roleNeedsCounty && (
                         <div>
-                            <label className="block text-xs font-medium text-slate-700 mb-1">
-                                County
-                            </label>
+                            <label className="block text-xs font-medium text-slate-700 mb-1">County</label>
                             <select
                                 value={selectedCountyCode}
                                 onChange={(e) => {
@@ -454,26 +417,20 @@ export function StepJurisdiction({
                                 className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-200 bg-white"
                                 required={roleNeedsCounty}
                             >
-                                <option value="">
-                                    {loadingCounties ? "Loading counties…" : "Select county"}
-                                </option>
+                                <option value="">{loadingCounties ? "Loading counties…" : "Select county"}</option>
                                 {availableCounties.map((c) => (
                                     <option key={c.id} value={c.code}>
                                         {c.name}
                                     </option>
                                 ))}
                             </select>
-                            {errCounties && (
-                                <p className="mt-2 text-xs text-red-600">{errCounties}</p>
-                            )}
+                            {errCounties && <p className="mt-2 text-xs text-red-600">{errCounties}</p>}
                         </div>
                     )}
 
                     {roleNeedsConstituency && (
                         <div>
-                            <label className="block text-xs font-medium text-slate-700 mb-1">
-                                Constituency
-                            </label>
+                            <label className="block text-xs font-medium text-slate-700 mb-1">Constituency</label>
                             <select
                                 value={selectedConstituencyCode}
                                 onChange={(e) => {
@@ -485,9 +442,7 @@ export function StepJurisdiction({
                                 required={roleNeedsConstituency}
                             >
                                 <option value="">
-                                    {loadingConstituencies
-                                        ? "Loading constituencies…"
-                                        : "Select constituency"}
+                                    {loadingConstituencies ? "Loading constituencies…" : "Select constituency"}
                                 </option>
                                 {availableConstituencies.map((c) => (
                                     <option key={c.id} value={c.id}>
@@ -503,9 +458,7 @@ export function StepJurisdiction({
 
                     {roleNeedsWard && (
                         <div>
-                            <label className="block text-xs font-medium text-slate-700 mb-1">
-                                Ward
-                            </label>
+                            <label className="block text-xs font-medium text-slate-700 mb-1">Ward</label>
                             <select
                                 value={selectedWardCode}
                                 onChange={(e) => {
@@ -516,18 +469,14 @@ export function StepJurisdiction({
                                 className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-200 bg-white"
                                 required={roleNeedsWard}
                             >
-                                <option value="">
-                                    {loadingWards ? "Loading wards…" : "Select ward"}
-                                </option>
+                                <option value="">{loadingWards ? "Loading wards…" : "Select ward"}</option>
                                 {availableWards.map((w) => (
                                     <option key={w.id} value={w.id}>
                                         {w.name}
                                     </option>
                                 ))}
                             </select>
-                            {errWards && (
-                                <p className="mt-2 text-xs text-red-600">{errWards}</p>
-                            )}
+                            {errWards && <p className="mt-2 text-xs text-red-600">{errWards}</p>}
                         </div>
                     )}
 
@@ -547,9 +496,7 @@ export function StepJurisdiction({
                                 required={roleNeedsPollingStation}
                             >
                                 <option value="">
-                                    {loadingPollingStations
-                                        ? "Loading polling stations…"
-                                        : "Select polling station"}
+                                    {loadingPollingStations ? "Loading polling stations…" : "Select polling station"}
                                 </option>
                                 {availablePollingStations.map((ps) => (
                                     <option key={ps.id} value={ps.id}>
@@ -596,9 +543,7 @@ export function StepAssignments({
     setPositionQuery: (v: string) => void;
 }) {
     const filtered = sortedPositions.filter((p) =>
-        String(p.position_name || "")
-            .toLowerCase()
-            .includes(positionQuery.toLowerCase())
+        String(p.position_name || "").toLowerCase().includes(positionQuery.toLowerCase())
     );
 
     return (
@@ -628,9 +573,7 @@ export function StepAssignments({
                 <div className="flex items-start justify-between gap-3">
                     <div>
                         <p className="text-sm font-semibold text-slate-900">Positions</p>
-                        <p className="text-xs text-slate-500 mt-0.5">
-                            Select one or more positions to assign.
-                        </p>
+                        <p className="text-xs text-slate-500 mt-0.5">Select one or more positions to assign.</p>
                     </div>
 
                     <div className="flex gap-2">
@@ -663,9 +606,7 @@ export function StepAssignments({
                 </div>
 
                 <div className="mt-3">
-                    {loadingPositions && (
-                        <p className="text-xs text-slate-500">Loading positions…</p>
-                    )}
+                    {loadingPositions && <p className="text-xs text-slate-500">Loading positions…</p>}
                     {errPositions && <p className="text-xs text-red-600">{errPositions}</p>}
 
                     {!loadingPositions && !errPositions && filtered.length === 0 && (
@@ -688,13 +629,9 @@ export function StepAssignments({
                                             className="mt-1 h-4 w-4"
                                         />
                                         <div className="flex flex-col">
-                                            <span className="font-medium text-slate-900">
-                                                {p.position_name}
-                                            </span>
+                                            <span className="font-medium text-slate-900">{p.position_name}</span>
                                             {p.position_level && (
-                                                <span className="text-xs text-slate-500">
-                                                    {p.position_level}
-                                                </span>
+                                                <span className="text-xs text-slate-500">{p.position_level}</span>
                                             )}
                                         </div>
                                     </label>
@@ -781,7 +718,7 @@ export function WizardFooter({
     );
 }
 
-/** Modal shell (fixed desktop centering + safe viewport height) */
+/** Modal shell */
 export function ModalShell({ children }: { children: React.ReactNode }) {
     return (
         <div
