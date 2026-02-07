@@ -3,9 +3,30 @@
    Shared API utilities (NO React / NO JSX)
    ============================================================ */
 
-export const USERS_BASE = "https://skizagroundsuite.com/API/api";
-export const API_BASE = "https://skizagroundsuite.com/API/api";
-export const GEO_BASE = "https://skizagroundsuite.com/API";
+/**
+ * ✅ You can override these in env later if you want:
+ * Vite: VITE_USERS_API_BASE / VITE_API_BASE / VITE_GEO_BASE
+ * CRA:  REACT_APP_USERS_API_BASE / REACT_APP_API_BASE / REACT_APP_GEO_BASE
+ */
+const ENV: any =
+    (typeof import.meta !== "undefined" && (import.meta as any).env) ||
+    (typeof process !== "undefined" && (process as any).env) ||
+    {};
+
+export const USERS_BASE =
+    ENV.VITE_USERS_API_BASE ||
+    ENV.REACT_APP_USERS_API_BASE ||
+    "https://skizagroundsuite.com/API/api";
+
+export const API_BASE =
+    ENV.VITE_API_BASE ||
+    ENV.REACT_APP_API_BASE ||
+    "https://skizagroundsuite.com/API/api";
+
+export const GEO_BASE =
+    ENV.VITE_GEO_BASE ||
+    ENV.REACT_APP_GEO_BASE ||
+    "https://skizagroundsuite.com/API";
 
 /* =========================
    Types
@@ -83,18 +104,35 @@ export type ApiResponse<T> = {
    Helpers
    ========================= */
 
-export const safeJson = async <T = any>(res: Response): Promise<T | null> => {
-    const text = await res.text();
-    if (!text) return null;
+/**
+ * Safe URL builder: prevents double slashes and path issues.
+ */
+const buildUrl = (base: string, path: string) => {
+    const b = base.endsWith("/") ? base : `${base}/`;
+    const p = path.startsWith("/") ? path.slice(1) : path;
+    return new URL(p, b).toString();
+};
+
+/**
+ * Safe JSON parser that also returns raw text (useful for debugging PHP errors).
+ */
+export const safeJson = async <T = any>(
+    res: Response
+): Promise<{ json: T | null; raw: string }> => {
+    const raw = await res.text();
+    if (!raw) return { json: null, raw: "" };
     try {
-        return JSON.parse(text) as T;
+        return { json: JSON.parse(raw) as T, raw };
     } catch (e) {
         // keep this console for debugging server issues
-        console.error("Non-JSON response from", res.url, "=>", text);
-        return null;
+        console.error("Non-JSON response from", res.url, "=>", raw);
+        return { json: null, raw };
     }
 };
 
+/**
+ * Fetch with timeout + credentials include (for cookies)
+ */
 export const fetchWithTimeout = async (
     url: string,
     timeoutMs = 12000,
@@ -106,7 +144,7 @@ export const fetchWithTimeout = async (
         const res = await fetch(url, {
             ...init,
             signal: ctrl.signal,
-            credentials: "include",
+            credentials: "include", // ✅ send cookies (token) cross-site
         });
         return res;
     } finally {
@@ -135,100 +173,219 @@ export const fromCache = <T,>(k: string): T | null => {
     }
 };
 
+/**
+ * ✅ Auth headers (very compatible)
+ * Many PHP backends expect token in different places.
+ * We send multiple common variants at once.
+ */
 export const toAuthHeaders = (token: string) => ({
+    // common patterns:
     Authorization: `Bearer ${token}`,
+    "X-Authorization": `Bearer ${token}`,
+
+    // raw token headers:
+    "X-Access-Token": token,
+    "X-Auth-Token": token,
+    "x-auth-token": token,
+
+    // some APIs use api-key header for tokens:
+    "X-Api-Key": token,
+    "x-api-key": token,
+
+    // plain token header:
+    token: token,
+
+    Accept: "application/json",
 });
+
+/**
+ * Debug helper: logs the HTTP status + parsed JSON message when server says "Missing token." / "Server error occurred."
+ */
+const debugApi = (
+    label: string,
+    res: Response,
+    raw: string,
+    json: any,
+    token?: string
+) => {
+    console.log(`[${label}]`, {
+        url: res.url,
+        http: res.status,
+        ok: res.ok,
+        tokenPresent: !!token,
+        tokenLen: token?.length ?? 0,
+        json,
+        rawPreview: raw?.slice(0, 300),
+    });
+};
 
 /* ============================================================
    API calls (Users + Roles)
+   IMPORTANT: include credentials: "include" on protected endpoints
+   so HttpOnly cookie token can be sent as well.
    ============================================================ */
 
 export async function apiGetUsers(token: string, signal?: AbortSignal) {
-    const res = await fetch(`${USERS_BASE}/users.php`, {
-        method: "GET",
-        headers: toAuthHeaders(token),
-        signal,
-    });
+    const headers = toAuthHeaders(token);
 
-    const json = await safeJson<ApiResponse<User[]>>(res);
-    return { res, json };
+    // Try 1: GET users.php with token in query too (common PHP)
+    {
+        const url = buildUrl(
+            USERS_BASE,
+            `users.php?token=${encodeURIComponent(token)}`
+        );
+        const res = await fetch(url, {
+            method: "GET",
+            credentials: "include",
+            headers,
+            signal,
+        });
+
+        const { json, raw } = await safeJson<ApiResponse<User[]>>(res);
+        debugApi("users:GET?token", res, raw, json, token);
+
+        if (res.ok && json?.status === "success" && Array.isArray(json?.data)) {
+            return { res, json };
+        }
+    }
+
+    // Try 2: GET users.php?action=list + token in query
+    {
+        const url = buildUrl(
+            USERS_BASE,
+            `users.php?action=list&token=${encodeURIComponent(token)}`
+        );
+        const res = await fetch(url, {
+            method: "GET",
+            credentials: "include",
+            headers,
+            signal,
+        });
+
+        const { json, raw } = await safeJson<ApiResponse<User[]>>(res);
+        debugApi("users:GET?action=list&token", res, raw, json, token);
+
+        if (res.ok && json?.status === "success" && Array.isArray(json?.data)) {
+            return { res, json };
+        }
+    }
+
+    // Try 3: POST users.php with action + token in body
+    {
+        const url = buildUrl(USERS_BASE, "users.php");
+        const res = await fetch(url, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+                ...headers,
+            },
+            body: JSON.stringify({ action: "list", token }),
+            signal,
+        });
+
+        const { json, raw } = await safeJson<ApiResponse<User[]>>(res);
+        debugApi("users:POST{action:list,token}", res, raw, json, token);
+
+        return { res, json };
+    }
 }
 
 export type CreateUserPayload = {
     email: string;
     name: string;
     role: string;
+
+    // jurisdiction
     county_id?: string;
     constituency_id?: string;
     ward_id?: string;
     polling_station_id?: string;
+
+    // diaspora
+    country_id?: string;
+
+    // assignments
+    can_transmit?: boolean;
+    positions?: number[];
 };
 
 export async function apiCreateUser(token: string, payload: CreateUserPayload) {
-    const res = await fetch(`${USERS_BASE}/users.php`, {
+    const res = await fetch(buildUrl(USERS_BASE, "users.php"), {
         method: "POST",
+        credentials: "include",
         headers: {
             "Content-Type": "application/json",
             ...toAuthHeaders(token),
         },
-        body: JSON.stringify(payload),
+        // include token in body too for compatibility
+        body: JSON.stringify({ ...payload, token }),
     });
 
-    const json = await safeJson<ApiResponse<User>>(res);
+    const { json } = await safeJson<ApiResponse<User>>(res);
     return { res, json };
 }
 
 export async function apiDeleteUser(token: string, id: string) {
-    const res = await fetch(
-        `${USERS_BASE}/users.php?id=${encodeURIComponent(id)}`,
-        {
-            method: "DELETE",
-            headers: toAuthHeaders(token),
-        }
+    // include token in query as well for compatibility
+    const url = buildUrl(
+        USERS_BASE,
+        `users.php?id=${encodeURIComponent(id)}&token=${encodeURIComponent(token)}`
     );
 
-    const json = await safeJson<ApiResponse<null>>(res);
+    const res = await fetch(url, {
+        method: "DELETE",
+        credentials: "include",
+        headers: toAuthHeaders(token),
+    });
+
+    const { json } = await safeJson<ApiResponse<null>>(res);
     return { res, json };
 }
 
-export async function apiUpdateUserRole(
-    token: string,
-    id: string,
-    role: string
-) {
-    const res = await fetch(
-        `${API_BASE}/user_roles.php?id=${encodeURIComponent(id)}`,
-        {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                ...toAuthHeaders(token),
-            },
-            body: JSON.stringify({ role: role.toUpperCase() }),
-        }
+export async function apiUpdateUserRole(token: string, id: string, role: string) {
+    // include token in query as well for compatibility
+    const url = buildUrl(
+        API_BASE,
+        `user_roles.php?id=${encodeURIComponent(id)}&token=${encodeURIComponent(token)}`
     );
 
-    const json = await safeJson<ApiResponse<null>>(res);
+    const res = await fetch(url, {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            ...toAuthHeaders(token),
+        },
+        body: JSON.stringify({ role: role.toUpperCase(), token }),
+    });
+
+    const { json } = await safeJson<ApiResponse<null>>(res);
     return { res, json };
 }
 
 export async function apiGetRoleModules(token: string, role: string) {
-    const res = await fetch(
-        `${API_BASE}/get_role_modules.php?role=${encodeURIComponent(
+    // include token in query as well for compatibility
+    const url = buildUrl(
+        API_BASE,
+        `get_role_modules.php?role=${encodeURIComponent(
             role.toUpperCase()
-        )}`,
-        {
-            method: "GET",
-            headers: toAuthHeaders(token),
-        }
+        )}&token=${encodeURIComponent(token)}`
     );
 
-    const json = await safeJson<ApiResponse<null>>(res);
+    const res = await fetch(url, {
+        method: "GET",
+        credentials: "include",
+        headers: toAuthHeaders(token),
+    });
+
+    const { json } = await safeJson<ApiResponse<RoleModule[]>>(res);
     return { res, json };
 }
 
 /* ============================================================
    Geo endpoints (Counties / Constituencies / Wards / Stations)
+   These are typically public; we already include credentials via fetchWithTimeout.
    ============================================================ */
 
 export async function apiGetCounties() {
@@ -236,8 +393,8 @@ export async function apiGetCounties() {
     const cached = fromCache<any>(cacheKey);
     if (cached) return cached;
 
-    const res = await fetchWithTimeout(`${GEO_BASE}/get_counties.php`);
-    const json = await safeJson<any>(res);
+    const res = await fetchWithTimeout(buildUrl(GEO_BASE, "get_counties.php"));
+    const { json } = await safeJson<any>(res);
     if (json) cacheSet(cacheKey, json);
     return json;
 }
@@ -248,11 +405,12 @@ export async function apiGetConstituencies(countyCode: string) {
     if (cached) return cached;
 
     const res = await fetchWithTimeout(
-        `${GEO_BASE}/get_constituencies.php?county_code=${encodeURIComponent(
-            countyCode
-        )}`
+        buildUrl(
+            GEO_BASE,
+            `get_constituencies.php?county_code=${encodeURIComponent(countyCode)}`
+        )
     );
-    const json = await safeJson<any>(res);
+    const { json } = await safeJson<any>(res);
     if (json) cacheSet(cacheKey, json);
     return json;
 }
@@ -263,9 +421,9 @@ export async function apiGetWards(constCode: string) {
     if (cached) return cached;
 
     const res = await fetchWithTimeout(
-        `${GEO_BASE}/get_wards.php?const_code=${encodeURIComponent(constCode)}`
+        buildUrl(GEO_BASE, `get_wards.php?const_code=${encodeURIComponent(constCode)}`)
     );
-    const json = await safeJson<any>(res);
+    const { json } = await safeJson<any>(res);
     if (json) cacheSet(cacheKey, json);
     return json;
 }
@@ -276,11 +434,12 @@ export async function apiGetPollingStationsForWard(wardCode: string) {
     if (cached) return cached;
 
     const res = await fetchWithTimeout(
-        `${GEO_BASE}/get_polling_stations_for_roles.php?ward_code=${encodeURIComponent(
-            wardCode
-        )}`
+        buildUrl(
+            GEO_BASE,
+            `get_polling_stations_for_roles.php?ward_code=${encodeURIComponent(wardCode)}`
+        )
     );
-    const json = await safeJson<any>(res);
+    const { json } = await safeJson<any>(res);
     if (json) cacheSet(cacheKey, json);
     return json;
 }

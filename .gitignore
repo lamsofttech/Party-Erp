@@ -22,3 +22,18 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+# dependencies
+node_modules/
+
+# builds
+dist/
+build/
+
+# env secrets
+.env
+.env.*
+src/.env
+src/.env.*
+
+# editor
+.vscode/

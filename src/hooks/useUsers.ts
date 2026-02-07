@@ -10,11 +10,17 @@ interface Args {
 }
 
 type LoadOptions = {
-    silent?: boolean; // don’t toast on failure
+    silent?: boolean;
 };
 
-const isAuthExpired = (res: Response, data: any) =>
-    res.status === 401 || data?.message === "Invalid or expired token.";
+const isAuthExpired = (res: Response, json: any) =>
+    res.status === 401 || json?.message === "Invalid or expired token.";
+
+const debug = (...args: any[]) => {
+    // turn off easily if you want:
+    // return;
+    console.log("[useUsers]", ...args);
+};
 
 export const useUsers = ({ token, logout }: Args) => {
     const [users, setUsers] = useState<User[]>([]);
@@ -24,8 +30,54 @@ export const useUsers = ({ token, logout }: Args) => {
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [updatingRoleId, setUpdatingRoleId] = useState<string | null>(null);
 
-    // prevents state updates after unmount
     const aliveRef = useRef(true);
+
+    const fetchUsers = useCallback(
+        async (signal?: AbortSignal) => {
+            if (!token) {
+                debug("No token => not calling API");
+                return { ok: false, users: [] as User[], res: null as Response | null, json: null as any, raw: "" };
+            }
+
+            // Send token in BOTH places for PHP compatibility
+            const url = `${USERS_BASE}/users.php?token=${encodeURIComponent(token)}`;
+
+            debug("GET", url);
+
+            const res = await fetch(url, {
+                method: "GET",
+                signal,
+                credentials: "include",
+                cache: "no-store",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: "application/json",
+                },
+            });
+
+            const { json, raw } = await safeJson<any>(res);
+
+            debug("Response", {
+                url: res.url,
+                http: res.status,
+                ok: res.ok,
+                jsonStatus: json?.status,
+                hasUsersArray: Array.isArray(json?.data?.users),
+                rawPreview: raw?.slice(0, 200),
+            });
+
+            const list = json?.data?.users;
+
+            return {
+                ok: res.ok && json?.status === "success" && Array.isArray(list),
+                users: Array.isArray(list) ? (list as User[]) : ([] as User[]),
+                res,
+                json,
+                raw,
+            };
+        },
+        [token]
+    );
 
     const refetchUsers = useCallback(
         async (opts: LoadOptions = {}) => {
@@ -34,85 +86,81 @@ export const useUsers = ({ token, logout }: Args) => {
             if (!opts.silent) setLoadingUsers(true);
 
             try {
-                const res = await fetch(`${USERS_BASE}/users.php`, {
-                    method: "GET",
-                    headers: { Authorization: `Bearer ${token}` },
-                });
+                const out = await fetchUsers();
 
-                const data = await safeJson(res);
                 if (!aliveRef.current) return;
 
-                if (res.ok && data?.status === "success" && Array.isArray(data.data)) {
-                    setUsers(data.data);
+                if (out.ok) {
+                    setUsers(out.users);
                     return;
                 }
 
-                if (isAuthExpired(res, data)) {
+                if (out.res && isAuthExpired(out.res, out.json)) {
                     if (!opts.silent) toast.error("Session expired. Please log in again.");
                     logout();
                     return;
                 }
 
-                if (!opts.silent) toast.error(data?.message || "Failed to load users");
+                if (!opts.silent) {
+                    const msg =
+                        out.json?.message ||
+                        (out.res ? `Failed to load users (HTTP ${out.res.status})` : "Failed to load users");
+                    toast.error(msg);
+                }
             } catch (e: any) {
                 if (!aliveRef.current) return;
-                if (!opts.silent && e?.name !== "AbortError") {
-                    toast.error("Network error loading users");
-                }
+                if (!opts.silent && e?.name !== "AbortError") toast.error("Network error loading users");
             } finally {
                 if (aliveRef.current && !opts.silent) setLoadingUsers(false);
             }
         },
-        [token, logout]
+        [token, logout, fetchUsers]
     );
 
     useEffect(() => {
         aliveRef.current = true;
         const controller = new AbortController();
 
-        if (token) {
-            (async () => {
-                setLoadingUsers(true);
-                try {
-                    const res = await fetch(`${USERS_BASE}/users.php`, {
-                        method: "GET",
-                        signal: controller.signal,
-                        headers: { Authorization: `Bearer ${token}` },
-                    });
-
-                    const data = await safeJson(res);
-                    if (!aliveRef.current) return;
-
-                    if (res.ok && data?.status === "success" && Array.isArray(data.data)) {
-                        setUsers(data.data);
-                    } else {
-                        if (isAuthExpired(res, data)) {
-                            toast.error("Session expired. Please log in again.");
-                            logout();
-                        } else {
-                            toast.error(data?.message || "Failed to load users");
-                        }
-                    }
-                } catch (e: any) {
-                    if (!aliveRef.current) return;
-                    if (e?.name !== "AbortError") toast.error("Network error loading users");
-                } finally {
-                    if (aliveRef.current) setLoadingUsers(false);
-                }
-            })();
+        if (!token) {
+            debug("Mount: token missing => skipping initial load");
+            return () => {
+                aliveRef.current = false;
+                controller.abort();
+            };
         }
+
+        (async () => {
+            setLoadingUsers(true);
+            try {
+                const out = await fetchUsers(controller.signal);
+                if (!aliveRef.current) return;
+
+                if (out.ok) {
+                    setUsers(out.users);
+                    return;
+                }
+
+                if (out.res && isAuthExpired(out.res, out.json)) {
+                    toast.error("Session expired. Please log in again.");
+                    logout();
+                    return;
+                }
+
+                toast.error(out.json?.message || `Failed to load users (HTTP ${out.res?.status ?? "?"})`);
+            } catch (e: any) {
+                if (!aliveRef.current) return;
+                if (e?.name !== "AbortError") toast.error("Network error loading users");
+            } finally {
+                if (aliveRef.current) setLoadingUsers(false);
+            }
+        })();
 
         return () => {
             aliveRef.current = false;
             controller.abort();
         };
-    }, [token, logout]);
+    }, [token, logout, fetchUsers]);
 
-    /**
-     * ✅ NEW: CREATE USER
-     * Expects backend: POST `${USERS_BASE}/users.php` with JSON body
-     * Adjust field names here if your backend expects different keys.
-     */
     const createUser = useCallback(
         async (payload: AddUserFormData) => {
             if (!token) {
@@ -121,7 +169,6 @@ export const useUsers = ({ token, logout }: Args) => {
                 return null;
             }
 
-            // Basic frontend validation
             if (!payload?.email || !payload?.name || !payload?.role) {
                 toast.error("Email, Name and Role are required.");
                 return null;
@@ -129,41 +176,46 @@ export const useUsers = ({ token, logout }: Args) => {
 
             setCreatingUser(true);
             try {
-                const res = await fetch(`${USERS_BASE}/users.php`, {
+                const url = `${USERS_BASE}/users.php?token=${encodeURIComponent(token)}`;
+                debug("POST", url, payload);
+
+                const res = await fetch(url, {
                     method: "POST",
+                    credentials: "include",
+                    cache: "no-store",
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
+                        Accept: "application/json",
                     },
-                    body: JSON.stringify(payload),
+                    body: JSON.stringify({ ...payload, token }),
                 });
 
-                const data = await safeJson(res);
+                const { json } = await safeJson<any>(res);
                 if (!aliveRef.current) return null;
 
-                if (res.ok && data?.status === "success") {
+                if (res.ok && json?.status === "success") {
                     toast.success("User created successfully.");
 
-                    // If API returns created user, add optimistically
-                    // else refetch list.
-                    if (data?.data) {
-                        setUsers((prev) => [data.data, ...prev]);
+                    const created = json?.data ?? json?.user;
+                    if (created) {
+                        setUsers((prev) => [created, ...prev]);
                     } else {
                         await refetchUsers({ silent: true });
                     }
 
-                    return data;
+                    return json;
                 }
 
-                if (isAuthExpired(res, data)) {
+                if (isAuthExpired(res, json)) {
                     toast.error("Session expired. Please log in again.");
                     logout();
                     return null;
                 }
 
-                toast.error(data?.message || "Failed to create user.");
+                toast.error(json?.message || `Failed to create user (HTTP ${res.status})`);
                 return null;
-            } catch (e) {
+            } catch {
                 if (!aliveRef.current) return null;
                 toast.error("Failed to create user.");
                 return null;
@@ -184,28 +236,36 @@ export const useUsers = ({ token, logout }: Args) => {
 
             setDeletingId(id);
             try {
-                const res = await fetch(`${USERS_BASE}/users.php?id=${encodeURIComponent(id)}`, {
+                const url = `${USERS_BASE}/users.php?id=${encodeURIComponent(id)}&token=${encodeURIComponent(token)}`;
+                debug("DELETE", url);
+
+                const res = await fetch(url, {
                     method: "DELETE",
-                    headers: { Authorization: `Bearer ${token}` },
+                    credentials: "include",
+                    cache: "no-store",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        Accept: "application/json",
+                    },
                 });
 
-                const data = await safeJson(res);
+                const { json } = await safeJson<any>(res);
                 if (!aliveRef.current) return;
 
-                if (res.ok && data?.status === "success") {
-                    setUsers((prev) => prev.filter((u) => u.id !== id));
+                if (res.ok && json?.status === "success") {
+                    setUsers((prev) => prev.filter((u) => String(u.id) !== String(id)));
                     toast.success("User deleted successfully.");
                     return;
                 }
 
-                if (isAuthExpired(res, data)) {
+                if (isAuthExpired(res, json)) {
                     toast.error("Session expired. Please log in again.");
                     logout();
                     return;
                 }
 
-                toast.error(data?.message || "Failed to delete user.");
-            } catch (e) {
+                toast.error(json?.message || `Failed to delete user (HTTP ${res.status})`);
+            } catch {
                 if (!aliveRef.current) return;
                 toast.error("Failed to delete user.");
             } finally {
@@ -231,41 +291,46 @@ export const useUsers = ({ token, logout }: Args) => {
 
             setUpdatingRoleId(id);
 
-            // optimistic update
             const prevUsers = users;
-            setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, role: normalized } : u)));
+            setUsers((prev) =>
+                prev.map((u) => (String(u.id) === String(id) ? { ...u, role: normalized } : u))
+            );
 
             try {
-                const res = await fetch(`${USERS_BASE}/user_roles.php?id=${encodeURIComponent(id)}`, {
+                const url = `${USERS_BASE}/user_roles.php?id=${encodeURIComponent(id)}&token=${encodeURIComponent(token)}`;
+                debug("PUT", url, { role: normalized });
+
+                const res = await fetch(url, {
                     method: "PUT",
+                    credentials: "include",
+                    cache: "no-store",
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
+                        Accept: "application/json",
                     },
-                    body: JSON.stringify({ role: normalized }),
+                    body: JSON.stringify({ role: normalized, token }),
                 });
 
-                const data = await safeJson(res);
+                const { json } = await safeJson<any>(res);
                 if (!aliveRef.current) return;
 
-                if (res.ok && data?.status === "success") {
+                if (res.ok && json?.status === "success") {
                     toast.success("User role updated.");
                     return;
                 }
 
-                // rollback
                 setUsers(prevUsers);
 
-                if (isAuthExpired(res, data)) {
+                if (isAuthExpired(res, json)) {
                     toast.error("Session expired. Please log in again.");
                     logout();
                     return;
                 }
 
-                toast.error(data?.message || "Failed to update role.");
-            } catch (e) {
+                toast.error(json?.message || `Failed to update role (HTTP ${res.status})`);
+            } catch {
                 if (!aliveRef.current) return;
-                // rollback
                 setUsers(prevUsers);
                 toast.error("Failed to update role.");
             } finally {
@@ -280,11 +345,9 @@ export const useUsers = ({ token, logout }: Args) => {
         setUsers,
         loadingUsers,
 
-        // ✅ new for add-user flow
         creatingUser,
         createUser,
 
-        // existing
         refetchUsers,
         deleteUser,
         updateUserRole,

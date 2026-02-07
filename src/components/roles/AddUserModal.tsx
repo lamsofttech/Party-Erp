@@ -107,8 +107,11 @@ interface DiasporaCountry {
     iso_code?: string | null;
 }
 
-const API_BASE = "https://skizagroundsuite.com/API/api";
-const POSITIONS_ENDPOINT = `${API_BASE}/political_positions.php`;
+const API_BASE = "https://skizagroundsuite.com/API";
+const API_BASE_V2 = "https://skizagroundsuite.com/API/api";
+
+const POSITIONS_ENDPOINT = `${API_BASE_V2}/political_positions.php`;
+const DIASPORA_COUNTRIES_ENDPOINT = `${API_BASE}/get_diaspora_countries.php`;
 
 const DIASPORA_ROLES = ["DIASPORA_OFFICER", "DIASPORA_AGENT"] as const;
 
@@ -181,7 +184,6 @@ const AddUserModal: React.FC<Props> = (props) => {
     const [errPositions, setErrPositions] = useState<string | null>(null);
 
     const isSuperAdmin = (currentUserRole || "").toUpperCase() === "SUPER_ADMIN";
-    const roleUpper = (formData.role || "").toUpperCase();
 
     // Avoid re-creating handlers (stability helps with Suspense + strict mode)
     const handleChange: HandleChange = useCallback(
@@ -246,7 +248,6 @@ const AddUserModal: React.FC<Props> = (props) => {
                 const prevRoleUpper = (prev.role || "").toUpperCase();
                 const keepRole = DIASPORA_ROLES.includes(prevRoleUpper as any);
 
-                // if already clean, return prev (prevents unnecessary rerenders)
                 const next = {
                     ...prev,
                     county_id: "",
@@ -308,17 +309,30 @@ const AddUserModal: React.FC<Props> = (props) => {
                 setLoadingDiaspora(true);
                 setDiasporaError(null);
 
-                const res = await fetch("/API/get_diaspora_countries.php");
-                const data = await res.json();
+                const token = getToken();
+                const res = await fetch(DIASPORA_COUNTRIES_ENDPOINT, {
+                    method: "GET",
+                    credentials: "include",
+                    headers: {
+                        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                    },
+                });
 
-                if (!res.ok || data.success !== true) {
-                    throw new Error(data.message || "Failed to load countries");
+                const { json, text } = await readJsonOrText(res);
+
+                if (!json) {
+                    console.error("Diaspora countries returned non-JSON response:", text);
+                    throw new Error("Diaspora countries endpoint returned non-JSON response.");
+                }
+
+                if (!res.ok || json.success !== true) {
+                    throw new Error(json.message || `Failed to load countries (HTTP ${res.status})`);
                 }
 
                 if (cancelled) return;
 
                 setDiasporaCountries(
-                    (data.data || []).map((c: any) => ({
+                    (json.data || []).map((c: any) => ({
                         id: Number(c.id),
                         name: String(c.name),
                         iso_code: c.code ?? null,
@@ -370,7 +384,10 @@ const AddUserModal: React.FC<Props> = (props) => {
                 const token = getToken();
                 const res = await fetch(POSITIONS_ENDPOINT, {
                     method: "GET",
-                    headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+                    credentials: "include",
+                    headers: {
+                        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                    },
                 });
 
                 const { json, text } = await readJsonOrText(res);
@@ -383,7 +400,8 @@ const AddUserModal: React.FC<Props> = (props) => {
 
                 if (!res.ok || json.status !== "success" || !Array.isArray(json.data)) {
                     console.error("Positions endpoint returned error:", { http: res.status, json });
-                    if (!cancelled) setErrPositions(json.message || `Failed to load positions (HTTP ${res.status})`);
+                    if (!cancelled)
+                        setErrPositions(json.message || `Failed to load positions (HTTP ${res.status})`);
                     return;
                 }
 

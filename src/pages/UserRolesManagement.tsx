@@ -42,31 +42,32 @@ const UserRolesManagement: React.FC = () => {
     const { user: currentUser, token, logout } = useUser();
     const currentUserRole = String(currentUser?.role || "AGENT").toUpperCase();
 
-    const creatableRoles = useMemo(
-        () => getCreatableRoles(currentUserRole),
-        [currentUserRole]
-    );
+    const creatableRoles = useMemo(() => getCreatableRoles(currentUserRole), [currentUserRole]);
     const canCreateUsers = creatableRoles.length > 0;
 
-    // Always pass a string to hooks (some hooks don’t like null/undefined)
+    // Keep a safe string token for hooks that want string
     const safeToken = token ?? "";
 
+    /**
+     * ✅ FIX: Use the correct useUsers signature (object form)
+     * so we can create users (POST) instead of only refetching.
+     */
     const {
         users,
         loadingUsers,
+        creatingUser,
+        createUser,
         deletingId,
         updatingRoleId,
         deleteUser,
         updateUserRole,
         refetchUsers,
-    } = useUsers(safeToken);
+    } = useUsers({ token, logout });
 
-    const {
-        loadingRoleModules,
-        roleModules,
-        roleModulesError,
-        fetchRoleModules,
-    } = useRoleModules(safeToken, logout);
+    const { loadingRoleModules, roleModules, roleModulesError, fetchRoleModules } = useRoleModules(
+        safeToken,
+        logout
+    );
 
     const geo = useGeoHierarchy(true);
 
@@ -129,6 +130,20 @@ const UserRolesManagement: React.FC = () => {
         );
     }, []);
 
+    /**
+     * Minimal toast bridge:
+     * Replace this with your real toast (swirl-toast, etc.) later if you want.
+     * For now it ensures you actually SEE validation errors.
+     */
+    const showToast = useCallback(
+        (opts: { title: string; description?: string; intent?: "success" | "info" | "warning" | "critical" }) => {
+            const msg = `${opts.title}${opts.description ? `\n${opts.description}` : ""}`;
+            // quick visible feedback:
+            alert(msg);
+        },
+        []
+    );
+
     return (
         <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
             <motion.div
@@ -179,10 +194,28 @@ const UserRolesManagement: React.FC = () => {
             <AddUserModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                onSubmit={async () => {
-                    await refetchUsers();
+                /**
+                 * ✅ FIX: Actually create the user (POST) then refresh list
+                 */
+                onSubmit={async (form, region) => {
+                    // Normalize payload a bit to avoid backend confusion
+                    const payload: any = {
+                        ...form,
+                        positions: form.positions || [],
+                        can_transmit: !!form.can_transmit,
+                        ...(region === "DIASPORA"
+                            ? { county_id: "", constituency_id: "", ward_id: "", polling_station_id: "" }
+                            : { country_id: "" }),
+                    };
+
+                    const out = await (createUser as any)(payload);
+
+                    if (out) {
+                        setIsModalOpen(false);
+                        await (refetchUsers as any)();
+                    }
                 }}
-                creatingUser={false}
+                creatingUser={!!creatingUser}
                 canCreateUsers={canCreateUsers}
                 currentUserRole={currentUserRole}
                 formData={formData}
@@ -244,7 +277,7 @@ const UserRolesManagement: React.FC = () => {
                 errConstituencies={geo.errConstituencies}
                 errWards={geo.errWards}
                 errPollingStations={geo.errPollingStations}
-                showToast={() => { }}
+                showToast={showToast}
             />
 
             <ViewRolesModal
